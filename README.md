@@ -4,7 +4,19 @@ A persistent, evidence-backed robotic outpost sandbox. Survey → power → exca
 
 The hypothetical Arcadia site and operational quantities are scenario assumptions. NASA architectures inform the story; they are not approval or engineering certification. Observed USGS regional terrain is displayed separately from simulated local equipment and obstacles.
 
-## Run locally
+## Setup and run (Docker, recommended)
+
+- Start Docker Desktop and wait for its engine to be ready.
+- Open PowerShell in this repository: `cd C:\Users\crudo\OneDrive\Documents\GitHub\Meta_Hackathon`.
+- Build and start: `docker compose up --build -d api worker`.
+- Open **http://127.0.0.1:8020**. Select **Create an experiment**, then **Run one sol** to see work progress without waiting for the public mission's hourly tick.
+- Inspect services: `docker compose ps`. Follow activity: `docker compose logs -f worker api`.
+- Run PostgreSQL tests: `docker compose --profile test run --build --rm tests`.
+- Stop while retaining mission data: `docker compose down`. Start again: `docker compose up -d api worker`. The named database volume persists across restarts.
+
+The local stack starts with the labeled fixed-priority scheduler and needs no model key. Live Meta planning was separately verified; paid inference is an explicit operator configuration, not enabled by these setup steps.
+
+## Run without Docker
 
 Frontend: `cd council-dashboard/frontend`, `npm ci`, `npm run build`.
 

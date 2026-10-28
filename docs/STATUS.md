@@ -4,9 +4,15 @@ Implemented: deterministic connected mission; separate resource/cost accounting;
 
 Live acceptance reached readiness in the isolated test database: 20 ticks, 125 kg water, $65,000 scenario operating expenditure. Actual recorded provider usage including debugging: $0.32516625. Three rejected diagnostic requests retain $0.217287 in conservative reservations pending reconciliation. See `live-acceptance.json`. This is an acceptance result, not a controlled performance comparison.
 
+Local verification after interruption:
+
+- Git integrity and whitespace checks passed; no interrupted-write corruption found.
+- All 16 acceptance tests passed on SQLite and on isolated PostgreSQL schemas. Container frontend compilation and TypeScript checks passed.
+- A live local HTTP experiment survived API/worker restart at tick 5 and completed at tick 21 with 125 kg water, $65,000 scenario expenditure and six unique decisions. Public state stayed unchanged. See `stack-verification.json`.
+- Docker Desktop, PostgreSQL, API and worker are running locally at http://127.0.0.1:8020. No remote repository push or deployment was performed.
+
 Outstanding release gates:
 
-- Run the transactional suite against PostgreSQL; local database verification used SQLite because Docker was unavailable.
 - Provision and validate Render within the infrastructure allowance; no hosted release exists yet.
 - Run controlled live-agent benchmarks for every fault scenario against the same initial states and accounting conventions. Baseline fault tests exist; autonomous superiority is unproven.
 - Complete document-level scientific extraction and page-specific engineering requirements. Current ingestion pins catalog HTTP responses; all operational quantities remain explicit scenario assumptions.

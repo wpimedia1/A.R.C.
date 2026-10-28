@@ -2,7 +2,7 @@
 
 ## Before Render provisioning
 
-`render.yaml` is a deployment draft, not evidence of a hosted release. No Render connection, API credential, Git remote, or running Docker daemon was available during this implementation. Confirm account access, selected plan availability and the current displayed price before provisioning. Enforce the $35/month infrastructure allocation, including database storage, backups and any workspace charges. Model allocations remain $40 public + $15 experiments, with $10 reserve. No plan is represented as guaranteed capacity.
+`render.yaml` is a deployment draft, not evidence of a hosted release. The user has explicitly deferred GitHub and hosting until local testing is satisfactory. Docker Desktop is running for local PostgreSQL validation; no external deployment has been attempted. Before any later provisioning, confirm account access, selected plan availability and the current displayed price. Enforce the $35/month infrastructure allocation, including database storage, backups and any workspace charges. Model allocations remain $40 public + $15 experiments, with $10 reserve. No plan is represented as guaranteed capacity.
 
 Serve the compiled frontend from the API for one origin. Set PUBLIC_ORIGIN to the exact HTTPS origin and COOKIE_SECURE=true. Store MODEL_API_KEY only on the worker. Use managed PostgreSQL and enable provider backups; perform a restore drill before a public launch. Database initialization is serialized with PostgreSQL advisory locks. Schema changes after release require reviewed migrations rather than silently changing ongoing specifications.
 

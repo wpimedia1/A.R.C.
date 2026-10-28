@@ -1,0 +1,12 @@
+{
+  "public_revision_preserved": 3,
+  "public_hash": "97464c8c87d970d0c4a3aee6e139ddf1f2d1f0bfb6f757ad6e8a29c223570bd8",
+  "experiment_id": "f88be113-8a3c-44c1-a55e-6baed8450b66",
+  "tick_at_worker_restart": 5,
+  "final_tick": 21,
+  "water_kg": 125.0,
+  "spent_usd": 65000.0,
+  "unique_decisions": 6,
+  "restart_recovered": true,
+  "public_unchanged": true
+}

@@ -51,10 +51,12 @@ def decision(s, j, rationale, actor, source_ids):
     s['decisions'].append(d)
     return d['id']
 
-def start(s, jid, rationale='Scheduled by the documented fixed-priority baseline.', actor='fixed-priority', source_ids=None):
+def start(s, jid, rationale=None, actor='fixed-priority', source_ids=None):
     j=job_by_id(s,jid)
     errors=reasons(s,j)
     if errors: raise InvalidAction('; '.join(errors))
+    if rationale is None:
+        rationale=f"{j['title']} is next in the fixed-priority schedule. Prerequisites passed; reserving {j['power_kw']} kW and ${j['cost']:,} of scenario spending authority."
     source_ids=source_ids or ['scenario-v1']
     reverse_pins={v:k for k,v in s.get('source_pins',{}).items()}
     source_ids=[reverse_pins.get(key,key) for key in source_ids]
@@ -133,16 +135,17 @@ def modify(state, changes):
     s=deepcopy(state)
     if set(changes)-{'priority','water_yield','budget_usd','fault'}: raise InvalidAction('Unsupported scenario change')
     if 'priority' in changes:
+        if not isinstance(changes['priority'],list) or any(not isinstance(v,str) for v in changes['priority']): raise InvalidAction('Priority must be a list of job IDs')
         if sorted(changes['priority'])!=sorted(s['priority']): raise InvalidAction('Priority must contain every job exactly once')
         s['priority']=changes['priority']
     if 'water_yield' in changes:
         if job_by_id(s,'water')['status'] not in ('pending','blocked'): raise InvalidAction('Water processing has already started')
         v=changes['water_yield']
-        if not isinstance(v,(int,float)) or not .1<=v<=.5: raise InvalidAction('Water yield must be between 0.1 and 0.5')
+        if isinstance(v,bool) or not isinstance(v,(int,float)) or not .1<=v<=.5: raise InvalidAction('Water yield must be between 0.1 and 0.5')
         s['water_yield']=v
     if 'budget_usd' in changes:
         v=changes['budget_usd']
-        if not isinstance(v,(int,float)) or not s['spent_usd']+s['committed_usd']<=v<=1000000: raise InvalidAction('Budget cannot be below existing commitments or exceed $1M')
+        if isinstance(v,bool) or not isinstance(v,(int,float)) or not s['spent_usd']+s['committed_usd']<=v<=1000000: raise InvalidAction('Budget cannot be below existing commitments or exceed $1M')
         s['budget_usd']=v
     if 'fault' in changes:
         fault=changes['fault']

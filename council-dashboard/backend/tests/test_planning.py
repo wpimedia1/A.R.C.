@@ -6,10 +6,11 @@ from mission.store import Store, InferenceReceipt
 from mission.planner import plan_once, reserve, execute_tool
 from mission.engine import new_state, InvalidAction
 from mission.evidence import refresh, adopt_latest
+from conftest import make_store
 
 @pytest.fixture
-def store(tmp_path):
-    s=Store('sqlite:///'+str(tmp_path/'test.db'));s.initialize();return s
+def store(tmp_path,request):
+    s=make_store(tmp_path,request);s.initialize();return s
 
 def enable(store):
     with store.transaction() as db:

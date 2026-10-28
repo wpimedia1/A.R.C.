@@ -4,6 +4,7 @@ import pytest
 from mission.engine import new_state, advance, start, modify, InvalidAction
 from mission.spec import digest
 from mission.store import Store
+from conftest import make_store
 
 def run(s,n=72):
     for _ in range(n): s=advance(s)
@@ -48,8 +49,8 @@ def test_low_yield_cannot_claim_readiness():
     assert s['resources']['water_kg']==50
 
 @pytest.fixture
-def store(tmp_path):
-    s=Store('sqlite:///'+str(tmp_path/'mission.db')); s.initialize(); return s
+def store(tmp_path,request):
+    s=make_store(tmp_path,request);s.initialize();return s
 
 def test_fork_isolation_ownership_and_limits(store):
     public=store.snapshot('public')
@@ -65,7 +66,7 @@ def test_fork_isolation_ownership_and_limits(store):
 def test_concurrent_ticks_and_restart(store):
     with ThreadPoolExecutor(max_workers=4) as pool: list(pool.map(lambda _:store.tick(),range(4)))
     assert store.snapshot('public')['state']['tick']==1
-    restarted=Store(str(store.engine.url))
+    restarted=Store(store.engine.url.render_as_string(hide_password=False))
     assert restarted.snapshot('public')==store.snapshot('public')
     exported=store.export('public')
     before=exported['history'][0]['state']; after=exported['history'][1]['state']
@@ -78,3 +79,16 @@ def test_concurrent_forks(store):
         except InvalidAction: return None
     with ThreadPoolExecutor(max_workers=4) as pool: results=list(pool.map(attempt,range(4)))
     assert len([x for x in results if x])==1
+
+def test_completed_fork_releases_queue_and_active_slot(store):
+    fork=store.fork(1,'alice')
+    store.control(fork['id'],'alice',fork['revision'],'run',ticks=24)
+    for _ in range(30):store.tick()
+    completed=store.snapshot(fork['id'],'alice')
+    assert completed['state']['status']=='complete'
+    assert completed['queued_ticks']==0
+    assert store.fork(1,'alice')['id']!=fork['id']
+
+def test_bad_parameter_types_rejected():
+    for changes in ({'priority':'survey'},{'budget_usd':True},{'water_yield':float('nan')},{'resources':{'water_kg':999}}):
+        with pytest.raises(InvalidAction):modify(new_state(),changes)

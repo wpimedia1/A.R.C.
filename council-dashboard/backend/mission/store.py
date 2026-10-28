@@ -136,7 +136,8 @@ class Store:
                 from sqlalchemy.dialects.postgresql import insert
                 db.execute(insert(Owner).values(id=owner).on_conflict_do_nothing())
             db.scalar(select(Owner).where(Owner.id==owner).with_for_update())
-            active = db.scalar(select(Mission).where(Mission.owner==owner, Mission.expires>time.time()))
+            owned = db.scalars(select(Mission).where(Mission.owner==owner, Mission.expires>time.time())).all()
+            active = next((m for m in owned if m.state['status']!='complete'),None)
             if active: raise InvalidAction('One experiment per visitor; use your existing experiment '+active.id)
             original = db.scalar(select(Revision).where(Revision.mission_id=='public', Revision.revision==revision))
             if not original: raise InvalidAction('Unknown public revision')
@@ -145,7 +146,7 @@ class Store:
             state['status'] = 'paused' if state['status'] != 'complete' else 'complete'
             mid = str(uuid.uuid4())
             m = Mission(id=mid, owner=owner, state=state, revision=0, pending_ticks=0, used_ticks=0,
-                        next_tick=0, expires=time.time()+7*86400, parent={'id':'public','revision':revision,'hash':original.hash})
+                        next_tick=0, expires=time.time()+7*86400, parent={'id':'public','revision':revision,'hash':original.hash,'water_kg':original.state['resources']['water_kg'],'spent_usd':original.state['spent_usd'],'tick':original.state['tick']})
             db.add(m)
             self.save(db,m,state,{'kind':'fork','parent':m.parent})
             return self.payload(m)
@@ -184,6 +185,7 @@ class Store:
                 s=advance(m.state)
                 if m.owner:
                     m.pending_ticks-=1; m.used_ticks+=1
+                    if s['status']=='complete': m.pending_ticks=0
                     if m.pending_ticks==0 and s['status']=='active': s['status']='paused'
                 else: m.next_tick=max(m.next_tick,now)+3600
                 self.save(db,m,s,{'kind':'tick'})

@@ -2,10 +2,11 @@ import asyncio
 import httpx
 from mission.api import create_app
 from mission.store import Store
+from conftest import make_store
 
-def test_api_permissions_revision_and_cookie(tmp_path,monkeypatch):
+def test_api_permissions_revision_and_cookie(tmp_path,monkeypatch,request):
     monkeypatch.setenv('COOKIE_SECURE','false')
-    store=Store('sqlite:///'+str(tmp_path/'api.db'));app=create_app(store)
+    store=make_store(tmp_path,request);app=create_app(store)
     async def exercise():
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
             p=(await client.get('/api/v1/missions/public')).json()

@@ -20,3 +20,12 @@ RUN useradd --create-home mission && chown -R mission:mission /app
 USER mission
 EXPOSE 8000
 CMD ["sh", "-c", "uvicorn mission.api:app --host 0.0.0.0 --port ${PORT:-8000}"]
+
+FROM runtime AS test
+USER root
+RUN pip install --no-cache-dir 'pytest>=8,<9'
+COPY council-dashboard/backend/tests ./tests
+USER mission
+CMD ["python", "-m", "pytest", "tests/test_mission.py", "tests/test_planning.py", "tests/test_api.py", "-q"]
+
+FROM runtime AS production
