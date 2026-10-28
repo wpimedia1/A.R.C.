@@ -1,0 +1,14 @@
+.git/
+**/node_modules/
+**/.next/
+**/out/
+**/.venv/
+**/__pycache__/
+**/.env
+**/.env.local
+**/*.log
+**/data/
+**/artifacts/
+*.png
+*.pdf
+!docs/sources/*.json
