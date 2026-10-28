@@ -1,0 +1,1248 @@
+{
+  "status": "complete",
+  "planning_status": "Validated agent work orders recorded",
+  "ticks": 20,
+  "water_kg": 125.0,
+  "spent_usd": 65000.0,
+  "actual_inference_usd": 0.32516625000000005,
+  "unreconciled_reservations_usd": 0.21728699999999998,
+  "state_hash": "2894d3ce481b19da8dabe951992f8a5188987791675a76bccc32008a17421c50",
+  "decisions": [
+    {
+      "id": "D1",
+      "tick": 0,
+      "job_id": "survey",
+      "actor": "survey / muse-spark-1.3",
+      "summary": "Survey landing zone per scenario-v1 at [-5,0,4]: 2kW, 8kWh, 2 ticks, $3k. No dependencies, budget and energy available.",
+      "source_ids": [
+        "scenario-v1"
+      ],
+      "source_versions": {
+        "scenario-v1": "scenario-v1:02483a23577d8162"
+      },
+      "spec_hash": "02483a23577d816252bca2c3d1d2b7b446747739f012f85086a73808b54c40b5",
+      "input_snapshot": {
+        "resources": {
+          "energy_kwh": 600.0,
+          "materials_kg": 200.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 0.0,
+          "water_kg": 0.0,
+          "spares": 3.0
+        },
+        "power_kw": 4.0,
+        "spent_usd": 0.0,
+        "committed_usd": 0.0
+      },
+      "calculation": {
+        "required_inputs": {
+          "energy_kwh": 8
+        },
+        "power_kw": 2,
+        "cost_usd": 3000,
+        "duration_ticks": 2
+      },
+      "validation": "accepted",
+      "outcome": {
+        "completed_tick": 2,
+        "resources": {
+          "energy_kwh": 600.21993,
+          "materials_kg": 200.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 0.0,
+          "water_kg": 0.0,
+          "spares": 3.0
+        },
+        "spent_usd": 3000.0
+      }
+    },
+    {
+      "id": "D2",
+      "tick": 2,
+      "job_id": "power",
+      "actor": "power / muse-spark-1.3",
+      "summary": "Commission power unit at [6,0,-4] per scenario-v1: 3kW, 12kWh, 30kg materials. Survey complete, energy/materials and budget verified.",
+      "source_ids": [
+        "scenario-v1"
+      ],
+      "source_versions": {
+        "scenario-v1": "scenario-v1:02483a23577d8162"
+      },
+      "spec_hash": "02483a23577d816252bca2c3d1d2b7b446747739f012f85086a73808b54c40b5",
+      "input_snapshot": {
+        "resources": {
+          "energy_kwh": 600.21993,
+          "materials_kg": 200.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 0.0,
+          "water_kg": 0.0,
+          "spares": 3.0
+        },
+        "power_kw": 4.0,
+        "spent_usd": 3000.0,
+        "committed_usd": 0.0
+      },
+      "calculation": {
+        "required_inputs": {
+          "energy_kwh": 12,
+          "materials_kg": 30
+        },
+        "power_kw": 3,
+        "cost_usd": 15000,
+        "duration_ticks": 3
+      },
+      "validation": "accepted",
+      "outcome": {
+        "completed_tick": 5,
+        "resources": {
+          "energy_kwh": 600.549825,
+          "materials_kg": 170.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 0.0,
+          "water_kg": 0.0,
+          "spares": 3.0
+        },
+        "spent_usd": 18000.0
+      }
+    },
+    {
+      "id": "D3",
+      "tick": 5,
+      "job_id": "excavate",
+      "actor": "resources / muse-spark-1.3",
+      "summary": "Excavate resource test site per scenario-v1: 50 kWh, 10 kW, 4 ticks to produce 500kg feedstock and 300kg regolith. Power dependency complete, energy and budget available.",
+      "source_ids": [
+        "scenario-v1"
+      ],
+      "source_versions": {
+        "scenario-v1": "scenario-v1:02483a23577d8162"
+      },
+      "spec_hash": "02483a23577d816252bca2c3d1d2b7b446747739f012f85086a73808b54c40b5",
+      "input_snapshot": {
+        "resources": {
+          "energy_kwh": 600.549825,
+          "materials_kg": 170.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 0.0,
+          "water_kg": 0.0,
+          "spares": 3.0
+        },
+        "power_kw": 18.0,
+        "spent_usd": 18000.0,
+        "committed_usd": 0.0
+      },
+      "calculation": {
+        "required_inputs": {
+          "energy_kwh": 50
+        },
+        "power_kw": 10,
+        "cost_usd": 12000,
+        "duration_ticks": 4
+      },
+      "validation": "accepted",
+      "outcome": {
+        "completed_tick": 9,
+        "resources": {
+          "energy_kwh": 624.529196,
+          "materials_kg": 170.0,
+          "feedstock_kg": 500.0,
+          "regolith_kg": 300.0,
+          "water_kg": 0.0,
+          "spares": 3.0
+        },
+        "spent_usd": 30000.0
+      }
+    },
+    {
+      "id": "D4",
+      "tick": 9,
+      "job_id": "water",
+      "actor": "resources / muse-spark-1.3",
+      "summary": "Submit water: build water reserve with processor at scenario-v1 values, 55 kWh, 500 kg feedstock, 12 kW, 4 ticks.",
+      "source_ids": [
+        "scenario-v1"
+      ],
+      "source_versions": {
+        "scenario-v1": "scenario-v1:02483a23577d8162"
+      },
+      "spec_hash": "02483a23577d816252bca2c3d1d2b7b446747739f012f85086a73808b54c40b5",
+      "input_snapshot": {
+        "resources": {
+          "energy_kwh": 624.529196,
+          "materials_kg": 170.0,
+          "feedstock_kg": 500.0,
+          "regolith_kg": 300.0,
+          "water_kg": 0.0,
+          "spares": 3.0
+        },
+        "power_kw": 18.0,
+        "spent_usd": 30000.0,
+        "committed_usd": 0.0
+      },
+      "calculation": {
+        "required_inputs": {
+          "energy_kwh": 55,
+          "feedstock_kg": 500
+        },
+        "power_kw": 12,
+        "cost_usd": 9000,
+        "duration_ticks": 4
+      },
+      "validation": "accepted",
+      "outcome": {
+        "completed_tick": 13,
+        "resources": {
+          "energy_kwh": 643.508566,
+          "materials_kg": 170.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 300.0,
+          "water_kg": 125.0,
+          "spares": 3.0
+        },
+        "spent_usd": 39000.0
+      }
+    },
+    {
+      "id": "D5",
+      "tick": 13,
+      "job_id": "habitat",
+      "actor": "construction / muse-spark-1.3",
+      "summary": "Construction lead submits habitat build per scenario-v1 engineering values: 80 kWh, 100 kg materials, 200 kg regolith at [0,0,0].",
+      "source_ids": [
+        "scenario-v1"
+      ],
+      "source_versions": {
+        "scenario-v1": "scenario-v1:02483a23577d8162"
+      },
+      "spec_hash": "02483a23577d816252bca2c3d1d2b7b446747739f012f85086a73808b54c40b5",
+      "input_snapshot": {
+        "resources": {
+          "energy_kwh": 643.508566,
+          "materials_kg": 170.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 300.0,
+          "water_kg": 125.0,
+          "spares": 3.0
+        },
+        "power_kw": 18.0,
+        "spent_usd": 39000.0,
+        "committed_usd": 0.0
+      },
+      "calculation": {
+        "required_inputs": {
+          "energy_kwh": 80,
+          "regolith_kg": 200,
+          "materials_kg": 100
+        },
+        "power_kw": 12,
+        "cost_usd": 25000,
+        "duration_ticks": 6
+      },
+      "validation": "accepted",
+      "outcome": {
+        "completed_tick": 19,
+        "resources": {
+          "energy_kwh": 674.477621,
+          "materials_kg": 70.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 100.0,
+          "water_kg": 125.0,
+          "spares": 3.0
+        },
+        "spent_usd": 64000.0
+      }
+    },
+    {
+      "id": "D6",
+      "tick": 19,
+      "job_id": "verify",
+      "actor": "logistics / muse-spark-1.3",
+      "summary": "Submit verify: rover readiness check at [0,0,3], 1kW 1 tick, 2kWh per scenario-v1. Dependencies water and habitat complete.",
+      "source_ids": [
+        "scenario-v1"
+      ],
+      "source_versions": {
+        "scenario-v1": "scenario-v1:02483a23577d8162"
+      },
+      "spec_hash": "02483a23577d816252bca2c3d1d2b7b446747739f012f85086a73808b54c40b5",
+      "input_snapshot": {
+        "resources": {
+          "energy_kwh": 674.477621,
+          "materials_kg": 70.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 100.0,
+          "water_kg": 125.0,
+          "spares": 3.0
+        },
+        "power_kw": 18.0,
+        "spent_usd": 64000.0,
+        "committed_usd": 0.0
+      },
+      "calculation": {
+        "required_inputs": {
+          "energy_kwh": 2
+        },
+        "power_kw": 1,
+        "cost_usd": 1000,
+        "duration_ticks": 1
+      },
+      "validation": "accepted",
+      "outcome": {
+        "completed_tick": 20,
+        "resources": {
+          "energy_kwh": 690.972464,
+          "materials_kg": 70.0,
+          "feedstock_kg": 0.0,
+          "regolith_kg": 100.0,
+          "water_kg": 125.0,
+          "spares": 3.0
+        },
+        "spent_usd": 65000.0
+      }
+    }
+  ],
+  "inference_receipts": [
+    {
+      "id": "06190c4c-4134-494a-8537-bc2a70dcb033:director",
+      "status": "uncertain; reservation retained; no automatic retry",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.072429,
+      "created_at": 1793178994.7490804,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "46e06efd797e332341f8f556f52cddccd5476e39a8075680d055a9b9f8bb33b8"
+    },
+    {
+      "id": "4c468cb4-3566-4632-9adf-054f24863b12:director",
+      "status": "uncertain; reservation retained; no automatic retry",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.072429,
+      "created_at": 1793179071.4154117,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "46e06efd797e332341f8f556f52cddccd5476e39a8075680d055a9b9f8bb33b8",
+      "http_status": 400,
+      "provider_error_code": "None"
+    },
+    {
+      "id": "eb0f1361-b586-4439-9ac0-8f77e4ddb6a0:director",
+      "status": "uncertain; reservation retained; no automatic retry",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.072429,
+      "created_at": 1793179111.189024,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "46e06efd797e332341f8f556f52cddccd5476e39a8075680d055a9b9f8bb33b8",
+      "http_status": 400,
+      "provider_error_code": "None",
+      "provider_error_message": "only `\"auto\"` is supported for `tool_choice`. `\"none\"`, `\"required\"`, and named function choices are not currently supported"
+    },
+    {
+      "id": "ae094819-342e-462e-bc75-455c9dbd869e:director",
+      "status": "received",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.072413,
+      "created_at": 1793179130.919082,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "28e61a3282a7d1321a3914deb8e64b9d6016a690d755e475880a461992891ea6",
+      "actual_usd": 0.019272,
+      "usage": {
+        "input_tokens": 1348,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 694,
+        "output_tokens_details": {
+          "reasoning_tokens": 497
+        },
+        "total_tokens": 2042
+      },
+      "response_id": "resp_6ae1bdfe35d2dcd3b4a4466c",
+      "tool_calls": [
+        {
+          "name": "set_mission_plan",
+          "arguments": {
+            "priority": [
+              "survey",
+              "power",
+              "excavate",
+              "water",
+              "habitat",
+              "verify",
+              "maintenance"
+            ],
+            "summary": "Feasible sequence respecting all dependencies: survey, then power, then excavation to produce feedstock/regolith, then water and habitat in parallel-ready order, then readiness verification. Dormant maintenance is last. Total job cost $67,000 is within the $250,000 budget, and staged energy, materials, feedstock, regolith, and spares inputs are covered by initial stocks plus excavation outputs."
+          },
+          "call_id": "call_536d9b6e-fd12-44f9-832e-26407ce28e05"
+        }
+      ]
+    },
+    {
+      "id": "ae094819-342e-462e-bc75-455c9dbd869e:survey:0",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.019834,
+      "created_at": 1793179134.8893526,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "027bdc24996861753a24d97ba511fa0b9e4ae7de353fccc4d886d781d1dd1fbe",
+      "actual_usd": 0.0028295,
+      "usage": {
+        "input_tokens": 1655,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 122
+        },
+        "total_tokens": 1834
+      },
+      "response_id": "resp_6ae1be00444ddd4fcf0b4760",
+      "tool_calls": [
+        {
+          "name": "inspect_state",
+          "arguments": {},
+          "call_id": "call_d4d84879-3d3d-4bf4-8daa-02446281be75"
+        }
+      ]
+    },
+    {
+      "id": "ae094819-342e-462e-bc75-455c9dbd869e:survey:1",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.023668,
+      "created_at": 1793179137.1387312,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "5ab6a65703fbf66badb22962791f0dbededab184be5db0120fe7e97e429a1d8d",
+      "actual_usd": 0.00412475,
+      "usage": {
+        "input_tokens": 2443,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 252,
+        "output_tokens_details": {
+          "reasoning_tokens": 131
+        },
+        "total_tokens": 2695
+      },
+      "response_id": "resp_6ae1be026e470b523d9a4d29",
+      "tool_calls": [
+        {
+          "name": "estimate_job",
+          "arguments": {
+            "job_id": "survey"
+          },
+          "call_id": "call_f67dce46-18c6-4e20-9223-a944369e1ebb"
+        },
+        {
+          "name": "calculate_route",
+          "arguments": {
+            "job_id": "survey"
+          },
+          "call_id": "call_7b43a60e-3969-4db6-89d2-b045e4e720e2"
+        }
+      ]
+    },
+    {
+      "id": "ae094819-342e-462e-bc75-455c9dbd869e:survey:2",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.02452,
+      "created_at": 1793179138.9728036,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "f303a9b83c4201dd951017574ba7f8dd371e409c698e5748994837b62696682a",
+      "actual_usd": 0.005339,
+      "usage": {
+        "input_tokens": 2595,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 493,
+        "output_tokens_details": {
+          "reasoning_tokens": 346
+        },
+        "total_tokens": 3088
+      },
+      "response_id": "resp_6ae1be05ccc08b914a18474b",
+      "tool_calls": [
+        {
+          "name": "submit_work_order",
+          "arguments": {
+            "job_id": "survey",
+            "source_ids": [
+              "scenario-v1:02483a23577d8162"
+            ],
+            "summary": "Submit survey to map landing zone. Engineering per scenario-v1: 2kW, 8kWh, 2 ticks, route ~5.1m scenario assumption."
+          },
+          "call_id": "call_54a1d68a-0445-4c5d-86db-e1660c9fbac2"
+        }
+      ]
+    },
+    {
+      "id": "d14aac1b-b718-40ff-ab52-54649e2468e6:director",
+      "status": "received",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.072413,
+      "created_at": 1793179206.7891765,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "28e61a3282a7d1321a3914deb8e64b9d6016a690d755e475880a461992891ea6",
+      "actual_usd": 0.026492,
+      "usage": {
+        "input_tokens": 1348,
+        "input_tokens_details": {
+          "cached_tokens": 1268
+        },
+        "output_tokens": 1055,
+        "output_tokens_details": {
+          "reasoning_tokens": 895
+        },
+        "total_tokens": 2403
+      },
+      "response_id": "resp_6ae1be4cdea5dc4412454795",
+      "tool_calls": [
+        {
+          "name": "set_mission_plan",
+          "arguments": {
+            "priority": [
+              "survey",
+              "power",
+              "excavate",
+              "water",
+              "habitat",
+              "verify",
+              "maintenance"
+            ],
+            "summary": "Prioritized feasible dependency chain within budget/resources: survey first, then power, excavation to supply feedstock/regolith, then water and habitat, verify once both complete, dormant maintenance last."
+          },
+          "call_id": "call_8d5c80df-aa50-43c2-961c-f804071567b2"
+        }
+      ]
+    },
+    {
+      "id": "d14aac1b-b718-40ff-ab52-54649e2468e6:survey:0",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.019834,
+      "created_at": 1793179213.0206707,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "027bdc24996861753a24d97ba511fa0b9e4ae7de353fccc4d886d781d1dd1fbe",
+      "actual_usd": 0.0033565,
+      "usage": {
+        "input_tokens": 1655,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 303,
+        "output_tokens_details": {
+          "reasoning_tokens": 195
+        },
+        "total_tokens": 1958
+      },
+      "response_id": "resp_6ae1be4e6a4898005c4b4160",
+      "tool_calls": [
+        {
+          "name": "inspect_state",
+          "arguments": {},
+          "call_id": "call_f6ad923c-f02b-4570-a5d9-d752de45badd"
+        },
+        {
+          "name": "estimate_job",
+          "arguments": {
+            "job_id": "survey"
+          },
+          "call_id": "call_022cbfc1-2366-4f9a-b4ac-d202470e2db9"
+        }
+      ]
+    },
+    {
+      "id": "d14aac1b-b718-40ff-ab52-54649e2468e6:survey:1",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.024189,
+      "created_at": 1793179215.1560478,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "cf44ed596e755ba68bba26a5ea6c7e3109d6175b037be2d28db7ea9ebcae4c60",
+      "actual_usd": 0.00543575,
+      "usage": {
+        "input_tokens": 2533,
+        "input_tokens_details": {
+          "cached_tokens": 2417
+        },
+        "output_tokens": 534,
+        "output_tokens_details": {
+          "reasoning_tokens": 380
+        },
+        "total_tokens": 3067
+      },
+      "response_id": "resp_6ae1be503e8aca2ef7b440fc",
+      "tool_calls": [
+        {
+          "name": "inspect_state",
+          "arguments": {},
+          "call_id": "call_13bd6e0c-a254-400e-96a3-aec61ff88b33"
+        },
+        {
+          "name": "estimate_job",
+          "arguments": {
+            "job_id": "survey"
+          },
+          "call_id": "call_211cc5a3-7775-4bdc-8d54-d1307c7ed49c"
+        },
+        {
+          "name": "calculate_route",
+          "arguments": {
+            "job_id": "survey"
+          },
+          "call_id": "call_fc9eb43f-3978-41cd-b11f-3288ddda07e1"
+        }
+      ]
+    },
+    {
+      "id": "d14aac1b-b718-40ff-ab52-54649e2468e6:survey:2",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.028876,
+      "created_at": 1793179217.4232914,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "44296d2d715d42641ad09638c062a3b7a8c076058a3316d02faf8193b544e6fe",
+      "actual_usd": 0.00639825,
+      "usage": {
+        "input_tokens": 3473,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 484,
+        "output_tokens_details": {
+          "reasoning_tokens": 428
+        },
+        "total_tokens": 3957
+      },
+      "response_id": "resp_6ae1be5347ae3213c7154fcc",
+      "tool_calls": [
+        {
+          "name": "inspect_state",
+          "arguments": {},
+          "call_id": "call_cffcede6-fb0b-4fdc-9412-deef43644112"
+        }
+      ]
+    },
+    {
+      "id": "d14aac1b-b718-40ff-ab52-54649e2468e6:survey:3",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.032711,
+      "created_at": 1793179220.3862915,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "61186442072567c77fd0c35a22a94c2597ce7be010d9d35168c52452ded6dc19",
+      "actual_usd": 0.00743425,
+      "usage": {
+        "input_tokens": 4261,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 496,
+        "output_tokens_details": {
+          "reasoning_tokens": 442
+        },
+        "total_tokens": 4757
+      },
+      "response_id": "resp_6ae1be568fa86fa3437f4471",
+      "tool_calls": [
+        {
+          "name": "inspect_state",
+          "arguments": {},
+          "call_id": "call_8a9b0acb-87c8-4e9d-b355-a42f8461a0fe"
+        }
+      ]
+    },
+    {
+      "id": "2c980026-cb46-42d1-894e-00d4a41c43bd:director",
+      "status": "received",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.072413,
+      "created_at": 1793179342.0640445,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "28e61a3282a7d1321a3914deb8e64b9d6016a690d755e475880a461992891ea6",
+      "actual_usd": 0.033252,
+      "usage": {
+        "input_tokens": 1348,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1393,
+        "output_tokens_details": {
+          "reasoning_tokens": 1232
+        },
+        "total_tokens": 2741
+      },
+      "response_id": "resp_6ae1bed777c3c4286c114bc8",
+      "tool_calls": [
+        {
+          "name": "set_mission_plan",
+          "arguments": {
+            "priority": [
+              "survey",
+              "power",
+              "excavate",
+              "water",
+              "habitat",
+              "verify",
+              "maintenance"
+            ],
+            "summary": "Feasible sequential plan within budget and available energy/materials: survey first, then power to enable later work, excavate to produce feedstock and regolith, then water and habitat using those outputs, verify after both complete, and dormant maintenance last."
+          },
+          "call_id": "call_d35591c6-f5b7-443d-a0a6-c19e4993eecd"
+        }
+      ]
+    },
+    {
+      "id": "2c980026-cb46-42d1-894e-00d4a41c43bd:survey:0",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.019938,
+      "created_at": 1793179352.3103385,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "734d54eab8f7fd9b2071c7486d6b621b2bc47c945d2ad28761153e0043d95055",
+      "actual_usd": 0.00510475,
+      "usage": {
+        "input_tokens": 1663,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 712,
+        "output_tokens_details": {
+          "reasoning_tokens": 562
+        },
+        "total_tokens": 2375
+      },
+      "response_id": "resp_6ae1bedafc43e7f7f7bb47e7",
+      "tool_calls": [
+        {
+          "name": "submit_work_order",
+          "arguments": {
+            "job_id": "survey",
+            "source_ids": [
+              "scenario-v1:02483a23577d8162"
+            ],
+            "summary": "Survey landing zone per scenario-v1 at [-5,0,4]: 2kW, 8kWh, 2 ticks, $3k. No dependencies, budget and energy available."
+          },
+          "call_id": "call_49348bc2-216f-4b51-99f8-3f7bed0a501d"
+        }
+      ]
+    },
+    {
+      "id": "44e73a28-440d-4b6f-aa15-868b63861600:director",
+      "status": "received",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.074617,
+      "created_at": 1793179499.947307,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "c77ec9612efa90102268dceb17b756a2ee7bb2bd8dfe3b7417c3228d12367429",
+      "actual_usd": 0.037492,
+      "usage": {
+        "input_tokens": 1463,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1582,
+        "output_tokens_details": {
+          "reasoning_tokens": 1393
+        },
+        "total_tokens": 3045
+      },
+      "response_id": "resp_6ae1bf773dae3f83a3964b50",
+      "tool_calls": [
+        {
+          "name": "set_mission_plan",
+          "arguments": {
+            "priority": [
+              "survey",
+              "power",
+              "excavate",
+              "water",
+              "habitat",
+              "verify",
+              "maintenance"
+            ],
+            "summary": "Survey is complete, so commission power next. Excavation follows to produce feedstock and regolith needed for the water reserve and habitat, then verify readiness once both are complete. Dormant excavator maintenance remains last. Projected remaining cost and resource needs fit the stated budget and inventories."
+          },
+          "call_id": "call_98e47f14-b0c5-4ae5-a909-3a33692ddba1"
+        }
+      ]
+    },
+    {
+      "id": "44e73a28-440d-4b6f-aa15-868b63861600:power:0",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.020623,
+      "created_at": 1793179512.426095,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "f10d861ac5e168668acfbddcbb283495ad27e1cdfcbe13a18bbf382c5015c25c",
+      "actual_usd": 0.00706325,
+      "usage": {
+        "input_tokens": 1778,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1139,
+        "output_tokens_details": {
+          "reasoning_tokens": 986
+        },
+        "total_tokens": 2917
+      },
+      "response_id": "resp_6ae1bf7dd7f4f08c67424fdc",
+      "tool_calls": [
+        {
+          "name": "submit_work_order",
+          "arguments": {
+            "job_id": "power",
+            "source_ids": [
+              "scenario-v1:02483a23577d8162"
+            ],
+            "summary": "Commission power unit at [6,0,-4] per scenario-v1: 3kW, 12kWh, 30kg materials. Survey complete, energy/materials and budget verified."
+          },
+          "call_id": "call_809629c8-8e0d-4a36-8f62-0968b9499c30"
+        }
+      ]
+    },
+    {
+      "id": "b7a5130b-799a-4c7d-a69b-84e4a79c8610:director",
+      "status": "received",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.073969,
+      "created_at": 1793179518.7798483,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "45910ab75f4214867a851a5b970ff643565fdde79983d9bc98ad5704ad127fcd",
+      "actual_usd": 0.041636,
+      "usage": {
+        "input_tokens": 1434,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1795,
+        "output_tokens_details": {
+          "reasoning_tokens": 1587
+        },
+        "total_tokens": 3229
+      },
+      "response_id": "resp_6ae1bf8bab2691ef822249d7",
+      "tool_calls": [
+        {
+          "name": "set_mission_plan",
+          "arguments": {
+            "priority": [
+              "survey",
+              "power",
+              "excavate",
+              "water",
+              "habitat",
+              "verify",
+              "maintenance"
+            ],
+            "summary": "Completed survey and power enable excavation now. Excavate first to produce the 500 kg feedstock and 300 kg regolith needed downstream. Then run water before habitat sequentially\u2014each needs 12 kW against 18 kW total, so they cannot run together\u2014using available energy and materials. Verify readiness only after both, and keep dormant excavation-robot maintenance last as it is off the critical path. All remaining costs fit within budget."
+          },
+          "call_id": "call_fcdca895-4ef2-412c-b6d1-16cc3c93d435"
+        }
+      ]
+    },
+    {
+      "id": "b7a5130b-799a-4c7d-a69b-84e4a79c8610:excavate:0",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.020432,
+      "created_at": 1793179532.3409064,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "f08a3a04801e863443ce083c5ac7da43e93cbe89e1a0454a9f90e3a059f423ba",
+      "actual_usd": 0.0056185,
+      "usage": {
+        "input_tokens": 1751,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 807,
+        "output_tokens_details": {
+          "reasoning_tokens": 647
+        },
+        "total_tokens": 2558
+      },
+      "response_id": "resp_6ae1bf909dfaf08c8ccc468e",
+      "tool_calls": [
+        {
+          "name": "submit_work_order",
+          "arguments": {
+            "job_id": "excavate",
+            "source_ids": [
+              "scenario-v1:02483a23577d8162"
+            ],
+            "summary": "Excavate resource test site per scenario-v1: 50 kWh, 10 kW, 4 ticks to produce 500kg feedstock and 300kg regolith. Power dependency complete, energy and budget available."
+          },
+          "call_id": "call_66aa4c11-81a3-48d8-9330-fe730023f16f"
+        }
+      ]
+    },
+    {
+      "id": "2bccf1ab-107a-4a59-af2b-1418093a6d6c:director",
+      "status": "received",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.073713,
+      "created_at": 1793179536.834605,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "b620585e378b8798695dd82c9e10f63376d80f865857ad3974bba4da565958e5",
+      "actual_usd": 0.022008,
+      "usage": {
+        "input_tokens": 1422,
+        "input_tokens_details": {
+          "cached_tokens": 500
+        },
+        "output_tokens": 816,
+        "output_tokens_details": {
+          "reasoning_tokens": 631
+        },
+        "total_tokens": 2238
+      },
+      "response_id": "resp_6ae1bf960bb8f29d58e74545",
+      "tool_calls": [
+        {
+          "name": "set_mission_plan",
+          "arguments": {
+            "priority": [
+              "survey",
+              "power",
+              "excavate",
+              "water",
+              "habitat",
+              "verify",
+              "maintenance"
+            ],
+            "summary": "Completed survey, power, and excavation provide the prerequisites and feedstock. Prioritize water next, then habitat sequentially within available resources and the 18 kW scenario power limit, followed by readiness verification once both are complete. Dormant excavator maintenance is last, as it is not on the readiness critical path. All costs and engineering values are scenario assumptions."
+          },
+          "call_id": "call_ad823c11-f3d8-4a0e-a274-2baa1ab5ae52"
+        }
+      ]
+    },
+    {
+      "id": "2bccf1ab-107a-4a59-af2b-1418093a6d6c:water:0",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.020345,
+      "created_at": 1793179542.9358034,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "991662bfe726ccf15c04f9bcdf6380455dcdbec0844cd5a59e36ecc201decdd9",
+      "actual_usd": 0.0054225,
+      "usage": {
+        "input_tokens": 1737,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 765,
+        "output_tokens_details": {
+          "reasoning_tokens": 695
+        },
+        "total_tokens": 2502
+      },
+      "response_id": "resp_6ae1bf9a453abaaef99448ae",
+      "tool_calls": [
+        {
+          "name": "estimate_job",
+          "arguments": {
+            "job_id": "water"
+          },
+          "call_id": "call_f94dce12-fb83-4889-855a-738ab78e8be9"
+        }
+      ]
+    },
+    {
+      "id": "2bccf1ab-107a-4a59-af2b-1418093a6d6c:water:1",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.021149,
+      "created_at": 1793179547.57303,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "ef1dbded1bad897bb0b880fbb500e81244ae15b1d236813eb67d75fa153c3f1f",
+      "actual_usd": 0.004477,
+      "usage": {
+        "input_tokens": 1902,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 494,
+        "output_tokens_details": {
+          "reasoning_tokens": 349
+        },
+        "total_tokens": 2396
+      },
+      "response_id": "resp_6ae1bf9dad8f9d29849b418b",
+      "tool_calls": [
+        {
+          "name": "submit_work_order",
+          "arguments": {
+            "job_id": "water",
+            "source_ids": [
+              "scenario-v1:02483a23577d8162"
+            ],
+            "summary": "Submit water: build water reserve with processor at scenario-v1 values, 55 kWh, 500 kg feedstock, 12 kW, 4 ticks."
+          },
+          "call_id": "call_01b33f4b-28d8-46d0-9efb-ccf96fe9606c"
+        }
+      ]
+    },
+    {
+      "id": "28ae9778-3839-4e8a-b8bc-24268acb6786:director",
+      "status": "received",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.073425,
+      "created_at": 1793179550.188965,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "d8abc88dff819b9e3fd5bede684889de930c65ba1f4010186cad294d379f7f7b",
+      "actual_usd": 0.022692,
+      "usage": {
+        "input_tokens": 1408,
+        "input_tokens_details": {
+          "cached_tokens": 756
+        },
+        "output_tokens": 853,
+        "output_tokens_details": {
+          "reasoning_tokens": 680
+        },
+        "total_tokens": 2261
+      },
+      "response_id": "resp_6ae1bfa339bf966c3823411a",
+      "tool_calls": [
+        {
+          "name": "set_mission_plan",
+          "arguments": {
+            "priority": [
+              "survey",
+              "power",
+              "excavate",
+              "water",
+              "habitat",
+              "verify",
+              "maintenance"
+            ],
+            "summary": "Completed survey-power-excavation-water chain retained. Habitat is next: its excavation dependency is met and available energy, materials, regolith, power and budget are sufficient. Verify follows habitat, its remaining dependency. Dormant, non-blocking excavation-robot maintenance is last."
+          },
+          "call_id": "call_385d7884-6733-417c-899a-a2226a37a365"
+        }
+      ]
+    },
+    {
+      "id": "28ae9778-3839-4e8a-b8bc-24268acb6786:habitat:0",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.020264,
+      "created_at": 1793179556.3990934,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "a7a723db8c6cf5ac2cc5d955db2420b5c5a01a78966b31c1fdbd6fa00053de65",
+      "actual_usd": 0.00549975,
+      "usage": {
+        "input_tokens": 1724,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 787,
+        "output_tokens_details": {
+          "reasoning_tokens": 640
+        },
+        "total_tokens": 2511
+      },
+      "response_id": "resp_6ae1bfa7eda8e99944cd48e8",
+      "tool_calls": [
+        {
+          "name": "submit_work_order",
+          "arguments": {
+            "job_id": "habitat",
+            "source_ids": [
+              "scenario-v1:02483a23577d8162"
+            ],
+            "summary": "Construction lead submits habitat build per scenario-v1 engineering values: 80 kWh, 100 kg materials, 200 kg regolith at [0,0,0]."
+          },
+          "call_id": "call_65d655b7-397d-4875-b438-c1a9ffce08f6"
+        }
+      ]
+    },
+    {
+      "id": "5d897958-b270-4392-8753-a89ecac79056:director",
+      "status": "received",
+      "model": "muse-wonder-1.0",
+      "reserved_usd": 0.073453,
+      "created_at": 1793179560.8519628,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "d748e42791e6df2a4d9cabe68a365d4e15c06323540f642e85229892c699721b",
+      "actual_usd": 0.042788,
+      "usage": {
+        "input_tokens": 1412,
+        "input_tokens_details": {
+          "cached_tokens": 756
+        },
+        "output_tokens": 1857,
+        "output_tokens_details": {
+          "reasoning_tokens": 1652
+        },
+        "total_tokens": 3269
+      },
+      "response_id": "resp_6ae1bfb52a9fcf77969f4068",
+      "tool_calls": [
+        {
+          "name": "set_mission_plan",
+          "arguments": {
+            "priority": [
+              "verify",
+              "maintenance",
+              "survey",
+              "power",
+              "excavate",
+              "water",
+              "habitat"
+            ],
+            "summary": "All scenario-assumption prerequisites for Verify are complete. Prioritize Verify (rover, $1k, 2 kWh, 1 kW), then dormant Maintenance service ($2k, 6 kWh, 1 spare, 3 kW); both fit the $250k budget, 674 kWh and 18 kW capacity. Completed survey-to-habitat chain follows in dependency order."
+          },
+          "call_id": "call_c1133287-738d-4016-82ad-5c11c82c4572"
+        }
+      ]
+    },
+    {
+      "id": "5d897958-b270-4392-8753-a89ecac79056:verify:0",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.020266,
+      "created_at": 1793179574.712171,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "31aec14290f69866f480b6195c24f587cbfac8f282b22f7095ad5dd9936d22f8",
+      "actual_usd": 0.006872,
+      "usage": {
+        "input_tokens": 1727,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1109,
+        "output_tokens_details": {
+          "reasoning_tokens": 1038
+        },
+        "total_tokens": 2836
+      },
+      "response_id": "resp_6ae1bfbc85df4f1b4d424d9d",
+      "tool_calls": [
+        {
+          "name": "estimate_job",
+          "arguments": {
+            "job_id": "verify"
+          },
+          "call_id": "call_b076ca5a-d633-4051-9a2c-02294f1ed13b"
+        }
+      ]
+    },
+    {
+      "id": "5d897958-b270-4392-8753-a89ecac79056:verify:1",
+      "status": "received",
+      "model": "muse-spark-1.3",
+      "reserved_usd": 0.021051,
+      "created_at": 1793179581.2007496,
+      "budget_keys": [
+        "2026-10:public",
+        "2026-10-28:public"
+      ],
+      "request_hash": "b82ede1751ccc97bd51fe97639d53670c7b1cb872f20ee884c7d2883e3318f08",
+      "actual_usd": 0.0045585,
+      "usage": {
+        "input_tokens": 1889,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 517,
+        "output_tokens_details": {
+          "reasoning_tokens": 367
+        },
+        "total_tokens": 2406
+      },
+      "response_id": "resp_6ae1bfbfe63d52e9bde9443c",
+      "tool_calls": [
+        {
+          "name": "submit_work_order",
+          "arguments": {
+            "job_id": "verify",
+            "source_ids": [
+              "scenario-v1:02483a23577d8162"
+            ],
+            "summary": "Submit verify: rover readiness check at [0,0,3], 1kW 1 tick, 2kWh per scenario-v1. Dependencies water and habitat complete."
+          },
+          "call_id": "call_c7c884a2-5fe5-49fc-82bc-ae9f350f0bea"
+        }
+      ]
+    }
+  ],
+  "note": "Includes integration-debug requests. This is a live acceptance run, not a controlled scheduler superiority comparison."
+}

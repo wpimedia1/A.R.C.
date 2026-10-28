@@ -12,3 +12,10 @@
 *.png
 *.pdf
 !docs/sources/*.json
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.tsbuildinfo
+**/node_modules.previous/
+**/package-lock.previous.json
+**/.test-runs/

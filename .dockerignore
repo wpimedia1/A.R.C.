@@ -1,0 +1,10 @@
+.git
+**/node_modules*
+**/.next
+**/out
+**/.venv
+**/.env*
+**/*.db
+**/__pycache__
+**/.test-runs
+**/package-lock.previous.json
