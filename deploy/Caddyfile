@@ -1,0 +1,5 @@
+# HTTPS with an automatic Let's Encrypt certificate for $DOMAIN (DNS must point at this host; ports 80 and 443 open).
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy api:8000
+}

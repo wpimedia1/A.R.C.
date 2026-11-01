@@ -8,3 +8,10 @@
 **/__pycache__
 **/.test-runs
 **/package-lock.previous.json
+**/data
+**/artifacts
+**/*.log
+output
+.playwright-cli
+# Real DSN Now capture used by the tests
+!council-dashboard/backend/tests/data

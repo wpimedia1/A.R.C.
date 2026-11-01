@@ -1,0 +1,128 @@
+{
+  "run_at": "2026-10-31T21:33:15Z",
+  "mode": "meta",
+  "ticks": 3,
+  "results": [
+    {
+      "check": "genesis served by the API",
+      "ok": true,
+      "detail": {
+        "revision": 1,
+        "mode": "meta"
+      }
+    },
+    {
+      "check": "interface served",
+      "ok": true,
+      "detail": {
+        "path": "/"
+      }
+    },
+    {
+      "check": "worker advanced the mission",
+      "ok": true,
+      "detail": {
+        "tick": 3,
+        "revision": 6
+      }
+    },
+    {
+      "check": "planning outcome is explicit",
+      "ok": true,
+      "detail": {
+        "planning_status": "Planning stopped: MODEL_API_KEY is not set in /home/claude/work/Meta_Hackathon/council-dashboard/backend/.env or the environment; no request dispatched.. Owner intervention required.",
+        "inference_stopped": true,
+        "progressed": {}
+      }
+    },
+    {
+      "check": "an unconfirmed or unavailable DSN reading holds nothing",
+      "ok": true,
+      "detail": {
+        "dsn": "unavailable",
+        "held": []
+      }
+    },
+    {
+      "check": "append-only history recorded",
+      "ok": true,
+      "detail": {
+        "rows": 15,
+        "kinds": [
+          [
+            "revision",
+            "agent-plan"
+          ],
+          [
+            "revision",
+            "initialize"
+          ],
+          [
+            "revision",
+            "planning-claim"
+          ],
+          [
+            "revision",
+            "tick"
+          ],
+          [
+            "status",
+            "conditions"
+          ],
+          [
+            "status",
+            "dsn"
+          ],
+          [
+            "status",
+            "scientific-refresh"
+          ],
+          [
+            "status",
+            "site-analysis"
+          ],
+          [
+            "status",
+            "source-refresh"
+          ],
+          [
+            "status",
+            "uncertainty"
+          ],
+          [
+            "worker",
+            "started"
+          ]
+        ]
+      }
+    },
+    {
+      "check": "live Mars conditions served",
+      "ok": true,
+      "detail": {
+        "clock": {
+          "utc": "2026-10-31T21:33:15Z",
+          "unix": 1793482395.7340868,
+          "mars_sol_date": 54329.80174,
+          "mars_year": 39,
+          "ls_deg": 15.382,
+          "season": "northern spring",
+          "mtc_h": 19.2418,
+          "site_lmst_h": 7.9085,
+          "source": "mars24",
+          "dusty_season": false
+        },
+        "dsn": "ProxyError: 403 Forbidden"
+      }
+    },
+    {
+      "check": "activity visible",
+      "ok": true,
+      "detail": [
+        "Mission initialized",
+        "Live Mars conditions applied",
+        "Planning needs attention"
+      ]
+    }
+  ]
+}

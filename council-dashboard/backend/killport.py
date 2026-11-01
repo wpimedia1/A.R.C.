@@ -9,6 +9,12 @@ windows, so this is best-effort cleanup, not a hard gate.
 import os
 import re
 import subprocess
+
+
+def _tool(name):
+    """Absolute System32 path when available, so a damaged PATH cannot hide the tool."""
+    path = os.path.join(os.environ.get('SystemRoot', r'C:\Windows'), 'System32', name + '.exe')
+    return path if os.path.exists(path) else name
 import sys
 
 
@@ -16,7 +22,7 @@ def main() -> int:
     port = sys.argv[1] if len(sys.argv) > 1 else "8000"
     try:
         proc = subprocess.run(
-            ["netstat", "-ano"], capture_output=True, text=True,
+            [_tool("netstat"), "-ano"], capture_output=True, text=True,
             timeout=15)
     except Exception:
         return 0
@@ -39,7 +45,7 @@ def main() -> int:
     for pid in sorted(pids):
         try:
             subprocess.run(
-                ["taskkill", "/F", "/PID", pid],
+                [_tool("taskkill"), "/F", "/PID", pid],
                 capture_output=True, timeout=15)
         except Exception:
             continue

@@ -4,12 +4,14 @@ import time
 import uuid
 from contextlib import contextmanager
 from copy import deepcopy
-from sqlalchemy import create_engine, Column, String, Integer, Float, JSON, UniqueConstraint, select, event
+from sqlalchemy import create_engine, Column, String, Integer, Float, JSON, LargeBinary, UniqueConstraint, select, event
 from sqlalchemy.orm import declarative_base, Session
 from .engine import new_state, advance, modify, InvalidAction
 from .spec import digest, SOURCES
 
 Base = declarative_base()
+# Public mission pacing: real Mars time. One tick = 1/24 sol (D7) of real time, so the public mission's Mars date is
+# the real Mars date and live conditions (conditions.py) apply to the tick they were observed in.
 
 class Mission(Base):
     __tablename__ = 'missions'
@@ -60,6 +62,51 @@ class ServiceStatus(Base):
     id = Column(String, primary_key=True)
     record = Column(JSON, nullable=False)
 
+class EnvironmentObservation(Base):
+    """Live Mars conditions recorded by the worker whether or not any mission is running (DSN Mars link changes)."""
+    __tablename__ = 'environment_observations'
+    id = Column(String, primary_key=True)
+    kind = Column(String, nullable=False, index=True)
+    observed_at = Column(Float, nullable=False, index=True)
+    record = Column(JSON, nullable=False)
+
+class Visual(Base):
+    """Muse Image illustrations of persisted mission state. Image bytes live in the database so API and worker share them."""
+    __tablename__ = 'mission_visuals'
+    id = Column(String, primary_key=True)
+    mission_id = Column(String, nullable=False, index=True)
+    trigger = Column(String, nullable=False)
+    created = Column(Float, nullable=False)
+    image = Column(LargeBinary, nullable=True)  # stamped for display
+    raw_image = Column(LargeBinary, nullable=True)  # unstamped, used only as the input of the next edit
+    record = Column(JSON, nullable=False)
+    __table_args__ = (UniqueConstraint('mission_id', 'trigger'),)
+
+class EventLog(Base):
+    """Append-only record of every status write, receipt change and worker event, from genesis. Rows are never updated or deleted."""
+    __tablename__ = 'event_log'
+    id = Column(String, primary_key=True)
+    at = Column(Float, nullable=False, index=True)
+    source = Column(String, nullable=False, index=True)
+    kind = Column(String, nullable=False)
+    mission_id = Column(String, nullable=True, index=True)
+    record = Column(JSON, nullable=False)
+
+
+@event.listens_for(Session, 'before_flush')
+def _append_events(session, flush_context, instances):
+    """Every write to a mutable table (service status, inference receipts) is also appended here, so nothing is lost when a row is overwritten."""
+    now = time.time()
+    for obj in list(session.new) + list(session.dirty):
+        if isinstance(obj, ServiceStatus):
+            if obj.id == 'worker' and not (obj.record or {}).get('error'):
+                continue  # one-second heartbeat; worker starts and errors are logged
+            session.add(EventLog(id=str(uuid.uuid4()), at=now, source='status', kind=obj.id, mission_id=None, record=deepcopy(obj.record)))
+        elif isinstance(obj, InferenceReceipt):
+            session.add(EventLog(id=str(uuid.uuid4()), at=now, source='receipt', kind=(obj.record or {}).get('status', 'update'),
+                                 mission_id=obj.mission_id, record={'receipt_id': obj.id, **deepcopy(obj.record)}))
+
+
 class Store:
     def __init__(self, url=None):
         url = url or os.getenv('DATABASE_URL', 'sqlite:///mission.db')
@@ -97,24 +144,98 @@ class Store:
                         operation=operation, state=deepcopy(state), hash=digest(state), created=time.time()))
 
     def initialize(self):
+        """Check, then create the public mission if absent. Used by tests and operator tools; the API and worker
+        never call this: they only check(), and genesis waits for a user to press Start (genesis())."""
+        if not self.check():
+            self.genesis()
+
+    def started(self):
+        with Session(self.engine) as db:
+            return db.get(Mission, 'public') is not None
+
+    def check(self):
+        """Validate the database against the current package. Returns True if the public mission exists, False if it
+        has not been started. Raises if a mission recorded under another package or engine version is present."""
+        with Session(self.engine) as db:
+            existing = db.get(Mission, 'public')
+            if existing:
+                from .spec import specification
+                current = specification()['package_hash']
+                stored = existing.state.get('spec', {}).get('package_hash')
+                if stored != current or 'tick_seconds' not in existing.state.get('spec', {}):
+                    # Fail loud: a mission recorded under another package or engine version cannot be continued.
+                    raise InvalidAction(f'The mission database was created with an older package or engine (package {str(stored)[:12]}, current {current[:12]}). '
+                                        'Genesis needs a fresh database: docker compose down -v (Docker) or delete backend/mission.db (local).')
+                return True
+        from .spec import specification
+        specification()  # the package must load and every operator decision must be approved before Start is offered
+        return False
+
+    def genesis(self):
+        """Start the public mission (genesis). Called when a user presses Start; does nothing if it already exists."""
+        if self.check():
+            return False
+        genesis_env = self.environment(time.time(), None)
         with self.transaction() as db:
             if not self.sqlite: db.connection().exec_driver_sql('SELECT pg_advisory_xact_lock(781045)')
-            if db.get(Mission, 'public'): return
-            state = new_state()
-            if os.getenv('MISSION_MODEL_MODE')=='meta':
-                state.update(mode='meta',planning_needed=True,planning_status='Awaiting initial mission plan')
+            if db.get(Mission, 'public'): return False
+            mode=os.getenv('MISSION_MODEL_MODE','meta')
+            if mode not in ('meta','fixed-priority'):raise InvalidAction('MISSION_MODEL_MODE must be meta or fixed-priority')
+            state = new_state(mode)
             pins = {}
-            for source in SOURCES + [dict(id='scenario-v1', title='Arcadia scenario assumptions', version=state['spec']['version'], url=None, passage=None, supports='All operational quantities are illustrative scenario assumptions.', classification='scenario assumption')]:
-                record = {**source, 'retrieved_at': None, 'observation_time': None, 'status': 'not retrieved', 'content_hash': digest(source), 'hash_scope': 'registry metadata only', 'transformation_version': 'registry-1'}
-                if source['id'] == 'scenario-v1':
-                    record.update(status='local specification', content=state['spec'], content_hash=state['spec']['hash'], hash_scope='canonical mission specification')
+            registry = SOURCES + [dict(id=k, title=v['title'], url=v['url'], version=str(v.get('year')), passage=None,
+                                       supports='Cited by environment package '+state['spec']['package_id'], classification='published')
+                                  for k, v in state['spec']['sources'].items()]
+            for source in registry:
+                record = {**source, 'retrieved_at': None, 'observation_time': None, 'status': 'registry reference; not retrieved', 'content_hash': digest(source), 'hash_scope': 'registry metadata only', 'transformation_version': 'registry-1'}
                 vid = source['id'] + ':' + record['content_hash'][:16]
                 db.merge(SourceVersion(id=vid, source_id=source['id'], record=record))
                 pins[source['id']] = vid
+            package = {'id': state['spec']['package_id'], 'title': 'Environment package '+state['spec']['package_id'], 'url': None,
+                       'status': 'local validated package', 'content': state['spec'], 'content_hash': state['spec']['package_hash'],
+                       'hash_scope': 'package file bytes', 'retrieved_at': None, 'classification': 'package'}
+            vid = package['id'] + ':' + package['content_hash'][:16]
+            db.merge(SourceVersion(id=vid, source_id=package['id'], record=package))
+            pins[package['id']] = vid
             state['source_pins'] = pins
-            m = Mission(id='public', state=state, revision=0, next_tick=time.time(), pending_ticks=0, used_ticks=0)
+            now = genesis_env['clock']['unix']
+            from .engine import apply_environment
+            apply_environment(state, genesis_env)
+            m = Mission(id='public', state=state, revision=0, next_tick=now + state['spec']['tick_seconds'], pending_ticks=0, used_ticks=0)
             db.add(m)
-            self.save(db, m, state, {'kind':'initialize'})
+            self.save(db, m, state, {'kind':'initialize', 'trigger':'start pressed'})
+        return True
+
+    def request_replanning(self, mid, reason):
+        """Ask the agents to plan again at the next worker pass (new evidence). No model call happens here."""
+        with self.transaction() as db:
+            m = self.row(db, mid)
+            if m.state['mode'] != 'meta' or m.state.get('inference_stopped') or m.state.get('planning_claim') or m.state['status'] != 'active':
+                return False
+            s = deepcopy(m.state)
+            s['planning_needed'] = True
+            from .engine import event
+            event(s, 'Replanning requested', reason)
+            self.save(db, m, s, {'kind': 'replanning-request', 'reason': reason})
+            return True
+
+    def refresh_conditions(self):
+        """Apply live DSN readings to the running public mission when its applied conditions lack them (e.g. at genesis)."""
+        with Session(self.engine) as db:
+            p = db.get(Mission, 'public')
+            if not p or p.state['status'] != 'active' or p.state.get('planning_claim') or not p.state.get('environment'): return False
+            if p.state['environment']['link'].get('dsn') != 'unavailable': return False
+            previous = deepcopy(p.state['environment'])
+        env = self.environment(time.time(), previous)
+        if env['link']['dsn'] != 'live' or env.get('resumed_after_s'): return False
+        from .engine import apply_environment
+        with self.transaction() as db:
+            m = self.row(db, 'public')
+            if m.state.get('planning_claim') or m.state['status'] != 'active': return False
+            st = deepcopy(m.state)
+            apply_environment(st, env)
+            self.save(db, m, st, {'kind': 'conditions-refresh'})
+        return True
 
     def snapshot(self, mid, owner=None):
         with Session(self.engine) as db:
@@ -125,7 +246,34 @@ class Store:
     def payload(self, m):
         return {'id':m.id, 'revision':m.revision, 'state':deepcopy(m.state), 'parent':m.parent,
                 'remaining_ticks':72-m.used_ticks-m.pending_ticks if m.owner else None,
-                'queued_ticks':m.pending_ticks, 'expires_at':m.expires}
+                'queued_ticks':m.pending_ticks, 'expires_at':m.expires,
+                'seconds_per_tick':None if m.owner else m.state['spec']['tick_seconds'], 'next_tick_at':None if m.owner else m.next_tick}
+
+    def environment(self, now, previous):
+        """Live conditions for the public mission at `now`, given the previously applied conditions (D10, D11)."""
+        from .conditions import snapshot
+        if not hasattr(self, '_values'):
+            from .package import load
+            self._values = load()['values']
+        values = self._values
+        tick_s = values['mars.sol_s'] / 24
+        env = snapshot(now, values['comms.mars_soi_km'], self.status('dsn'),
+                       values['comms.conjunction_sun_sep_deg'], tick_s, previous['clock']['unix'] if previous else None,
+                       values['relay.mro_ascending_node_lmst_h'])
+        env['clock']['dusty_season'] = env['clock']['ls_deg'] >= values['mars.dusty_season_start_ls_deg']
+        if previous and now - previous['clock']['unix'] > 1.5 * tick_s:
+            env['resumed_after_s'] = now - previous['clock']['unix']
+            with Session(self.engine) as db:
+                rows = db.scalars(select(EnvironmentObservation).where(EnvironmentObservation.observed_at > previous['clock']['unix'],
+                                                                      EnvironmentObservation.observed_at <= now).order_by(EnvironmentObservation.observed_at)).all()
+                ups = sum(1 for r in rows if r.kind == 'dsn-reading' and r.record.get('uplink_to_mars'))
+                outages = sum(1 for r in rows if r.kind == 'dsn-unavailable')
+                craft = sorted({c for r in rows if r.kind == 'dsn-reading' for c in r.record.get('mars_spacecraft', [])})
+                env['while_paused'] = (f"While paused: {len(rows)} DSN readings recorded, {ups} with an active uplink to Mars"
+                                       + (f" ({', '.join(craft)})" if craft else '') + (f", {outages} feed outages" if outages else '') + '. '
+                                       + f"Mars advanced from Ls {previous['clock']['ls_deg']:.2f} to {env['clock']['ls_deg']:.2f} deg; "
+                                       + f"Earth-Mars light time {previous['geometry']['one_way_light_s']/60:.1f} to {env['geometry']['one_way_light_s']/60:.1f} min.")
+        return env
 
     def fork(self, revision, owner):
         with self.transaction() as db:
@@ -143,10 +291,16 @@ class Store:
             if not original: raise InvalidAction('Unknown public revision')
             state = deepcopy(original.state)
             state.pop('planning_claim',None)
+            if state.get('environment'):
+                # D10: experiments keep the environment frozen at the fork point; DSN is not applied.
+                link = state['environment']['link']
+                link.update(dsn='not applied in experiments', uplink_window=None, links=[], mars_spacecraft=[])
+                link['uplink_open'] = not link['conjunction']
             state['status'] = 'paused' if state['status'] != 'complete' else 'complete'
             mid = str(uuid.uuid4())
+            state['reliability_seed'] = mid  # D14: an experiment draws its own failures
             m = Mission(id=mid, owner=owner, state=state, revision=0, pending_ticks=0, used_ticks=0,
-                        next_tick=0, expires=time.time()+7*86400, parent={'id':'public','revision':revision,'hash':original.hash,'water_kg':original.state['resources']['water_kg'],'spent_usd':original.state['spent_usd'],'tick':original.state['tick']})
+                        next_tick=0, expires=time.time()+7*86400, parent={'id':'public','revision':revision,'hash':original.hash,'resources':original.state['resources'],'spent_usd':original.state['spent_usd'],'tick':original.state['tick']})
             db.add(m)
             self.save(db,m,state,{'kind':'fork','parent':m.parent})
             return self.payload(m)
@@ -158,7 +312,17 @@ class Store:
             if m.revision != revision: raise InvalidAction('Revision changed; refresh before retrying')
             s = deepcopy(m.state)
             if s.get('planning_claim'): raise InvalidAction('Planning is in progress; retry after its receipt is recorded')
-            if action=='configure': s = modify(s,changes or {})
+            if action=='configure':
+                s = modify(s,changes or {})
+                if s['mode']=='fixed-priority' and s.get('environment'):
+                    # D12: the benchmark's logistics are automatic.
+                    from .engine import failed_without_order, place_order, sim_unix
+                    from .logistics import replacement_order
+                    if not hasattr(self,'_values'):
+                        from .package import load
+                        self._values=load()['values']
+                    for aid in failed_without_order(s):
+                        place_order(s, replacement_order(s, aid, sim_unix(s), self._values, 'fixed-priority', 'Automatic replacement (benchmark).', ['nssdc_mars']))
             elif action=='run':
                 if not 1<=ticks<=72-m.used_ticks-m.pending_ticks: raise InvalidAction('Experiment limit is three sols (72 ticks) in total')
                 if s['status']=='complete': raise InvalidAction('Mission already complete')
@@ -173,8 +337,20 @@ class Store:
             return self.payload(m)
 
     def tick(self):
+        now=time.time()
+        public_env=None
+        with Session(self.engine) as db:
+            p=db.get(Mission,'public')
+            due=p is not None and p.state['status']=='active' and not p.state.get('planning_claim') and p.next_tick<=now
+            previous=deepcopy(p.state.get('environment')) if due else None
+        if due:
+            try: public_env=self.environment(now, previous)
+            except Exception as exc:
+                # Fail loud: the public mission does not tick without live conditions; the reason is visible in service status.
+                self.status('conditions',{'failed_at':now,'error':f'{type(exc).__name__}: {exc}'[:400]})
+                raise
+            self.status('conditions',{'applied_at':now,'error':None})
         with self.transaction() as db:
-            now=time.time()
             # Lock one mission, and commit state + ledger + revision together.
             rows=db.scalars(select(Mission).where((Mission.expires.is_(None)) | (Mission.expires>now)).order_by(Mission.next_tick).with_for_update(skip_locked=True)).all()
             for m in rows:
@@ -182,12 +358,23 @@ class Store:
                 if m.state.get('planning_claim'): continue
                 if m.owner and m.pending_ticks<=0: continue
                 if not m.owner and m.next_tick>now: continue
-                s=advance(m.state)
+                if m.owner: s=advance(m.state)
+                elif public_env is None: continue
+                else: s=advance(m.state, public_env)
+                if s['mode']=='fixed-priority' and s.get('environment'):
+                    # D12: the benchmark's logistics are automatic, including after D14 failures.
+                    from .engine import failed_without_order, place_order, sim_unix
+                    from .logistics import replacement_order
+                    if not hasattr(self,'_values'):
+                        from .package import load
+                        self._values=load()['values']
+                    for aid in failed_without_order(s):
+                        place_order(s, replacement_order(s, aid, sim_unix(s), self._values, 'fixed-priority', 'Automatic replacement (benchmark).', ['nssdc_mars']))
                 if m.owner:
                     m.pending_ticks-=1; m.used_ticks+=1
                     if s['status']=='complete': m.pending_ticks=0
                     if m.pending_ticks==0 and s['status']=='active': s['status']='paused'
-                else: m.next_tick=max(m.next_tick,now)+3600
+                else: m.next_tick=max(m.next_tick,now)+s['spec']['tick_seconds']
                 self.save(db,m,s,{'kind':'tick'})
                 return m.id
         return None
@@ -201,13 +388,32 @@ class Store:
             pins=set(snapshot['state']['source_pins'].values())
             for revision in revisions: pins.update(revision.state.get('source_pins',{}).values())
             versions={vid:db.get(SourceVersion,vid).record for vid in pins}
-            return {**snapshot,'sources':sources,'source_versions':versions,'inference_receipts':[{'id':r.id,**r.record} for r in receipts],'history':[{'revision':r.revision,'operation':r.operation,'state':r.state,'hash':r.hash,'created_at':r.created} for r in revisions]}
+            log=db.scalars(select(EventLog).where((EventLog.mission_id==mid)|(EventLog.mission_id.is_(None))).order_by(EventLog.at)).all()
+            observations=db.scalars(select(EnvironmentObservation).order_by(EnvironmentObservation.observed_at)).all() if not snapshot['parent'] else []
+            return {**snapshot,'sources':sources,'source_versions':versions,'inference_receipts':[{'id':r.id,**r.record} for r in receipts],
+                    'history':[{'revision':r.revision,'operation':r.operation,'state':r.state,'hash':r.hash,'created_at':r.created} for r in revisions],
+                    'event_log':[{'at':r.at,'source':r.source,'kind':r.kind,'record':r.record} for r in log],
+                    'environment_observations':[{'id':r.id,'kind':r.kind,'observed_at':r.observed_at,**r.record} for r in observations]}
 
     def cleanup(self):
         with self.transaction() as db:
             for m in db.scalars(select(Mission).where(Mission.expires<time.time())).all():
                 for r in db.scalars(select(Revision).where(Revision.mission_id==m.id)).all(): db.delete(r)
                 db.delete(m)
+
+    def log(self, source, kind, record, mission_id=None):
+        """Append one event. Used for worker lifecycle and any event that has no other durable row."""
+        with self.transaction() as db:
+            db.add(EventLog(id=str(uuid.uuid4()), at=time.time(), source=source, kind=kind, mission_id=mission_id, record=record))
+
+    def events(self, mid=None, after=None, limit=200, source=None):
+        with Session(self.engine) as db:
+            q = select(EventLog)
+            if mid is not None: q = q.where((EventLog.mission_id == mid) | (EventLog.mission_id.is_(None)))
+            if after is not None: q = q.where(EventLog.at > after)
+            if source: q = q.where(EventLog.source == source)
+            rows = db.scalars(q.order_by(EventLog.at).limit(limit)).all()
+            return [{'id': r.id, 'at': r.at, 'source': r.source, 'kind': r.kind, 'mission_id': r.mission_id, 'record': r.record} for r in rows]
 
     def status(self, key, value=None):
         with self.transaction() as db:

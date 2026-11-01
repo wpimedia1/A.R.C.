@@ -53,6 +53,8 @@ def adopt_latest(store, mid='public'):
             versions=db.scalars(select(SourceVersion).where(SourceVersion.source_id==source['id'])).all()
             valid=[v for v in versions if v.record.get('retrieved_at')]
             if not valid: continue
+            scientific=[v for v in valid if v.record.get('passages') or v.record.get('observations') or v.record.get('image_url')]
+            if scientific:valid=scientific
             latest=max(valid,key=lambda v:v.record['retrieved_at'])
             if state['source_pins'][source['id']]!=latest.id:
                 state['source_pins'][source['id']]=latest.id; changed.append(source['id'])

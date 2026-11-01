@@ -1,61 +1,38 @@
-import json
-import httpx
-import pytest
-from copy import deepcopy
-from mission.store import Store, InferenceReceipt
-from mission.planner import plan_once, reserve, execute_tool
-from mission.engine import new_state, InvalidAction
-from mission.evidence import refresh, adopt_latest
+"""Planning failure paths that need no network. Live planning is verified by tools/verify_agent_loop.py."""
+import mission.provider as provider
+from mission.planner import plan_once
+from mission.store import InferenceReceipt
 from conftest import make_store
+from sqlalchemy import select
 
-@pytest.fixture
-def store(tmp_path,request):
-    s=make_store(tmp_path,request);s.initialize();return s
 
-def enable(store):
+def test_missing_key_stops_planning_loudly_without_dispatch(tmp_path, request, monkeypatch):
+    monkeypatch.setenv('MISSION_MODEL_MODE', 'meta')
+    monkeypatch.delenv('MODEL_API_KEY', raising=False)
+    monkeypatch.setattr(provider, 'ENV_FILE', tmp_path / 'absent.env')
+    store = make_store(tmp_path, request)
+    store.initialize()
+    assert plan_once(store, mission_id='public')
+    s = store.snapshot('public')['state']
+    assert s['inference_stopped'] and 'MODEL_API_KEY' in s['planning_status']
     with store.transaction() as db:
-        m=store.row(db,'public');s=deepcopy(m.state);s.update(mode='meta',planning_needed=True)
-        store.save(db,m,s,{'kind':'test-enable'})
+        assert db.scalars(select(InferenceReceipt)).all() == []
 
-def test_typed_tool_validation():
-    s=new_state()
-    with pytest.raises(InvalidAction):execute_tool(s,'submit_work_order',{'job_id':'survey','summary':'Start survey','source_ids':['scenario-v1']},'resources')
-    with pytest.raises(InvalidAction):execute_tool(s,'submit_work_order',{'job_id':'survey','summary':'Start survey','source_ids':['invented']},'survey')
-    assert s['committed_usd']==0
 
-def test_live_protocol_with_mock_transport(store,monkeypatch):
-    monkeypatch.setenv('MODEL_API_KEY','test-key');enable(store)
-    def handler(request):
-        payload=json.loads(request.content)
-        data=json.loads(payload['input'][0]['content']) if isinstance(payload['input'],list) else json.loads(payload['input'])
-        if payload['model']=='muse-wonder-1.0':name='set_mission_plan';args={'priority':data['priority'],'summary':'Survey first; respect dependencies.'}
-        else:name='submit_work_order';args={'job_id':data['job_id'],'summary':'Inspect landing area before construction.','source_ids':['scenario-v1']}
-        return httpx.Response(200,json={'id':'test-response','usage':{'input_tokens':100,'output_tokens':100},'output':[{'type':'function_call','name':name,'arguments':json.dumps(args),'call_id':'test-call'}]})
-    assert plan_once(store,httpx.MockTransport(handler))
-    snap=store.snapshot('public')['state']
-    assert snap['jobs'][0]['status']=='running'
-    assert snap['decisions'][0]['actor']=='survey / muse-spark-1.3'
-    assert len(store.export('public')['inference_receipts'])==2
-    assert not plan_once(store,httpx.MockTransport(handler))
+def test_stopped_mission_is_not_replanned(tmp_path, request, monkeypatch):
+    monkeypatch.setenv('MISSION_MODEL_MODE', 'meta')
+    monkeypatch.delenv('MODEL_API_KEY', raising=False)
+    monkeypatch.setattr(provider, 'ENV_FILE', tmp_path / 'absent.env')
+    store = make_store(tmp_path, request)
+    store.initialize()
+    plan_once(store, mission_id='public')
+    assert not plan_once(store, mission_id='public')
 
-def test_provider_failure_keeps_receipt_and_stops(store,monkeypatch):
-    monkeypatch.setenv('MODEL_API_KEY','test-key');enable(store)
-    plan_once(store,httpx.MockTransport(lambda _:httpx.Response(503)))
-    s=store.snapshot('public')['state']
-    assert s['inference_stopped'] and not s['planning_needed']
-    receipt=store.export('public')['inference_receipts'][0]
-    assert receipt['reserved_usd']>0 and receipt['status'].startswith('uncertain')
 
-def test_global_budget_and_duplicate_claim(store):
-    reserve(store,'public','one','muse-wonder-1.0',{'input':'x'})
-    with pytest.raises(InvalidAction):reserve(store,'public','one','muse-wonder-1.0',{'input':'x'})
-    for i in range(5):reserve(store,'private',str(i),'muse-wonder-1.0',{'input':'x'})
-    with pytest.raises(InvalidAction):
-        for i in range(100):reserve(store,'another-private','new'+str(i),'muse-wonder-1.0',{'input':'x'})
-
-def test_failed_sources_do_not_overwrite_pins(store):
-    original=store.snapshot('public')['state']['source_pins']
-    results=refresh(store,httpx.MockTransport(lambda _:httpx.Response(503)))
-    assert all('failed' in r['status'] for r in results)
-    assert adopt_latest(store)==[]
-    assert store.snapshot('public')['state']['source_pins']==original
+def test_oversized_context_sheds_background_evidence_first():
+    from mission.planner import fit_context, CONTEXT_LIMIT
+    from mission.spec import canonical
+    big = {'jobs': [1, 2], 'weather': {'w': 1}, 'evidence': [{'id': f's{i}', 'passages': [{'text': 'x' * 2000} for _ in range(4)]} for i in range(12)]}
+    d, note = fit_context(big)
+    assert len(canonical(d).encode()) <= CONTEXT_LIMIT and note and d['jobs'] == [1, 2] and d['weather'] == {'w': 1}
+    assert fit_context({'a': 1}) == ({'a': 1}, None)

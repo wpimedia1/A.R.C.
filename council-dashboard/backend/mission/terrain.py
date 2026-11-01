@@ -74,4 +74,45 @@ def sample():
     target.parent.mkdir(parents=True,exist_ok=True);target.write_text(json.dumps(result),encoding='utf-8')
     print(json.dumps({k:result[k] for k in ('content_hash','bounds_degrees','sample_spacing_m','downloaded_bytes')}))
 
+def arcadia(store):
+    """Pin measured MOLA samples across the entire requested Arcadia bounding box."""
+    import struct
+    import tifffile
+    from .region import BOUNDS,MOLA_URN,coordinates,regional_metrics,local_sensors
+    from .science import pin
+    size=64;points=coordinates(size)
+    latitudes=[points[r*size][2] for r in range(size)]
+    longitudes=[p[3] for p in points[:size]]
+    stream=RangeFile(URL)
+    try:
+        with tifffile.TiffFile(stream) as tif:
+            page=tif.pages[0]
+            if page.shape!=(23040,46080) or page.rowsperstrip!=1 or int(page.compression)!=1 or str(page.dtype)!='int16':
+                raise ValueError('MOLA raster layout changed; review required')
+            columns=[int((((lon+180)%360)-180+180)*128) for lon in longitudes]
+            heights=[];source_rows=[]
+            for lat in latitudes:
+                row=min(23039,int((90-lat)*128));source_rows.append(row);values={}
+                # The requested box crosses the -180/180 raster seam.
+                for cols in ([c for c in columns if c<23040],[c for c in columns if c>=23040]):
+                    if not cols:continue
+                    lo,hi=min(cols),max(cols);stream.seek(page.dataoffsets[row]+lo*2)
+                    raw=stream.read((hi-lo+1)*2);samples=struct.unpack('<'+str(hi-lo+1)+'h',raw)
+                    values.update({c:samples[c-lo] if samples[c-lo]!=-32768 else None for c in cols})
+                heights.append([values[c] for c in columns])
+            result={'title':'Arcadia regional MOLA topography','url':URL,'version':'USGS MOLA 128 pixels/degree / arcadia-range-2',
+                'pds_dataset_urn':MOLA_URN,'status':'observed orbital topography, sampled','bounds':BOUNDS,
+                'grid_size':size,'heights_m':heights,'latitudes':latitudes,'longitudes':longitudes,
+                'source_rows':source_rows,'source_columns':columns,'source_resolution_m':page.tags['ModelPixelScaleTag'].value[0],
+                'metrics':regional_metrics(heights,latitudes,longitudes),'retrieved_at':time.time(),
+                'range_receipts':stream.ranges,'downloaded_bytes':stream.total_read,'local_sensors':local_sensors(),
+                'transformation_version':'arcadia-range-2','supports':'Regional elevation and resolved baseline gradients for site assessment',
+                'use':'Orbital spatial evidence; no local obstacle map or ground sensor readings. Coarse samples do not certify traversability.'}
+            raw=json.dumps(result,sort_keys=True,separators=(',',':')).encode()
+            vid=pin(store,'mola-arcadia',result,raw)
+            target=Path(__file__).resolve().parents[2]/'frontend'/'public'/'evidence'/'arcadia-region.json'
+            target.parent.mkdir(parents=True,exist_ok=True);target.write_text(json.dumps({**result,'version_id':vid}),encoding='utf-8')
+            return vid
+    finally:stream.client.close()
+
 if __name__=='__main__':sample()

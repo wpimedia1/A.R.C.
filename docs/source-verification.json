@@ -1,0 +1,618 @@
+{
+ "checked_at": 1793482434.6708887,
+ "package": "arcadia-mars-v1",
+ "package_hash": "71084ad8817c4965b78c8afb1cdd6fd97cf1d2fd250da49855b16f4457ed1ffa",
+ "method": "pypdf text extraction; lowercase; non-alphanumeric runs collapsed to one space; quote must be a substring of one page",
+ "verified": 37,
+ "failed": 0,
+ "unchecked": 27,
+ "files": {
+  "sources/s44461-026-00013-y.pdf": "a99e38a9f13de909179253f0870fad935ca32797316d06f61329cb816973da45",
+  "sources/Mars_Water_ISRU_Stud1.pdf": "ad66499dfd5ad66f2b2d5de957424bf7552f6fb1c60509092cd87ca85268c535",
+  "sources/An-ISRU-propellant-production-system-for-a-fully-fueled-Mars-Ascent-Vehicle-AIAA-2017-0423.pdf": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+  "sources/ASCE 2016 RASSOR 2 Final  6_8_2016.pdf": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+  "sources/TM-20220012395.pdf": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+  "sources/Offloading a 90-Ton Hab from its Lander on Mars.pdf": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+  "sources/1509.03210v1.pdf": "9255935e8b2b0a65b6269bbfc1c11614913550d6872319f26ba3db6581363702",
+  "sources/IAC 2024 Manuscript_FSP FINAL.pdf": "0fc007bc88e9576010bb0e26f8be74baace1dc621ecfdf8c127d74271c58ddd9",
+  "sources/mars_ice_drilling_assessment_v6_for_public_release.pdf": "631b474d279a787904c58c8bbe3f8830b0eeb1e9faa04d382af283e606827890"
+ },
+ "results": [
+  {
+   "parameter": "comms.conjunction_sun_sep_deg",
+   "source": "lasp2015",
+   "locator": "paragraph describing the June 2015 commanding moratorium",
+   "quote": "During that period, the sun will be within two degrees of Mars in Earth’s sky.",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "cost.prime_mission_earth_days",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "At least one Mars year (about 687 Earth days)",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "cost.rover_build_launch_usd",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "NASA has invested approximately $2.4 billion to build and launch",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "cost.rover_prime_ops_usd",
+   "source": "m2020landing",
+   "locator": "Quick facts",
+   "quote": "Landing and operating the rover during its prime mission is estimated at about $300 million",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "drill.gas_kg_per_m_max",
+   "source": "stolov2026",
+   "locator": "Table 4, p.13",
+   "quote": "Total required gas per meter drilled 3.95–0.50 kg/m",
+   "file_sha256": "a99e38a9f13de909179253f0870fad935ca32797316d06f61329cb816973da45",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "drill.max_depth_m",
+   "source": "stolov2026",
+   "locator": "p.2",
+   "quote": "RedWater, developed and tested at Honeybee Robotics, is a system designed to mine water at up to 25 m in depth on Mars",
+   "file_sha256": "a99e38a9f13de909179253f0870fad935ca32797316d06f61329cb816973da45",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "drill.rop_min_mm_s",
+   "source": "stolov2026",
+   "locator": "Table 4, p.13",
+   "quote": "Rate of penetration 0.35–3 mm/s Estimated range from testing",
+   "file_sha256": "a99e38a9f13de909179253f0870fad935ca32797316d06f61329cb816973da45",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "earth.semimajor_axis_1e6_km",
+   "source": "nssdc_mars",
+   "locator": "Orbital parameters, Semimajor axis (Earth column)",
+   "quote": "Semimajor axis (106 km) 227.956 149.598 1.524",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "excavator.duty_cycle_mwip",
+   "source": "mwip2016",
+   "locator": "p.38 (PDF page 38), excavator key characteristics",
+   "quote": "Duty Cycle / Recharge: 60% on- duty, 40% off-duty",
+   "file_sha256": "ad66499dfd5ad66f2b2d5de957424bf7552f6fb1c60509092cd87ca85268c535",
+   "found_on_pdf_pages": [
+    38
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.haul_m",
+   "source": "kleinhenz2017",
+   "locator": "p.4, essential-attribute table, column D (Typical Regolith)",
+   "quote": "Distance to processing plant 1 km 1 km 1 km 100 m",
+   "file_sha256": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+   "found_on_pdf_pages": [
+    4
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.load_kg",
+   "source": "kleinhenz2017",
+   "locator": "p.3",
+   "quote": "uses twin bucket drums to excavate ~80 kg of regolith",
+   "file_sha256": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+   "found_on_pdf_pages": [
+    3
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.mass_kg",
+   "source": "rassor2016",
+   "locator": "abstract",
+   "quote": "RASSOR 2.0 is a planetary excavator, which has a mass of 66 kg",
+   "file_sha256": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.min_rate_kg_per_day",
+   "source": "rassor2016",
+   "locator": "abstract",
+   "quote": "A single RASSOR 2.0 can excavate a minimum of 2.7 metric tons of regolith per day",
+   "file_sha256": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.mining_hours_per_day",
+   "source": "rassor2016",
+   "locator": "p.3",
+   "quote": "Each 24 hour period will consist of 16 hours of mining operations and eight hours of recharging",
+   "file_sha256": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+   "found_on_pdf_pages": [
+    3
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.power_w_per_kg_h",
+   "source": "rassor2016",
+   "locator": "abstract",
+   "quote": "power usage of 4 W per kg of regolith excavation rate",
+   "file_sha256": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.cable_days",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "1 km Cable Deployment 2 days",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.commissioning_h",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Reactor Commissioning 24 h",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.ctrl_box_h",
+   "source": "oleson2022",
+   "locator": "power mode timeline table (PDF p.29)",
+   "quote": "Ctrl Box Pallet Setup Ctrl Box Deploy- ment Reactor Startup Reactor Comm- issioning 1 km Cable Deployment Nominal Ops FSPS Idle Ops Duration 150 days 2 days 1 day 8 h 2 h 8 h 24 h 2 days",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    29
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.ctrl_pallet_h",
+   "source": "oleson2022",
+   "locator": "power mode timeline table (PDF p.29)",
+   "quote": "Ctrl Box Pallet Setup Ctrl Box Deploy- ment Reactor Startup Reactor Comm- issioning 1 km Cable Deployment Nominal Ops FSPS Idle Ops Duration 150 days 2 days 1 day 8 h 2 h 8 h 24 h 2 days",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    29
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.offload_days",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Landing and Offloading from Lander (powered by lander) 2 days 2 kW provided by lander",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.startup_h",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Reactor Startup 8 h",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.transport_days",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Load/Transport/Deploy Power Gen at FSPS Site (powered by rover) 1 day",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "habitat.diameter_m",
+   "source": "howard2023",
+   "locator": "p.2",
+   "quote": "The Common Habitat is 8.4 meters in diameter and 15.6 meters long",
+   "file_sha256": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "habitat.length_m",
+   "source": "howard2023",
+   "locator": "p.2",
+   "quote": "The Common Habitat is 8.4 meters in diameter and 15.6 meters long",
+   "file_sha256": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "habitat.mass_kg",
+   "source": "howard2023",
+   "locator": "p.2",
+   "quote": "The current control mass allocation for the habitat is 90 tons",
+   "file_sha256": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "habitat.trench_depth_m",
+   "source": "howard2023",
+   "locator": "p.11",
+   "quote": "placed in a trench roughly 1.58 meters deep",
+   "file_sha256": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+   "found_on_pdf_pages": [
+    11
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "ice.layer_base_depth_m",
+   "source": "bramson2015",
+   "locator": "p.9",
+   "quote": "mode depth = 42 m, mean depth = 51 m, standard deviation = 18 m",
+   "file_sha256": "9255935e8b2b0a65b6269bbfc1c11614913550d6872319f26ba3db6581363702",
+   "found_on_pdf_pages": [
+    9
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "ice.overburden_max_m",
+   "source": "mank2021",
+   "locator": "abstract",
+   "quote": "covered by at most 20 m of overburden",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "ice.temperature_k",
+   "source": "nssdc_mars",
+   "locator": "Mean temperature",
+   "quote": "Average temperature (K) ~214",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "ice.volume_fraction",
+   "source": "bramson2015",
+   "locator": "p.8",
+   "quote": "excess ice of up to 75% volumetric fraction ice",
+   "file_sha256": "9255935e8b2b0a65b6269bbfc1c11614913550d6872319f26ba3db6581363702",
+   "found_on_pdf_pages": [
+    8
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "mars.day_length_h",
+   "source": "nssdc_mars",
+   "locator": "Length of day",
+   "quote": "Length of day (hrs) 24.6597",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "mars.dusty_season_start_ls_deg",
+   "source": "dust_gds_2021",
+   "locator": "Section 4",
+   "quote": "We consider the dusty season as the time interval from Ls ~ 135° to 360° in each Martian year.",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "mars.gm_1e6_km3_s2",
+   "source": "nssdc_mars",
+   "locator": "Bulk parameters, GM",
+   "quote": "GM (x 106 km3/s2) 0.042828",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "mars.mean_radius_km",
+   "source": "nssdc_mars",
+   "locator": "Bulk parameters, Volumetric mean radius",
+   "quote": "Volumetric mean radius (km) 3389.5",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "mars.semimajor_axis_1e6_km",
+   "source": "nssdc_mars",
+   "locator": "Orbital parameters, Semimajor axis",
+   "quote": "Semimajor axis (106 km) 227.956",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "mwip.water_kg",
+   "source": "mwip2016",
+   "locator": "slide 33",
+   "quote": "total of 16 mt of water would need to be delivered/processed in 480 sols available (33 kg/sol)",
+   "file_sha256": "ad66499dfd5ad66f2b2d5de957424bf7552f6fb1c60509092cd87ca85268c535",
+   "found_on_pdf_pages": [
+    33
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "mwip.window_sols",
+   "source": "mwip2016",
+   "locator": "slide 33",
+   "quote": "total of 16 mt of water would need to be delivered/processed in 480 sols available (33 kg/sol)",
+   "file_sha256": "ad66499dfd5ad66f2b2d5de957424bf7552f6fb1c60509092cd87ca85268c535",
+   "found_on_pdf_pages": [
+    33
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "power.fsp_life_years",
+   "source": "fsp2024",
+   "locator": "p.1",
+   "quote": "designed for a 10-year life without the need for maintenance",
+   "file_sha256": "0fc007bc88e9576010bb0e26f8be74baace1dc621ecfdf8c127d74271c58ddd9",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "power.fsp_mass_max_kg",
+   "source": "fsp2024",
+   "locator": "p.1",
+   "quote": "The mass goal is under 6,000 kg (6 metric tons)",
+   "file_sha256": "0fc007bc88e9576010bb0e26f8be74baace1dc621ecfdf8c127d74271c58ddd9",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "power.fsp_output_kwe",
+   "source": "fsp2024",
+   "locator": "p.1",
+   "quote": "output power of 40kWe, designed for a 10-year life without the need for maintenance",
+   "file_sha256": "0fc007bc88e9576010bb0e26f8be74baace1dc621ecfdf8c127d74271c58ddd9",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "regolith.density_g_cm3",
+   "source": "tp3079",
+   "locator": "p.21",
+   "quote": "if assuming a regolith density of 1.5 g/cm3",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "relay.mro_ascending_node_lmst_h",
+   "source": "mro_aerobraking2008",
+   "locator": "primary science orbit description",
+   "quote": "a 3:03 PM local mean solar time at the ascending node",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "reliability.arm_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Arm module, Overall",
+   "quote": "Overall 7.25E-005",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "reliability.attitude_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Attitude Sensing module, Overall",
+   "quote": "Overall 3.39E-005",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "reliability.avionics_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Avionics module, Overall",
+   "quote": "Overall 1.30E-004",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "reliability.communication_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Communication module, Overall",
+   "quote": "Overall 8.42E-005",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "reliability.mast_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Mast module, Overall",
+   "quote": "Overall 4.58E-005",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "reliability.mobility_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Mobility module, Overall",
+   "quote": "Overall 5.07E-005",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "reliability.power_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Power module, Overall",
+   "quote": "Overall 2.38E-004",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "rodwell.power_kw",
+   "source": "hoffman2016",
+   "locator": "PDF p.62, \"Observations from the 100 gal/day Withdrawal Case\"",
+   "quote": "A power level of approximately 10 kW generates liquid water at about the rate at which it is being withdrawn",
+   "file_sha256": "631b474d279a787904c58c8bbe3f8830b0eeb1e9faa04d382af283e606827890",
+   "found_on_pdf_pages": [
+    62
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rodwell.withdrawal_gal_per_day",
+   "source": "hoffman2016",
+   "locator": "PDF p.62, slide title",
+   "quote": "Observations from the 100 gal/day Withdrawal Case",
+   "file_sha256": "631b474d279a787904c58c8bbe3f8830b0eeb1e9faa04d382af283e606827890",
+   "found_on_pdf_pages": [
+    62
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.mass_kg",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "Mass: About 2,260 pounds (1,025 kilograms)",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "rover.max_drive_m_per_sol",
+   "source": "autonav2021",
+   "locator": "Sol 200",
+   "quote": "Perseverance drove 175.15m in a single sol",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "rover.power_w",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "about 110 watts of electricity",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "shield.areal_density_g_cm2",
+   "source": "tp3079",
+   "locator": "p.21",
+   "quote": "about 20 g/cm² at a 1.5 g/cm³ density",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "sun.gm_1e6_km3_s2",
+   "source": "nssdc_sun",
+   "locator": "Bulk parameters, GM",
+   "quote": "GM (x 106 km3/s2) 132,712.",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "units.us_gallon_l",
+   "source": "proofwiki_gallon",
+   "locator": "Litres",
+   "quote": "1 gallon (US) = 3.78541 1784 litres",
+   "status": "unchecked: no local copy (web source); run tools/archive_sources.py"
+  },
+  {
+   "parameter": "water.cross_check_mwip_kw",
+   "source": "mwip2016",
+   "locator": "slide 50, Power Estimate 1 (Summary)",
+   "quote": "~1,300 tons (@1.25%) Not Required /Minimal 300 C / Continuous or Batch (8 kW)",
+   "file_sha256": "ad66499dfd5ad66f2b2d5de957424bf7552f6fb1c60509092cd87ca85268c535",
+   "found_on_pdf_pages": [
+    50
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "water.extraction_rate_kg_h",
+   "source": "kleinhenz2017",
+   "locator": "p.2, Figure 2",
+   "quote": "H2O 15701 kg (785,050 kg 2% soil) 1.36 kg/hr",
+   "file_sha256": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "water.extraction_thermal_kw",
+   "source": "kleinhenz2017",
+   "locator": "p.7",
+   "quote": "The majority of the power increase is attributed to the thermal energy needed to extract the water from the regolith at 17 kW",
+   "file_sha256": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+   "found_on_pdf_pages": [
+    7
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "water.plant_mass_kg",
+   "source": "kleinhenz2017",
+   "locator": "p.7",
+   "quote": "The addition of regolith processing for the methane system in case 2 increases hardware mass to 1.7 mT and power to 52 kW",
+   "file_sha256": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+   "found_on_pdf_pages": [
+    7
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "water.production_window_days",
+   "source": "kleinhenz2017",
+   "locator": "p.2",
+   "quote": "ISRU production must take place in 16 months (480 days)",
+   "file_sha256": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "water.regolith_fraction",
+   "source": "kleinhenz2017",
+   "locator": "p.4",
+   "quote": "The baseline temperature condition for c ase D was chosen as 300°C which gives a 1.3 wt% water yield",
+   "file_sha256": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+   "found_on_pdf_pages": [
+    4
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "water.target_kg",
+   "source": "kleinhenz2017",
+   "locator": "p.2, Figure 2",
+   "quote": "H2O 15701 kg (785,050 kg 2% soil) 1.36 kg/hr",
+   "file_sha256": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  }
+ ]
+}

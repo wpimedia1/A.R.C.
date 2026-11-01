@@ -26,6 +26,6 @@ USER root
 RUN pip install --no-cache-dir 'pytest>=8,<9'
 COPY council-dashboard/backend/tests ./tests
 USER mission
-CMD ["python", "-m", "pytest", "tests/test_mission.py", "tests/test_planning.py", "tests/test_api.py", "-q"]
+CMD ["python", "-m", "pytest", "tests", "-q"]
 
 FROM runtime AS production

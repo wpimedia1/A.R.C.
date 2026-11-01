@@ -1,12 +1,35 @@
 'use client';
-import {Canvas} from '@react-three/fiber';
-import {OrbitControls,ContactShadows,Line,Html} from '@react-three/drei';
-import {useMemo,Component,ReactNode} from 'react';
+import {Canvas,useFrame} from '@react-three/fiber';
+import {OrbitControls,ContactShadows,Html,useGLTF} from '@react-three/drei';
+import {useMemo,useState,Component,ReactNode,Suspense} from 'react';
 import * as THREE from 'three';
-import {State,Job} from '../lib/mission';
-class Boundary extends Component<{children:ReactNode},{failed:boolean}>{state={failed:false};static getDerivedStateFromError(){return {failed:true};}render(){return this.state.failed?<p className="fallback">3D is unavailable. Use the equipment list below to inspect every work order.</p>:this.props.children;}}
-function Box({at,size,color='#d9d6c8'}:{at:[number,number,number];size:[number,number,number];color?:string}){return <mesh position={at} castShadow receiveShadow><boxGeometry args={size}/><meshStandardMaterial color={color} roughness={.7}/></mesh>;}
-function Terrain(){const g=useMemo(()=>{const g=new THREE.PlaneGeometry(90,70,80,60);g.rotateX(-Math.PI/2);const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i);p.setY(i,-.16+Math.max(0,(Math.abs(x)+Math.abs(z)-20)/15)*(1.5+Math.sin(x*.19)*Math.cos(z*.21)));}g.computeVertexNormals();return g;},[]);return <mesh geometry={g} receiveShadow><meshStandardMaterial color="#b98e71"/></mesh>;}
-function Rover(){return <group><Box at={[0,.55,0]} size={[1.2,.45,.85]}/><Box at={[0,.82,0]} size={[.65,.2,.55]} color="#a96b43"/>{[-.45,.45].flatMap(x=>[-.5,.5].map(z=><mesh key={`${x}${z}`} position={[x,.28,z]} rotation={[Math.PI/2,0,0]} castShadow><cylinderGeometry args={[.28,.28,.2,12]}/><meshStandardMaterial color="#3e3a35"/></mesh>))}<Box at={[.3,1.15,0]} size={[.08,.65,.08]}/><Box at={[.3,1.5,0]} size={[.3,.15,.2]}/></group>;}
-function Asset({j,select}:{j:Job;select:(id:string)=>void}){const p=j.status==='complete'?1:j.progress/j.duration;const labels:Record<string,string>={survey:'Survey rover',power:'Power unit',water:'Water plant',habitat:'Habitat',excavate:'Excavation'};return <group position={j.position} onClick={e=>{e.stopPropagation();select(j.id);}}><Html position={[0,2.7,0]} center><button className="asset-tag" onClick={()=>select(j.id)}>{labels[j.id]}<small>{j.status==='running'?`${j.progress}/${j.duration} steps`:j.status}</small></button></Html>{j.id==='habitat'?<><Box at={[0,.15,0]} size={[4,.3,3.2]} color="#a39b89"/>{[0,1,2,3,4].map(i=><mesh key={i} position={[-1.5+i*.75,.35,0]} rotation={[0,Math.PI/2,0]} castShadow><torusGeometry args={[1.35,.06,8,24,Math.PI]}/><meshStandardMaterial color="#dedbca"/></mesh>)}{p>0&&<Box at={[0,.4+p*.6,0]} size={[3.5,.5+p,2.4]} color="#e6e2ce"/>}<group position={[3,0,1]}><Rover/></group></>:j.id==='power'?<>{[0,1,2].map(i=><group key={i} position={[i*1.6-1.6,0,0]}><Box at={[0,.5,0]} size={[.1,1,.1]}/><group rotation={[-.3,0,0]}><Box at={[0,1,0]} size={[1.4,.08,2.8]} color={p===1?'#3c5261':'#877969'}/>{[0,1,2,3].map(k=><Box key={k} at={[0,1.05,k*.65-.95]} size={[1.35,.015,.025]} color="#8b9ca0"/>)}</group></group>)}</>:j.id==='water'?<>{[-.7,.7].map(x=><mesh key={x} position={[x,.9,0]} castShadow><cylinderGeometry args={[.55,.55,1.8,24]}/><meshStandardMaterial color={p===1?'#acbfb8':'#bdb6a7'} metalness={.25} roughness={.5}/></mesh>)}<Box at={[0,.4,1.1]} size={[2,.8,.7]}/></>:j.id==='excavate'?<><mesh rotation={[-Math.PI/2,0,0]} position={[0,.01,0]}><circleGeometry args={[2,28]}/><meshStandardMaterial color="#80614d"/></mesh><Rover/><Box at={[.6,1.1,-.5]} size={[.2,.2,2.8]} color="#c38b45"/></>:<group position={[p*2,0,0]}><Rover/></group>}</group>;}
-export default function Outpost({state,select}:{state:State;select:(id:string)=>void}){return <Boundary><Canvas shadows camera={{position:[13,12,16],fov:43}} dpr={[1,1.5]} aria-label="Simulated Arcadia outpost; select equipment to inspect work"><color attach="background" args={['#e4d2bc']}/><fog attach="fog" args={['#e4d2bc',40,90]}/><ambientLight intensity={1.3}/><directionalLight position={[-12,20,8]} intensity={3} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-25} shadow-camera-right={25} shadow-camera-top={25} shadow-camera-bottom={-25}/><Terrain/>{state.jobs.filter(j=>!['verify','maintenance'].includes(j.id)).map(j=><Asset key={j.id} j={j} select={select}/>)}<Line points={[[-5,.04,4],[0,.04,3],[0,.04,0],[5,.04,2],[6,.04,-4],[-6,.04,-2]]} color="#e8d9b8" lineWidth={1.2} dashed dashSize={.35} gapSize={.2}/>{Array.from({length:35},(_,i)=><mesh key={i} position={[Math.sin(i*83)*18,-.02,Math.cos(i*53)*14]} scale={[.2+(i%4)*.15,.12+(i%3)*.1,.2+(i%2)*.2]} castShadow><icosahedronGeometry args={[1,0]}/><meshStandardMaterial color="#9b7960"/></mesh>)}<ContactShadows opacity={.28} scale={60} blur={2} far={10} resolution={512}/><OrbitControls makeDefault minDistance={12} maxDistance={55} maxPolarAngle={Math.PI/2.2}/></Canvas></Boundary>;}
+import {State,Asset} from '../lib/mission';
+class Boundary extends Component<{children:ReactNode},{failed:boolean}>{state={failed:false};static getDerivedStateFromError(){return {failed:true};}render(){return this.state.failed?<p className="fallback">3D is unavailable. Use the equipment list below.</p>:this.props.children;}}
+function Model({name,size=3,muted=false}:{name:string;size?:number;muted?:boolean}){
+ // Draco decoder is self-hosted (copied from three/examples/jsm/libs/draco/gltf) so no CDN is needed.
+ const {scene}=useGLTF(name==='perseverance'?'/models/perseverance.glb':`/models/kenney/${name}.glb`,'/draco/');
+ const model=useMemo(()=>{const clone=scene.clone(true),box=new THREE.Box3().setFromObject(clone),d=box.getSize(new THREE.Vector3()),c=box.getCenter(new THREE.Vector3()),k=size/Math.max(d.x,d.y,d.z);clone.scale.setScalar(k);clone.position.set(-c.x*k,-box.min.y*k,-c.z*k);clone.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(muted){const l=Array.isArray(o.material)?o.material:[o.material];o.material=l.map(m=>{const x=m.clone();x.transparent=true;x.opacity=.3;x.depthWrite=false;return x;});}}});return clone;},[scene,size,muted]);
+ return <primitive object={model}/>;
+}
+// Illustrative stand-in models (Kenney CC0, NASA Perseverance). Not engineering representations.
+const MODEL:Record<string,[string,number]>={rover:['perseverance',2.3],excavator:['rover',1.4],rodwell:['machine_barrelLarge',1.8],power:['machine_generatorLarge',3],habitat:['hangar_roundB',5]};
+function Equipment({a,state,select,labels}:{a:Asset;state:State;select:(id:string)=>void;labels:boolean}){
+ const job=state.jobs.find(j=>j.assigned.includes(a.id))||state.jobs.find(j=>j.asset_kinds.includes(a.kind));
+ const [name,size]=MODEL[a.kind];
+ const trench=state.jobs.find(j=>j.id==='trench');
+ const muted=a.kind==='habitat'&&trench?.status!=='complete';
+ return <><group position={a.position} onClick={e=>{e.stopPropagation();if(job)select(job.id);}}><Suspense fallback={null}><Model name={name} size={size} muted={muted||!a.available}/></Suspense></group>
+  {labels&&<Html position={[a.position[0],size+.8,a.position[2]]} center><button className="asset-tag" onClick={()=>job&&select(job.id)}>{a.name}<small>{!a.available?'Unavailable':job&&job.assigned.includes(a.id)?`${job.title} · ${(job.progress*100).toFixed(0)}%`:a.kind==='power'?`${state.power_used_kw.toFixed(2)} / ${state.power_capacity_kw} kW allocated`:'Idle'}</small></button></Html>}</>;
+}
+// Labels mount after the first rendered frame; mounting drei Html during the first commit dropped one label.
+function Scene({state,select}:{state:State;select:(id:string)=>void}){
+ const [labels,setLabels]=useState(false);
+ useFrame(()=>{if(!labels)setLabels(true);});
+ return <>{state.assets.map(a=><Equipment key={a.id} a={a} state={state} select={select} labels={labels}/>)}</>;
+}
+export default function Outpost({state,select}:{state:State;select:(id:string)=>void}){
+ return <Boundary><Canvas shadows camera={{position:[17,16,22],fov:43}} dpr={[1,1.5]} aria-label="Equipment layout diagram; positions are display-only"><color attach="background" args={['#ba8870']}/><fog attach="fog" args={['#ba8870',40,90]}/><ambientLight intensity={.85}/><hemisphereLight args={['#efd7bf','#483c36',1.1]}/><directionalLight position={[-12,20,8]} intensity={3} castShadow shadow-mapSize={[2048,2048]}/>
+  <gridHelper args={[90,30,'#8b8274','#bcb3a4']}/><mesh rotation={[-Math.PI/2,0,0]} position={[0,-.02,0]} receiveShadow><planeGeometry args={[90,70]}/><meshStandardMaterial color="#d2c9ba" roughness={1}/></mesh>
+  <Scene state={state} select={select}/>
+  <ContactShadows opacity={.28} scale={60} blur={2} far={10} resolution={512}/><OrbitControls makeDefault minDistance={12} maxDistance={55} maxPolarAngle={Math.PI/2.2}/></Canvas></Boundary>;
+}

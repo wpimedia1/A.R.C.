@@ -19,15 +19,19 @@ services:
       DATABASE_URL: postgresql+psycopg://mission:local-development-only@database/mission
       COOKIE_SECURE: "false"
       PUBLIC_ORIGIN: http://127.0.0.1:8020
+      MISSION_MODEL_MODE: ${MISSION_MODEL_MODE:-meta}
     depends_on:
       database: {condition: service_healthy}
   worker:
     build: {context: ., target: runtime}
     restart: unless-stopped
     command: [python, -m, mission.worker]
+    env_file:
+      - path: ./council-dashboard/backend/.env
+        required: false
     environment:
       DATABASE_URL: postgresql+psycopg://mission:local-development-only@database/mission
-      MODEL_API_KEY: ${MODEL_API_KEY:-}
+      MISSION_MODEL_MODE: ${MISSION_MODEL_MODE:-meta}
     depends_on:
       database: {condition: service_healthy}
   tests:

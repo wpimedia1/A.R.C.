@@ -19,3 +19,10 @@
 **/node_modules.previous/
 **/package-lock.previous.json
 **/.test-runs/
+
+.playwright-cli/
+output/
+!council-dashboard/frontend/public/evidence/*.png
+!council-dashboard/frontend/public/images/*.png
+# Real DSN Now capture used by the tests
+!council-dashboard/backend/tests/data/

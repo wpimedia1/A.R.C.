@@ -1,8 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Mars Mission — Arcadia Outpost",
+  title: "A.R.C. — Autonomous Robotic Colony",
   description: "Follow a persistent robotic outpost and inspect every decision.",
+  icons: {icon: "/icon.svg"},
 };
 
 export default function RootLayout({ children }) {
@@ -12,3 +13,5 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+import './journey.css';

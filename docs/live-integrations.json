@@ -1,0 +1,209 @@
+{
+  "run_at": "2026-10-31T22:45:02Z",
+  "results": [
+    {
+      "check": "nasa-weather",
+      "ok": true,
+      "seconds": 8.6,
+      "msl": {
+        "sols": 4745,
+        "newest": 4995,
+        "newest_date": "2026-08-25"
+      },
+      "m2020": {
+        "sols": 7,
+        "newest": 1133,
+        "newest_date": "2024-04-27"
+      },
+      "estimates_made": 340
+    },
+    {
+      "check": "dsn-now",
+      "ok": true,
+      "seconds": 0.7,
+      "dishes": 14,
+      "targets": 14,
+      "mars_spacecraft": [
+        "M01O",
+        "MRO"
+      ],
+      "nearest_targets": [
+        {
+          "dish": "DSS35",
+          "station": "Canberra",
+          "target": "MRO",
+          "mission": "Mars Reconnaissance Orbiter",
+          "range_km": null,
+          "range_basis": "no range published",
+          "minus_earth_mars_km": null,
+          "at_mars": true,
+          "identified_by": "DSN mission abbreviation",
+          "range_conflict": false,
+          "up_active": true,
+          "down_active": true
+        },
+        {
+          "dish": "DSS36",
+          "station": "Canberra",
+          "target": "M01O",
+          "mission": "Mars '01 Odyssey",
+          "range_km": null,
+          "range_basis": "no range published",
+          "minus_earth_mars_km": null,
+          "at_mars": true,
+          "identified_by": "DSN mission abbreviation",
+          "range_conflict": false,
+          "up_active": true,
+          "down_active": true
+        },
+        {
+          "dish": "DSS14",
+          "station": "Goldstone",
+          "target": "DSN",
+          "mission": null,
+          "range_km": null,
+          "range_basis": "no range published",
+          "minus_earth_mars_km": null,
+          "at_mars": false,
+          "identified_by": null,
+          "range_conflict": false,
+          "up_active": false,
+          "down_active": false
+        },
+        {
+          "dish": "DSS24",
+          "station": "Goldstone",
+          "target": "SOHO",
+          "mission": null,
+          "range_km": null,
+          "range_basis": "no range published",
+          "minus_earth_mars_km": null,
+          "at_mars": false,
+          "identified_by": null,
+          "range_conflict": false,
+          "up_active": true,
+          "down_active": true
+        },
+        {
+          "dish": "DSS26",
+          "station": "Goldstone",
+          "target": "IMAP",
+          "mission": null,
+          "range_km": null,
+          "range_basis": "no range published",
+          "minus_earth_mars_km": null,
+          "at_mars": false,
+          "identified_by": null,
+          "range_conflict": false,
+          "up_active": true,
+          "down_active": true
+        },
+        {
+          "dish": "DSS23",
+          "station": "Goldstone",
+          "target": "SPP",
+          "mission": null,
+          "range_km": null,
+          "range_basis": "no range published",
+          "minus_earth_mars_km": null,
+          "at_mars": false,
+          "identified_by": null,
+          "range_conflict": false,
+          "up_active": false,
+          "down_active": false
+        }
+      ],
+      "feed_shape": {
+        "dsn": [],
+        "station": [
+          "friendlyName",
+          "name",
+          "timeUTC",
+          "timeZoneOffset"
+        ],
+        "dish": [
+          "activity",
+          "azimuthAngle",
+          "elevationAngle",
+          "isArray",
+          "isDDOR",
+          "isMSPA",
+          "name",
+          "windSpeed"
+        ],
+        "target": [
+          "downlegRange",
+          "id",
+          "name",
+          "rtlt",
+          "uplegRange"
+        ],
+        "upSignal": [
+          "active",
+          "band",
+          "dataRate",
+          "frequency",
+          "power",
+          "signalType",
+          "spacecraft",
+          "spacecraftID"
+        ],
+        "downSignal": [
+          "active",
+          "band",
+          "dataRate",
+          "frequency",
+          "power",
+          "signalType",
+          "spacecraft",
+          "spacecraftID"
+        ],
+        "timestamp": []
+      },
+      "sample_saved": "docs/dsn-sample.xml",
+      "check_against": "https://eyes.nasa.gov/dsn/dsn.html"
+    },
+    {
+      "check": "usgs-hirise-footprints",
+      "ok": true,
+      "seconds": 1.5,
+      "product": "ESP_056974_2205",
+      "site_relation": "proxy: nearest image, centre 14 km from the mission site",
+      "applies_to_site": false,
+      "candidates_found": 0,
+      "nearby_found": 28,
+      "site_distance_km": 13.5,
+      "browse": "https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.abrowse.jpg",
+      "label": "https://hirise.lpl.arizona.edu/PDS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.LBL"
+    },
+    {
+      "check": "hirise-browse",
+      "ok": true,
+      "seconds": 0.0,
+      "url": "https://hirise-pds.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_052300_052399/ESP_052358_2210/ESP_052358_2210_RED.abrowse.jpg",
+      "bytes": 3404940
+    },
+    {
+      "check": "muse-image",
+      "ok": true,
+      "seconds": 24.7,
+      "status": "generated",
+      "http_status": 200,
+      "response_headers": {
+        "x-request-id": "512405fc-78cb-44fd-81a3-48b4c4320102",
+        "date": "Sat, 31 Oct 2026 22:44:59 GMT"
+      },
+      "sha256": "29398bfcf057bba057f5db27bf81c159e763b6211482b6d6d262ef2402b352d6",
+      "raw_sha256": "71fea1951b4e298a311f7b85f3792663276f15fc15511d80f4fa1b4272c0a0c7",
+      "bytes": 206196,
+      "stamped_label": "AI ILLUSTRATION  \u00b7  SIMULATED STATE  \u00b7  NOT A PHOTOGRAPH  \u00b7  NOT EVIDENCE"
+    },
+    {
+      "check": "sam-3.1",
+      "ok": false,
+      "seconds": 2.1,
+      "error": "MediaError: SAM 3.1 returned no output_text; raw response stored on receipt sam:ESP_052358_2210:boulder: {\"top_logprobs\": 0, \"temperature\": 1.0, \"top_p\": 1.0, \"service_tier\": \"auto\", \"model\": \"sam-3.1\", \"background\": false, \"tools\": [], \"tool_choice\": \"auto\", \"truncation\": \"disabled\", \"id\": \"resp_6ae66f6dd3c403fa9d61434d\", \"object\": \"response\", \"status\": \"completed\", \"created_at\": 1793486701.0, \"completed_at\": 1793486701.0, \"error\": null, \"incomplete_details\": null, \"output\": [{\"type\": \"message\", \"id\": \"msg_172ab118-f441-4e0d-8bb5-7b73ae8a2c5a\", \"role\": \"assistant\", \"content\": [{\"type\": \"output_text\", \"text\": \"\", \"annotations\": [], \"logprobs\": []}], \"status\": \"completed\"}], \"instructions\": null, ",
+      "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\tools\\verify_live_integrations.py\", line 37, in check\n    out = fn()\n  File \"C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\tools\\verify_live_integrations.py\", line 87, in sam\n    seg = _segment(st, 'public', 'boulder', HIRISE['browse'])\n  File \"C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\council-dashboard\\backend\\mission\\media.py\", line 301, in _segment\n    raise MediaError('SAM 3.1 returned no output_text; raw response stored on receipt ' + rid + ': ' + shape[:600])\nmission.media.MediaError: SAM 3.1 returned no output_text; raw response stored on receipt sam:ESP_052358_2210:boulder: {\"top_logprobs\": 0, \"temperature\": 1.0, \"top_p\": 1.0, \"service_tier\": \"auto\", \"model\": \"sam-3.1\", \"background\": false, \"tools\": [], \"tool_choice\": \"auto\", \"truncation\": \"disabled\", \"id\": \"resp_6ae66f6dd3c403fa9d61434d\", \"object\": \"response\", \"status\": \"completed\", \"created_at\": 1793486701.0, \"completed_at\": 1793486701.0, \"error\": null, \"incomplete_details\": null, \"output\": [{\"type\": \"message\", \"id\": \"msg_172ab118-f441-4e0d-8bb5-7b73ae8a2c5a\", \"role\": \"assistant\", \"content\": [{\"type\": \"output_text\", \"text\": \"\", \"annotations\": [], \"logprobs\": []}], \"status\": \"completed\"}], \"instructions\": null, \n"
+    }
+  ]
+}

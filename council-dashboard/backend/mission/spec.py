@@ -1,8 +1,8 @@
 """Versioned, explicitly hypothetical Arcadia mission. SI units unless stated."""
 import hashlib
 import json
+from .provider import DIRECTOR_MODEL, SPECIALIST_MODEL
 
-VERSION = 'arcadia-robotic-1.0'
 SOURCES = [
     {'id': 'nasa-dra', 'title': 'Human Exploration of Mars DRA 5.0', 'url': 'https://ntrs.nasa.gov/citations/20090012109', 'version': '2009', 'passage': 'The DRA is not a formal plan, but provides a vision and context', 'supports': 'Reference architecture; predeployment before crew arrival.', 'classification': 'published estimate'},
     {'id': 'nasa-m2m', 'title': 'Moon to Mars Architecture, Revision C', 'url': 'https://ntrs.nasa.gov/citations/20250010956', 'version': '2025 revision C', 'passage': None, 'supports': 'Architecture context; not a site-specific settlement authorization.', 'classification': 'published estimate'},
@@ -11,40 +11,14 @@ SOURCES = [
     {'id': 'rems', 'title': 'Curiosity REMS observations', 'url': 'https://atmos.nmsu.edu/data_and_services/atmospheres_data/MARS/curiosity/rems.html', 'version': 'archive catalog', 'passage': None, 'supports': 'Off-site Gale crater context only. Not current Arcadia weather.', 'classification': 'observed'},
 ]
 
-def parameter(value, unit, justification, origin='scenario assumption'):
-    return {'value': value, 'unit': unit, 'classification': origin, 'justification': justification, 'source_id': 'scenario-v1'}
-
-PARAMETERS = {
-    'sol_seconds': parameter(88775.244, 's', 'Conventional mean solar day used by this simulator.', 'scenario assumption'),
-    'ticks_per_sol': parameter(24, 'ticks', 'Discrete approximation; each tick is 1/24 of a sol.'),
-    'water_target': parameter(100, 'kg', 'Demonstration reserve threshold, not a crew life-support requirement.'),
-    'water_yield': parameter(.25, 'kg/kg', 'Hypothetical recoverable water per kg feedstock; not SWIM-measured.'),
-    'initial_energy': parameter(600, 'kWh', 'Landed battery reserve for the scenario.'),
-    'initial_power': parameter(4, 'kW', 'Temporary landed power source.'),
-    'deployed_power': parameter(18, 'kW', 'Scenario power unit after commissioning; technology not certified.'),
-    'operating_budget': parameter(250000, '2026 USD', 'Scenario spending authority excluding launch, R&D and capital.'),
-    'capital_allocation': parameter(5000000, '2026 USD', 'Illustrative landed equipment allocation; not a NASA cost estimate.'),
-    'battery_capacity': parameter(800, 'kWh', 'Storage ceiling; generated surplus is curtailed.'),
-}
-
 ROLES = [
-    {'id': 'director', 'name': 'Mission director', 'model': 'muse-wonder-1.0', 'job': 'Sequence milestones and resolve cross-team resource conflicts.'},
-    {'id': 'survey', 'name': 'Survey lead', 'model': 'muse-spark-1.3', 'job': 'Inspect routes and reduce terrain uncertainty.'},
-    {'id': 'construction', 'name': 'Construction lead', 'model': 'muse-spark-1.3', 'job': 'Prepare foundations and assemble the habitat.'},
-    {'id': 'resources', 'name': 'Resource lead', 'model': 'muse-spark-1.3', 'job': 'Excavate feedstock and produce the water reserve.'},
-    {'id': 'power', 'name': 'Power and maintenance lead', 'model': 'muse-spark-1.3', 'job': 'Commission power and maintain equipment.'},
-    {'id': 'logistics', 'name': 'Logistics and finance lead', 'model': 'muse-spark-1.3', 'job': 'Reconcile inventory, reservations and spending.'},
-]
-
-# All engineering quantities below are scenario assumptions, not extracted specifications.
-JOBS = [
-    dict(id='survey', title='Survey the landing zone', owner='survey', asset='rover', duration=2, power_kw=2, cost=3000, inputs={'energy_kwh': 8}, outputs={}, dependencies=[], position=[-5, 0, 4]),
-    dict(id='power', title='Commission the power unit', owner='power', asset='utility', duration=3, power_kw=3, cost=15000, inputs={'energy_kwh': 12, 'materials_kg': 30}, outputs={}, dependencies=['survey'], position=[6, 0, -4]),
-    dict(id='excavate', title='Excavate the resource test site', owner='resources', asset='excavator', duration=4, power_kw=10, cost=12000, inputs={'energy_kwh': 50}, outputs={'feedstock_kg': 500, 'regolith_kg': 300}, dependencies=['power'], position=[-6, 0, -2]),
-    dict(id='water', title='Build the water reserve', owner='resources', asset='processor', duration=4, power_kw=12, cost=9000, inputs={'energy_kwh': 55, 'feedstock_kg': 500}, outputs={}, dependencies=['excavate'], position=[5, 0, 2]),
-    dict(id='habitat', title='Prepare the first habitat', owner='construction', asset='builder', duration=6, power_kw=12, cost=25000, inputs={'energy_kwh': 80, 'regolith_kg': 200, 'materials_kg': 100}, outputs={}, dependencies=['excavate'], position=[0, 0, 0]),
-    dict(id='verify', title='Verify outpost readiness', owner='logistics', asset='rover', duration=1, power_kw=1, cost=1000, inputs={'energy_kwh': 2}, outputs={}, dependencies=['water', 'habitat'], position=[0, 0, 3]),
-    dict(id='maintenance', title='Service the excavation robot', owner='power', asset='utility', duration=2, power_kw=3, cost=2000, inputs={'energy_kwh': 6, 'spares': 1}, outputs={}, dependencies=['power'], position=[-6, 0, -2]),
+    {'id': 'director', 'name': 'Mission director', 'model': DIRECTOR_MODEL, 'job': 'Reconciles independent assessments and sets the work priority.'},
+    {'id': 'survey', 'name': 'Survey lead', 'model': SPECIALIST_MODEL, 'job': 'Authorizes the site survey.'},
+    {'id': 'construction', 'name': 'Construction lead', 'model': SPECIALIST_MODEL, 'job': 'Authorizes trench excavation and regolith shielding, and assigns the excavators.'},
+    {'id': 'resources', 'name': 'Resource lead', 'model': SPECIALIST_MODEL, 'job': 'Authorizes Rodwell drilling and water production.'},
+    {'id': 'assurance', 'name': 'Assurance review', 'model': SPECIALIST_MODEL, 'job': 'Reviews every authorized work order before uplink and can hold it; cannot authorize work.'},
+    {'id': 'power', 'name': 'Power lead', 'model': SPECIALIST_MODEL, 'job': 'Authorizes fission power deployment. The unit is designed for 10 years without maintenance (NASA FSP); capacity loss is handled by replanning.'},
+    {'id': 'logistics', 'name': 'Logistics and finance lead', 'model': SPECIALIST_MODEL, 'job': 'Orders replacement robots for failed units on the next Earth-Mars window and books their landed cost (D12).'},
 ]
 
 def canonical(value):
@@ -53,17 +27,102 @@ def canonical(value):
 def digest(value):
     return hashlib.sha256(canonical(value).encode()).hexdigest()
 
-def specification():
-    result = {'version': VERSION, 'title': 'Arcadia robotic preparation', 'region': 'Arcadia Planitia',
-              'site': {'latitude': 40, 'longitude': -170, 'classification': 'scenario assumption'},
-              'parameters': PARAMETERS, 'jobs': JOBS, 'roles': ROLES,
-              'job_parameter_origin': 'All job durations, costs, positions, power and material quantities are scenario assumptions. Costs are 2026 USD with ±50% illustrative uncertainty.',
-              'conflicts': ['DRA 5.0 and Revision C are different architectural generations; this scenario does not assert compatibility of their vehicle designs.',
-                            'REMS measures Gale crater, not Arcadia. No local weather transfer model is applied.',
-                            'SWIM indicates regional ice consistency, not verified mine yield.'],
-              'requirements': [{'id': 'ready-power', 'text': 'Commission the scenario power unit', 'source_ids': ['scenario-v1', 'nasa-m2m']},
-                               {'id': 'ready-water', 'text': 'Store at least 100 kg of water', 'source_ids': ['scenario-v1', 'swim']},
-                               {'id': 'ready-habitat', 'text': 'Complete habitat preparation', 'source_ids': ['scenario-v1', 'nasa-dra']},
-                               {'id': 'ready-check', 'text': 'Pass deterministic readiness verification', 'source_ids': ['scenario-v1']}]}
-    result['hash'] = digest(result)
-    return result
+PACKAGE_ID = 'arcadia-mars-v1'
+
+# Display-only layout (metres, local frame). Not used by any physical calculation.
+LAYOUT = {'rover-1': [-10, 0, 6], 'excavator-1': [-2, 0, 14], 'excavator-2': [8, 0, 14], 'rodwell-1': [12, 0, -6],
+          'fsp-1': [-14, 0, -12], 'habitat-1': [3, 0, 4]}
+
+
+def specification(package_id=PACKAGE_ID, overrides=None):
+    """Mission specification built only from a validated, fully approved environment package."""
+    from .package import load, require_approved
+    pkg = load(package_id, overrides)
+    require_approved(pkg)
+    v = pkg['values']
+    tick_h = v['mars.day_length_h'] / 24  # D7: one tick = 1/24 sol
+
+    def ref(*names):
+        return list(names)
+
+    assets = [
+        {'id': 'rover-1', 'kind': 'rover', 'name': 'Survey rover (Perseverance-class)', 'mass_kg': v['rover.mass_kg'],
+         'grid_power_kw': 0.0, 'rate_per_h': v['rover.max_drive_m_per_sol'] / v['mars.day_length_h'], 'rate_unit': 'm',
+         'parameters': ref('rover.mass_kg', 'rover.power_w', 'rover.max_drive_m_per_sol', 'mars.day_length_h'),
+         'note': 'Self-powered by MMRTG (110 W); draws nothing from the grid.'},
+        *[{'id': f'excavator-{i}', 'kind': 'excavator', 'name': f'Excavator {i} (RASSOR 2.0-class)', 'mass_kg': v['excavator.mass_kg'],
+           'grid_power_kw': v['excavator.power_kw'], 'rate_per_h': v['excavator.rate_kg_h'], 'rate_unit': 'kg',
+           'parameters': ref('excavator.mass_kg', 'excavator.power_kw', 'excavator.rate_kg_h'),
+           'note': 'Battery-powered in the source; battery recharge is charged to the grid at the excavation power.'} for i in (1, 2)],
+        {'id': 'rodwell-1', 'kind': 'rodwell', 'name': 'Rodwell ice-melt water well', 'mass_kg': None,
+         'grid_power_kw': v['rodwell.power_kw'], 'rate_per_h': v['rodwell.water_kg_per_day'] / 24, 'rate_unit': 'kg',
+         'parameters': ref('rodwell.power_kw', 'rodwell.water_kg_per_day', 'drill.rop_min_mm_s'),
+         'note': 'RedWater-class drill and Rodwell. No published Mars hardware mass; capital cost is not estimated (missing value).'},
+        {'id': 'fsp-1', 'kind': 'power', 'name': 'Fission surface power unit', 'mass_kg': v['power.fsp_mass_max_kg'],
+         'grid_power_kw': 0.0, 'output_kw': v['power.fsp_output_kwe'], 'rate_per_h': None, 'rate_unit': None,
+         'parameters': ref('power.fsp_output_kwe', 'power.fsp_mass_max_kg', 'fsp.deploy_total_h'), 'note': 'No grid power until the deployment job completes (D8).'},
+        {'id': 'habitat-1', 'kind': 'habitat', 'name': 'Common Habitat', 'mass_kg': v['habitat.mass_kg'],
+         'grid_power_kw': 0.0, 'rate_per_h': None, 'rate_unit': None, 'parameters': ref('habitat.mass_kg'),
+         'note': 'Landed beside the trench; offload not modeled (D4).'},
+    ]
+    # D14: mobile robots carry the series failure rate of the reference planetary rover model; others do not fail.
+    for a in assets:
+        a.update(available=True, position=LAYOUT[a['id']],
+                 failure_rate_per_h=v['reliability.mobile_robot_failures_per_h'] if a['kind'] in ('rover', 'excavator') else None)
+    jobs = [
+        {'id': 'power', 'kind': 'commissioning', 'title': 'Deploy and commission fission power', 'owner': 'power', 'asset_kinds': ['power'],
+         'target': v['fsp.deploy_total_h'], 'unit': 'h', 'output': 'power_commissioning_h', 'dependencies': [],
+         'rate_per_asset_h': 1.0, 'power_per_asset_kw': 0.0, 'effect': {'grid_capacity_kw': v['power.fsp_output_kwe']},
+         'parameters': ref('fsp.deploy_total_h', 'power.fsp_output_kwe'),
+         'basis': 'D8: summed lunar deployment timeline (Oleson et al. 2022, Table 3.6); powered by lander and rover in the source.'},
+        {'id': 'drill', 'kind': 'drilling', 'title': 'Drill the Rodwell through the overburden', 'owner': 'resources', 'asset_kinds': ['rodwell'],
+         'target': v['ice.overburden_max_m'], 'unit': 'm', 'output': 'drilled_m', 'dependencies': ['survey', 'power'],
+         'rate_per_asset_h': v['ice.overburden_max_m'] / v['drill.hours_through_overburden'], 'power_per_asset_kw': None,
+         'parameters': ref('ice.overburden_max_m', 'drill.rop_min_mm_s', 'drill.hours_through_overburden'),
+         'basis': 'D9: lowest tested rate of penetration (Stolov et al. 2026). Drilling energy not published: not estimated.'},
+        {'id': 'survey', 'kind': 'survey', 'title': 'Survey the work site', 'owner': 'survey', 'asset_kinds': ['rover'],
+         'target': v['rover.max_drive_m_per_sol'], 'unit': 'm', 'output': 'survey_m', 'dependencies': [],
+         'parameters': ref('rover.max_drive_m_per_sol'), 'basis': 'D3: one sol of driving at the published record distance.'},
+        {'id': 'trench', 'kind': 'excavation', 'title': 'Excavate the habitat trench', 'owner': 'construction', 'asset_kinds': ['excavator'],
+         'target': v['habitat.trench_mass_kg'], 'unit': 'kg', 'output': 'trench_kg', 'dependencies': ['survey', 'power'],
+         'parameters': ref('habitat.trench_mass_kg'), 'basis': 'Trench 1.58 m deep, one habitat diameter wide, one habitat long.'},
+        {'id': 'shielding', 'kind': 'excavation', 'title': 'Cover the habitat with regolith shielding', 'owner': 'construction',
+         'asset_kinds': ['excavator'], 'target': v['habitat.shield_mass_kg'], 'unit': 'kg', 'output': 'shield_kg',
+         'dependencies': ['trench'], 'parameters': ref('habitat.shield_mass_kg'), 'basis': '20 g/cm2 over the full habitat surface (upper bound).'},
+        {'id': 'water', 'kind': 'water', 'title': 'Produce water from Arcadia ice', 'owner': 'resources', 'asset_kinds': ['rodwell'],
+         'target': v['water.target_kg'], 'unit': 'kg', 'output': 'water_kg', 'dependencies': ['drill', 'power'],
+         'parameters': ref('water.target_kg', 'water.rodwell_kwh_per_kg'), 'basis': 'D1: Rodwell melt extraction after drilling (D9). Melt start-up time not published.'},
+    ]
+    positions = {'power': [-14, 0, -12], 'drill': [12, 0, -6], 'survey': [-6, 0, 4], 'trench': [3, 0, 10], 'shielding': [3, 0, 10], 'water': [9, 0, -5]}
+    for j in jobs:
+        j['position'] = positions[j['id']]
+    capital = [{'asset_id': a['id'], 'mass_kg': a['mass_kg'],
+                'amount_usd': None if a['mass_kg'] is None else a['mass_kg'] * v['cost.landed_usd_per_kg'],
+                'basis': 'mass x cost.landed_usd_per_kg (D5)' if a['mass_kg'] is not None else 'missing: no published hardware mass'}
+               for a in assets]
+    # Templates agents may instantiate as new work (gap 25). Each is an existing job definition with its published basis.
+    by = {j['id']: j for j in jobs}
+    templates = [
+        {**{k: by['water'][k] for k in ('kind', 'owner', 'asset_kinds', 'target', 'unit', 'output', 'rate_per_asset_h', 'power_per_asset_kw', 'parameters', 'position') if k in by['water']},
+         'template_id': 'water-batch', 'title': 'Produce an additional water batch', 'dependencies': ['drill', 'power'],
+         'basis': 'Another production run at the D1 water target from the existing Rodwell.'},
+        {**{k: by['survey'][k] for k in ('kind', 'owner', 'asset_kinds', 'target', 'unit', 'output', 'parameters', 'position') if k in by['survey']},
+         'template_id': 'survey-extension', 'title': 'Extend the site survey by one sol of driving', 'dependencies': [],
+         'basis': 'D3: one additional sol of driving at the published record distance.'},
+    ]
+    spec = {'version': pkg['id'] + '/engine-3', 'package_id': pkg['id'], 'package_hash': pkg['hash'], 'environment': pkg['environment'],
+            'tick_hours': tick_h, 'tick_seconds': v['mars.sol_s'] / 24, 'seconds_per_minute': 60, 'seconds_per_hour': 3600, 'standby_max_ticks': 72,
+            'ops_usd_per_tick': v['cost.ops_usd_per_sol'] / 24,
+            'assets': assets, 'jobs': jobs, 'templates': templates, 'capital': capital,
+            'readiness': {'jobs': ['power', 'survey', 'drill', 'trench', 'shielding', 'water'],
+                          'description': 'Power commissioned, site surveyed, trench and shielding complete, Rodwell drilled and water target reached.'},
+            'decisions': pkg['decisions'], 'conflicts': pkg['conflicts'],
+            'parameters': {n: {**pkg['parameters'][n], 'value': pkg['values'][n]} for n in pkg['parameters']},
+            'sources': pkg['sources']}
+    spec['hash'] = digest(spec)
+    return spec
+
+
+def draw(seed, tick, asset_id):
+    """Deterministic uniform number in [0, 1) for reproducible failure draws (D14)."""
+    return int(hashlib.sha256(f'{seed}:{tick}:{asset_id}'.encode()).hexdigest()[:13], 16) / 16 ** 13
