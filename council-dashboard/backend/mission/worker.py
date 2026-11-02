@@ -17,6 +17,13 @@ def site_analysis(store):
         logging.exception('Site segmentation failed; recorded, not retried automatically')
 
 _analysis=[None]
+_planner=[None]
+
+def planning(store):
+    try:plan_once(store)
+    except Exception as exc:
+        logging.exception('Planning pass failed')
+        store.log('worker','error',{'error':f'planning: {type(exc).__name__}: {exc}'[:2000]})
 
 def media_step(store):
     """One media action per loop. SAM site analysis runs beside the loop (the full-resolution image download can take
@@ -106,7 +113,11 @@ def main():
                     feeds['nowcast_error']=f'{type(exc).__name__}: {exc}'[:400];logging.exception('Nowcast failed')
                 store.status('weather-feeds',{'checked_at':weather_polled,**feeds})
             media_step(store)
-            plan_once(store)
+            # Planning makes several model calls (minutes); it runs beside the loop so DSN reads, the heartbeat and other
+            # missions' steps continue. A mission under a planning claim is not stepped (store.tick skips it).
+            if _planner[0] is None or not _planner[0].is_alive():
+                import threading
+                _planner[0]=threading.Thread(target=planning,args=(store,),daemon=True,name='planning');_planner[0].start()
             mid=store.tick()
             if mid: logging.info('Committed simulation step for %s',mid)
             cached=store.status('uncertainty') or {}

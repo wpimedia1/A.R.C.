@@ -272,6 +272,38 @@ def execute_tool(s,name,args,role):
         event(s,'Department requested replanning',summary);return {'requested':True}
     raise InvalidAction('Unsupported agent tool')
 
+def review_orders(store,mid,claim,s,cycle,receipts,transport=None):
+    """Onboard assurance decides every work order awaiting review, with one bounded correction turn."""
+    pending=[j for j in s['jobs'] if j['status']=='review' and j['authorization'].get('assurance')=='pending']
+    if not pending:return
+    orders=[{'job_id':j['id'],'title':j['title'],'assets':j['assigned'],'dependencies':j['dependencies'],'parameters':j['parameters'],
+             'open_conditions':open_conditions(s,j),
+             'decision':next((d for d in s['decisions'] if d['id']==j['decision_id']),None)} for j in pending]
+    own=next((a['assessment'] for a in cycle['assessments'] if a['role']=='assurance'),None)
+    proposals,review_id=call(store,mid,claim+':assurance-review',SPECIALIST_MODEL,
+        'You are the onboard assurance reviewer. Every work order below was authorized onboard and starts as soon as you approve it. Return exactly one review_work_orders call deciding every order. '
+        'Hold an order only for a specific, stated safety, evidence or dependency concern; a hold releases its equipment and escalates to the director. '
+        'Each order lists the simulator\'s open_conditions. To approve, list every condition id in acknowledged_conditions and say in the reason why the order may proceed despite it; never claim there are no blockers when conditions are listed. '
+        'Your own earlier assessment is included: if you now approve something it advised against, state what changed. Public reasons only.',
+        {'state':context(s),'orders':orders,'your_earlier_assessment':own},[REVIEW],transport)
+    if len(proposals)!=1 or proposals[0]['name']!='review_work_orders':raise InvalidAction('Assurance must return one review_work_orders call')
+    try:decisions=validate_review(proposals[0]['arguments'],[j['id'] for j in pending])
+    except InvalidAction as exc:
+        # One bounded correction turn (documented previous_response_id chain): the reviewer is told exactly what was
+        # malformed and must answer again; a second malformed answer stops planning with that reason.
+        receipts.append({'role':'assurance','proposal':proposals[0],'validation':'rejected: '+str(exc)})
+        proposals,_=call(store,mid,claim+':assurance-review:correction',SPECIALIST_MODEL,
+            'Your review_work_orders call was rejected by the validator. Return exactly one corrected review_work_orders call deciding every order; every decision needs job_id, approve (true or false), reason and acknowledged_conditions.',
+            [{'type':'function_call_output','call_id':proposals[0]['call_id'],'output':canonical({'rejected':str(exc)})}],[REVIEW],transport,review_id)
+        if len(proposals)!=1 or proposals[0]['name']!='review_work_orders':raise InvalidAction('Assurance correction must return one review_work_orders call')
+        decisions=validate_review(proposals[0]['arguments'],[j['id'] for j in pending])
+    decided=set()
+    for d in decisions:
+        atomic(s,assurance_decision,d['job_id'],d['approve'],d['reason'],'assurance / '+SPECIALIST_MODEL,d['acknowledged_conditions']);decided.add(d['job_id'])
+    missing=[j['id'] for j in pending if j['id'] not in decided]
+    if missing:raise InvalidAction('Assurance left work orders undecided: '+', '.join(missing))
+    receipts.append({'role':'assurance','proposal':proposals[0],'validation':'accepted'})
+
 def plan_once(store,transport=None,mission_id=None):
     claim=str(uuid.uuid4())
     with store.transaction() as db:
@@ -372,26 +404,7 @@ def plan_once(store,transport=None,mission_id=None):
                 if job_by_id(s,jid)['status'] in ('running','review') or any(r['tool']=='request_replanning' and r['result'].get('requested') for r in results):break
             receipts.append({'role':role,'receipts':results})
             if job_by_id(s,jid)['status'] not in ('running','review') and not any(r['tool']=='request_replanning' and r['result'].get('requested') for r in results):raise InvalidAction('Specialist reached the four-request limit without an accepted work order or explicit escalation')
-        pending=[j for j in s['jobs'] if j['status']=='review' and j['authorization'].get('assurance')=='pending']
-        if pending:
-            orders=[{'job_id':j['id'],'title':j['title'],'assets':j['assigned'],'dependencies':j['dependencies'],'parameters':j['parameters'],
-                     'open_conditions':open_conditions(s,j),
-                     'decision':next((d for d in s['decisions'] if d['id']==j['decision_id']),None)} for j in pending]
-            own=next((a['assessment'] for a in cycle['assessments'] if a['role']=='assurance'),None)
-            proposals,_=call(store,mid,claim+':assurance-review',SPECIALIST_MODEL,
-                'You are the onboard assurance reviewer. Every work order below was authorized onboard and starts as soon as you approve it. Return exactly one review_work_orders call deciding every order. '
-                'Hold an order only for a specific, stated safety, evidence or dependency concern; a hold releases its equipment and escalates to the director. '
-                'Each order lists the simulator\'s open_conditions. To approve, list every condition id in acknowledged_conditions and say in the reason why the order may proceed despite it; never claim there are no blockers when conditions are listed. '
-                'Your own earlier assessment is included: if you now approve something it advised against, state what changed. Public reasons only.',
-                {'state':context(s),'orders':orders,'your_earlier_assessment':own},[REVIEW],transport)
-            if len(proposals)!=1 or proposals[0]['name']!='review_work_orders':raise InvalidAction('Assurance must return one review_work_orders call')
-            decisions=validate_review(proposals[0]['arguments'],[j['id'] for j in pending])
-            decided=set()
-            for d in decisions:
-                atomic(s,assurance_decision,d['job_id'],d['approve'],d['reason'],'assurance / '+SPECIALIST_MODEL,d['acknowledged_conditions']);decided.add(d['job_id'])
-            missing=[j['id'] for j in pending if j['id'] not in decided]
-            if missing:raise InvalidAction('Assurance left work orders undecided: '+', '.join(missing))
-            receipts.append({'role':'assurance','proposal':proposals[0],'validation':'accepted'})
+        review_orders(store,mid,claim,s,cycle,receipts,transport)
         failed=failed_without_order(s)
         if failed:
             from .logistics import replacement_order

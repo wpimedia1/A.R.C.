@@ -77,3 +77,26 @@ def test_new_evidence_does_not_restart_a_planning_stop(tmp_path, request, monkey
     assert store.snapshot('public')['state']['inference_stopped']
     store.commit_unclaimed('public', lambda s: s.__setitem__('planning_needed', True), {'kind': 'test-forced-flag'})
     assert not plan_once(store, mission_id='public')  # a stop is cleared only by the owner (mission.cli replan)
+
+
+def test_assurance_gets_one_correction_turn(monkeypatch):
+    # Live runs 2026-11-02 (twice): assurance omitted `approve` for an order with an acknowledged condition. It is now
+    # told exactly what was malformed and answers once more; the corrected answer is applied.
+    import mission.planner as planner
+    from mission.engine import new_state, start, job_by_id
+    s = new_state('meta'); s['source_pins'] = {}
+    start(s, 'survey', ['rover-1'], 'survey', 'survey / test', [s['spec']['package_id']])
+    seen = []
+    def fake_call(store, mid, operation, model, instructions, data, tools, transport=None, previous_response_id=None):
+        seen.append((operation, previous_response_id, data))
+        if operation.endswith(':correction'):
+            return [{'name': 'review_work_orders', 'call_id': 'c2', 'arguments': {'decisions': [
+                {'job_id': 'survey', 'approve': True, 'reason': 'ok', 'acknowledged_conditions': ['no-site-imagery']}]}}], 'r2'
+        return [{'name': 'review_work_orders', 'call_id': 'c1', 'arguments': {'decisions': [
+            {'job_id': 'survey', 'reason': 'ok', 'acknowledged_conditions': ['no-site-imagery']}]}}], 'r1'
+    monkeypatch.setattr(planner, 'call', fake_call)
+    receipts = []
+    planner.review_orders(None, 'public', 'c', s, {'assessments': []}, receipts)
+    assert job_by_id(s, 'survey')['status'] == 'running'
+    assert seen[1][0] == 'c:assurance-review:correction' and seen[1][1] == 'r1' and 'missing approve' in seen[1][2][0]['output']
+    assert [r['validation'][:8] for r in receipts] == ['rejected', 'accepted']
