@@ -52,3 +52,28 @@ def test_assessment_validation():
                 {k: v for k, v in base.items() if k != 'job_judgements'}):
         with pytest.raises(InvalidAction):
             validate_assessment(s, 'survey', bad)
+
+
+def test_tiered_memory_consolidates_finished_sols_into_cited_lessons():
+    # D20: working memory holds the current sol; at a sol boundary it becomes cited lessons; uncited lessons are refused.
+    from mission.agents import remember, recall, due_for_consolidation, validate_lessons, apply_lessons, consolidation_input
+    from mission.engine import advance
+    s = new_state('meta'); s['source_pins'] = {'arcadia-mars-v1': 'x'}
+    cycle = {'id': 'c1', 'assessments': [{'role': 'survey', 'observation_hash': 'h', 'assessment': {'recommended_jobs': ['survey'], 'missing_information': []}}]}
+    remember(s, cycle, [])
+    assert recall(s, 'survey')['working'][0]['cycle_id'] == 'c1' and not due_for_consolidation(s, 'survey')
+    s['planning_needed'] = False
+    for _ in range(24):
+        s = advance(s)
+    assert s['planning_needed'] and any(e['title'] == 'Sol ended' for e in s['activity'])
+    assert [e['cycle_id'] for e in due_for_consolidation(s, 'survey')] == ['c1']
+    assert consolidation_input(s, 'survey')['finished_sols'] == [0]
+    for bad in ({'lessons': [{'text': 'x', 'cites': []}]}, {'lessons': [{'text': 'x', 'cites': ['no-such-id']}]},
+                {'lessons': [{'text': 'y' * 301, 'cites': ['c1']}]}, {'lessons': [{'text': 'x'}]}):
+        with pytest.raises(InvalidAction):
+            validate_lessons(s, bad)
+    lessons = validate_lessons(s, {'lessons': [{'text': 'Survey starts only in daylight (D19).', 'cites': ['c1', 'E1']}]})
+    spec_before = dict(s['spec'])
+    apply_lessons(s, 'survey', lessons)
+    assert recall(s, 'survey') == {'lessons': lessons, 'working': []} and not due_for_consolidation(s, 'survey')
+    assert s['spec'] == spec_before  # the read-only core (package, decisions) is never part of memory

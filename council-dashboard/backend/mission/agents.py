@@ -3,7 +3,79 @@ from copy import deepcopy
 from .engine import InvalidAction
 from .spec import digest
 
-PROTOCOL = 'observe-think-act-remember-1'
+PROTOCOL = 'observe-think-act-remember-2'
+# D20 tiered memory: working memory holds the current sol; at each sol boundary every agent consolidates its finished
+# sols into cited lessons; the environment package and operator decisions are never part of memory (read-only core).
+MAX_LESSONS = 24
+LESSON_CHARS = 300
+CONTEXT_WORKING = 4  # working entries shown to an agent per request; all stay in state until consolidated
+
+
+def role_memory(state, role):
+    """This role's memory, {'working': [...], 'lessons': [...], 'consolidated_sol': n}. A list from protocol 1 is
+    read as working memory."""
+    memory = state.setdefault('agent_memory', {})
+    m = memory.get(role)
+    if isinstance(m, list):
+        m = {'working': [{**e, 'sol': e.get('sol', e['tick'] // 24)} for e in m], 'lessons': [], 'consolidated_sol': -1}
+    m = m or {'working': [], 'lessons': [], 'consolidated_sol': -1}
+    memory[role] = m
+    return m
+
+
+def recall(state, role):
+    """What an agent carries into a request: its cited lessons and its most recent working entries."""
+    m = role_memory(state, role)
+    return {'lessons': deepcopy(m['lessons']), 'working': deepcopy(m['working'][-CONTEXT_WORKING:])}
+
+
+def due_for_consolidation(state, role):
+    """Working entries from sols that have ended."""
+    now = state['tick'] // 24
+    return [e for e in role_memory(state, role)['working'] if e['sol'] < now]
+
+
+def citable_ids(state):
+    """Record ids a lesson may cite: planning cycles, decisions and activity events, all kept in the mission record."""
+    return ({c['cycle_id'] for c in state.get('cycle_log', [])} | {d['id'] for d in state['decisions']}
+            | {f"E{e['id']}" for e in state['activity']})
+
+
+def validate_lessons(state, args):
+    if set(args) != {'lessons'} or not isinstance(args['lessons'], list) or len(args['lessons']) > MAX_LESSONS:
+        raise InvalidAction(f'Consolidation must return at most {MAX_LESSONS} lessons')
+    known = citable_ids(state)
+    out = []
+    for x in args['lessons']:
+        if not isinstance(x, dict) or set(x) != {'text', 'cites'}:
+            raise InvalidAction('Each lesson needs text and cites')
+        if not isinstance(x['text'], str) or not 1 <= len(x['text']) <= LESSON_CHARS:
+            raise InvalidAction(f'Each lesson is one public sentence of at most {LESSON_CHARS} characters')
+        bad = [c for c in (x['cites'] if isinstance(x['cites'], list) else [None]) if c not in known]
+        if not x['cites'] or bad:
+            raise InvalidAction('Every lesson must cite recorded cycle, decision or event ids; unknown: ' + ', '.join(map(str, bad or ['none given'])))
+        out.append({'text': x['text'], 'cites': list(x['cites'])})
+    return out
+
+
+def consolidation_input(state, role):
+    """The finished sols of one role: its working entries, its decisions and the events of those sols."""
+    due = due_for_consolidation(state, role)
+    sols = {e['sol'] for e in due}
+    jobs = {j['id'] for j in state['jobs'] if j['owner'] == role}
+    return {'role': role, 'existing_lessons': role_memory(state, role)['lessons'], 'finished_sols': sorted(sols), 'working_memory': due,
+            'decisions': [{k: d.get(k) for k in ('id', 'tick', 'job_id', 'actor', 'summary', 'validation', 'outcome')}
+                          for d in state['decisions'] if d['tick'] // 24 in sols and (d['job_id'] in jobs or role == 'assurance')],
+            'events': [{'id': f"E{e['id']}", 'tick': e['tick'], 'title': e['title'], 'detail': e['detail'][:300]}
+                       for e in state['activity'] if e['tick'] // 24 in sols and (e.get('job_id') in jobs or role == 'assurance' or not e.get('job_id'))][-60:]}
+
+
+def apply_lessons(state, role, lessons):
+    m = role_memory(state, role)
+    now = state['tick'] // 24
+    m['lessons'] = lessons
+    m['working'] = [e for e in m['working'] if e['sol'] >= now]
+    m['consolidated_sol'] = now - 1
 
 
 def observe(state, role, shared):
@@ -14,7 +86,7 @@ def observe(state, role, shared):
     for job in world['jobs']:
         job.pop('reason', None)
     return {'role': role, 'observation_hash': digest(world), 'world': world,
-            'own_memory': deepcopy(state.get('agent_memory', {}).get(role, [])[-4:]),
+            'own_memory': recall(state, role),
             'own_work_outcomes': [
                 {k: j.get(k) for k in ('id', 'status', 'progress', 'started_tick', 'completed_tick', 'reason')}
                 for j in state['jobs'] if j['owner'] == role][-12:]}
@@ -46,10 +118,9 @@ def validate_assessment(state, role, args):
 
 
 def remember(state, cycle, receipts):
-    memory = state.setdefault('agent_memory', {})
     for assessment in cycle.get('assessments', []):
         role = assessment['role']
-        entry = {'cycle_id': cycle['id'], 'tick': state['tick'],
+        entry = {'cycle_id': cycle['id'], 'tick': state['tick'], 'sol': state['tick'] // 24,
                  'observation_hash': assessment['observation_hash'],
                  'assessment': assessment['assessment'],
                  'actions': [{'tool': item['tool'], 'accepted': item.get('result',{}).get('accepted'),
@@ -57,9 +128,9 @@ def remember(state, cycle, receipts):
                              for r in receipts if r.get('role') == role for item in r.get('receipts',[])],
                  'work_outcomes': [{k: j.get(k) for k in ('id', 'status', 'progress', 'reason')}
                                    for j in state['jobs'] if j['owner'] == role][-12:]}
-        memory.setdefault(role, []).append(entry)
-        # Complete history is retained in immutable mission revisions.
-        memory[role] = memory[role][-12:]
+        # Working memory for the current sol; consolidated into cited lessons when the sol ends (D20). The complete
+        # history is retained in the immutable mission revisions.
+        role_memory(state, role)['working'].append(entry)
     # Compact, complete per-cycle record used by the correlated-error evaluation (evaluation.py).
     state.setdefault('cycle_log', []).append({
         'cycle_id': cycle['id'], 'tick': state['tick'],

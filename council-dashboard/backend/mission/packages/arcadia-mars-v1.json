@@ -1,7 +1,7 @@
 {
  "id": "arcadia-mars-v1",
  "environment": "mars",
- "status": "operator decisions D1-D19 approved (D15 retired)",
+ "status": "operator decisions D1-D20 approved (D15 retired)",
  "sources": {
   "kleinhenz2017": {
    "title": "An ISRU Propellant Production System to Fully Fuel a Mars Ascent Vehicle",
@@ -908,6 +908,12 @@
   "D19_rover_daylight_driving": {
    "choice": "The survey rover drives only while the sun is above the horizon at the site (sun elevation at the end of the step, Mars24). The published distance per sol (rover.max_drive_m_per_sol) is kept and driven over that simulation sol's daylight steps. At night the rover waits and its job says so; night steps are planned pauses, not shortfalls. The excavators are unchanged (RASSOR 16 h mining / 8 h recharge, D18). Without a mission clock (the offline benchmark) the rule is not applied and the benchmark says so.",
    "reason": "NASA (Perseverance): \"the rover needs light for taking images or driving using auto-navigation\". Owner instruction 2026-11-02: the agents must account for light.",
+   "approved": true,
+   "approved_on": "2026-11-02"
+  },
+  "D20_agent_memory": {
+   "choice": "Agent memory is tiered. Working memory holds each agent's planning cycles, tool results and work outcomes for the current sol. When a sol ends, each agent consolidates its finished sols into at most 24 lessons of at most 300 characters, each citing the recorded cycle, decision or event ids it rests on; uncited lessons are refused, and the consolidated working entries leave the agent's context. The environment package and operator decisions are never part of memory and cannot be changed by the agents. The append-only mission record keeps the complete history, so every lesson can be checked against what happened.",
+   "reason": "Owner instruction 2026-11-02: long-running autonomy needs bounded memory without losing what was learned (semantic consolidation), and without drift of the core rules.",
    "approved": true,
    "approved_on": "2026-11-02"
   }

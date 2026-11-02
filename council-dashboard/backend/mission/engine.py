@@ -347,6 +347,10 @@ def advance(state, env=None):
     if env is not None:
         apply_environment(s, env)
     s['sol'] = round(s['tick'] / 24, 6)
+    if s['mode'] == 'meta' and s['tick'] % 24 == 0 and any(m.get('working') if isinstance(m, dict) else m for m in s.get('agent_memory', {}).values()):
+        # D20: a sol has ended; the agents consolidate their working memory into cited lessons at the next planning pass.
+        event(s, 'Sol ended', f"Sol {s['tick'] // 24 - 1} complete; the agents consolidate its working memory into cited lessons (D20).")
+        s['planning_needed'] = not s['inference_stopped']
     hours = s['spec']['tick_hours']
     ops = s['spec']['ops_usd_per_tick']
     s['spent_usd'] += ops

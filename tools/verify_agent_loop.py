@@ -67,7 +67,7 @@ def main():
         if not (same and withheld):
             raise SystemExit('FAIL: assessments did not share one frozen observation with peer proposals withheld')
         checks.append({'cycle_id': cycle['id'], 'roles': [a['role'] for a in cycle['assessments']], 'same_frozen_observation': same,
-                       'peer_proposals_withheld': withheld, 'memory_entries_seen': sum(len(i['own_memory']) for i in inputs)})
+                       'peer_proposals_withheld': withheld, 'memory_entries_seen': sum(len(i['own_memory']['lessons']) + len(i['own_memory']['working']) for i in inputs)})
     if args.cycles > 1 and checks[-1]['memory_entries_seen'] == 0:
         raise SystemExit('FAIL: later cycle received no role memory')
     s = export['state']

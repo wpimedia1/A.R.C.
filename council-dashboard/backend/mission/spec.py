@@ -113,7 +113,7 @@ def specification(package_id=PACKAGE_ID, overrides=None):
          'template_id': 'survey-extension', 'title': 'Extend the site survey by one sol of driving', 'dependencies': [],
          'basis': 'D3: one additional sol of driving at the published record distance.'},
     ]
-    spec = {'version': pkg['id'] + '/engine-6-autonomous', 'package_id': pkg['id'], 'package_hash': pkg['hash'], 'environment': pkg['environment'],
+    spec = {'version': pkg['id'] + '/engine-7-autonomous', 'package_id': pkg['id'], 'package_hash': pkg['hash'], 'environment': pkg['environment'],
             'tick_hours': tick_h, 'tick_seconds': v['mars.sol_s'] / 24, 'seconds_per_minute': 60, 'seconds_per_hour': 3600, 'wh_per_kwh': 1000, 'standby_max_ticks': 72,
             'ops_usd_per_tick': v['cost.ops_usd_per_sol'] / 24,
             'assets': assets, 'jobs': jobs, 'templates': templates, 'capital': capital,

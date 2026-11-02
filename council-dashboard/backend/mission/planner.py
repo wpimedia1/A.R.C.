@@ -49,6 +49,9 @@ STANDBY=tool('set_standby','Put units in protective standby for 1-72 ticks (no w
 CHARGE=tool('charge_batteries','Recharge battery-powered units from the fission grid (decision D18). They do no work while charging and stop when full; charging draws grid power. Use before a battery cannot supply the next step of work.',
     {'asset_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':8},'reason':{'type':'string','minLength':1,'maxLength':600}})
 PLAN=tool('set_mission_plan','Prioritize all jobs; this does not authorize execution.',{'priority':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':32},'summary':{'type':'string','maxLength':600}})
+LESSONS=tool('record_lessons','Replace your long-term lessons: keep, merge or add lessons from your finished sols. Each lesson is one public sentence citing the recorded cycle, decision or event ids (E<number>) it rests on.',
+    {'lessons':{'type':'array','maxItems':24,'items':{'type':'object','properties':{'text':{'type':'string','minLength':1,'maxLength':300},
+     'cites':{'type':'array','minItems':1,'maxItems':8,'items':{'type':'string'}}},'required':['text','cites'],'additionalProperties':False}}})
 ASSESS=tool('record_assessment','Record an independent public assessment; no execution authority.',{
     'summary':{'type':'string','minLength':1,'maxLength':600},
     'recommended_jobs':{'type':'array','items':{'type':'string'},'maxItems':32},
@@ -343,9 +346,22 @@ def plan_once(store,transport=None,mission_id=None):
             'regional_metrics':v.record.get('metrics'),'regional_bounds':v.record.get('bounds'),
             'spatial_summary':{k:value for k,value in v.record.get('spatial',{}).items() if k in ('site','site_value','pixel_size_m','interpretation','transform','raster_hash')}} for key,vid in s.get('source_pins',{}).items() if (v:=db.get(SourceVersion,vid))]
     try:
-        from .agents import observe, validate_assessment
+        from .agents import observe, validate_assessment, due_for_consolidation, consolidation_input, validate_lessons, apply_lessons, recall
+        roles=sorted({j['owner'] for j in s['jobs'] if j['status']!='complete'}|({'logistics'} if failed_without_order(s) else set()))+['assurance']
+        # D20 nightly consolidation: each agent turns its finished sols into cited lessons before it assesses the new sol.
+        for role in sorted(set(roles)|set(s.get('agent_memory',{}))):
+            if not due_for_consolidation(s,role):continue
+            proposals,_=call(store,mid,claim+':consolidate:'+role,SPECIALIST_MODEL,
+                f'You are the persistent {role} agent. Your finished sols are over. Return exactly one record_lessons call: the complete set of lessons you will carry forward '
+                '(keep, merge or drop existing lessons; add what the finished sols taught you). Every lesson must cite the recorded ids it rests on. '
+                'Lessons are about operations and outcomes; package parameters and operator decisions are not part of memory and cannot be changed. Public sentences only.',
+                consolidation_input(s,role),[LESSONS],transport)
+            if len(proposals)!=1 or proposals[0]['name']!='record_lessons':raise InvalidAction(f'{role} consolidation must return one record_lessons call')
+            lessons=validate_lessons(s,proposals[0]['arguments'])
+            apply_lessons(s,role,lessons)
+            receipts.append({'role':role,'proposal':proposals[0],'validation':'accepted','purpose':'nightly memory consolidation (D20)'})
+            event(s,'Memory consolidated: '+role,f'{len(lessons)} cited lessons carried forward.')
         shared=deepcopy(context(s))
-        roles=sorted({j['owner'] for j in shared['jobs']}|({'logistics'} if failed_without_order(s) else set()))+['assurance']
         # Calls may run sequentially, but every assessment sees the same frozen world
         # and none receives another department's assessment or the director's plan.
         for role in roles:
@@ -401,7 +417,7 @@ def plan_once(store,transport=None,mission_id=None):
             role=j['owner'];results=[]
             turn_input=[{'role':'user','content':canonical({'state':context(s),'job_id':jid,
                 'own_assessment':next(a['assessment'] for a in cycle['assessments'] if a['role']==role),
-                'own_memory':s.get('agent_memory',{}).get(role,[])[-2:]})}]
+                'own_memory':recall(s,role)})}]
             previous=None
             for attempt in range(4):
                 available_tools=TOOLS if attempt<3 else [t for t in TOOLS if t['name'] in ('submit_work_order','request_replanning')]
