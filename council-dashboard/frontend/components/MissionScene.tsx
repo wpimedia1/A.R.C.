@@ -7,7 +7,7 @@ import {OrbitControls,Html,useGLTF,Line} from '@react-three/drei';
 import {useMemo,useRef,useState,useEffect,Suspense,Component,ReactNode} from 'react';
 import * as THREE from 'three';
 import {State,Asset,Job,Snapshot,api,solOf,fmt} from '../lib/mission';
-import LiveStrip from './LiveStrip';
+import LiveStrip,{useLive,LiveClock} from './LiveStrip';
 
 class Boundary extends Component<{children:ReactNode},{failed:boolean}>{state={failed:false};static getDerivedStateFromError(){return {failed:true};}render(){return this.state.failed?<p className="fallback">3D view unavailable in this browser.</p>:this.props.children;}}
 
@@ -118,8 +118,9 @@ function Tag({s,a}:{s:State;a:Asset}){
 function Tags({s}:{s:State}){
  return <>{s.assets.filter(a=>a.kind!=='rover').map(a=><Html key={a.id} position={[a.position[0],(FILE[a.kind]?.[1]||2)+1.4,a.position[2]]} center><Tag s={s} a={a}/></Html>)}</>;
 }
-function Scene({s,labels,clock}:{s:State;labels:boolean;clock:StepClock|null}){
- const sun=s.environment?.clock.site_sun_enu??null;// no sun direction recorded -> neutral light, no invented sun
+function Scene({s,labels,clock,sun}:{s:State;labels:boolean;clock:StepClock|null;sun:[number,number,number]|null}){
+ // sun: the live Mars24 sun direction at the site (live view, read every 30 s) or the one recorded with the step (replay).
+ // None -> neutral light, no invented sun.
  const sunPos:[number,number,number]|null=sun?[sun[0]*80,sun[2]*80,-sun[1]*80]:null;
  // Brightness follows the real solar elevation continuously (twilight before sunrise and after sunset), instead of a
  // day/night switch. The shading curve is a display mapping, not a measured sky brightness.
@@ -152,13 +153,16 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
  const clock:StepClock|null=!replay&&s.status==='active'&&snap.next_tick_at!=null&&snap.seconds_per_tick?{next:snap.next_tick_at,len:snap.seconds_per_tick}:null;
  // Clock time of a future step, from the server's next-step time and step length only; unknown if either is missing.
  const running=s.jobs.filter(j=>j.status==='running');const reviewing=s.jobs.filter(inReview);const charging_=s.assets.filter(charging);
- const c=s.environment?.clock;
+ // Light follows the sun continuously: the live view uses the server's live Mars24 reading (polled every 30 s);
+ // a replay uses the sun recorded with each step.
+ const feed=useLive();
+ const c:LiveClock|undefined=!replay&&feed.live?.now?.clock?feed.live.now.clock:s.environment?.clock;
  // Opening view frames the outpost and the rover's current point on its survey line (camera only; set once per visit).
  const [view]=useState(()=>{const rover=s.assets.find(a=>a.kind==='rover');const rx=rover?rover.position[0]+surveyJobs(s).reduce((t,x)=>t+x.done,0):0;
   const xs=[...s.assets.map(a=>a.position[0]),rx];const lo=Math.min(...xs),hi=Math.max(...xs);const span=Math.max(30,hi-lo);const cx=(lo+hi)/2;
   return {target:[cx,0,8] as [number,number,number],position:[cx+span*.35,span*.42,8+span*.8] as [number,number,number]};});
- return <><LiveStrip snap={snap}/><section className="mission-scene">
-  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels} clock={clock}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary></div>
+ return <><LiveStrip snap={snap} feed={feed}/><section className="mission-scene">
+  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels} clock={clock} sun={c?.site_sun_enu??null}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary></div>
   <div className="scene-hud">
    <div className="hud-block"><small>{replay?`REPLAY · revision ${replay.n}`:'LIVE · real Mars time'}</small><strong>{solOf(s.tick)} · step {s.tick}</strong>{c&&<span>Sun {c.site_solar_elevation_deg>0?`${fmt(c.site_solar_elevation_deg,0)}° up`:`${fmt(-c.site_solar_elevation_deg,0)}° below the horizon`} · {c.season}</span>}</div>
    <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>▶ {j.title} · {fmt(j.progress*100,0)}%</span>):<span>No robot is working.</span>}

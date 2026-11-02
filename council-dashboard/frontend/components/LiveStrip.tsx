@@ -4,7 +4,8 @@
 import {useEffect,useState} from 'react';
 import {Snapshot} from '../lib/mission';
 
-type Live={now:{clock:{unix:number;site_ltst_h:number;site_lmst_h:number}}|null;dsn:{checked_at:number|null;error:string|null;last_mars_uplink_at?:number|null;mars_spacecraft?:string[];links?:{direction:string;spacecraft:string;station:string;dish:string}[]}|null};
+export type LiveClock={unix:number;site_ltst_h:number;site_lmst_h:number;site_solar_elevation_deg:number;site_sun_enu?:[number,number,number];season:string};
+export type Live={now:{clock:LiveClock}|null;dsn:{checked_at:number|null;error:string|null;last_mars_uplink_at?:number|null;mars_spacecraft?:string[];links?:{direction:string;spacecraft:string;station:string;dish:string}[]}|null};
 const STALE_S=180; // the worker reads DSN every 60 s; three missed reads = not reporting
 
 const dur=(s:number)=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?`${h}:`:'')+`${String(m).padStart(h?2:1,'0')}:${String(x).padStart(2,'0')}`;};
@@ -12,7 +13,8 @@ const dur=(s:number)=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=
 const clock=(h:number)=>{const t=Math.floor(h*3600);return [Math.floor(t/3600),Math.floor(t%3600/60),t%60].map(v=>String(v).padStart(2,'0')).join(':');};
 const ago=(s:number)=>s<90?`${Math.round(s)} s ago`:s<5400?`${Math.round(s/60)} min ago`:`${Math.round(s/3600)} h ago`;
 
-export function useLive(){
+export type LiveFeed={live:Live|null;err:string};
+export function useLive():LiveFeed{
  const [live,setLive]=useState<Live|null>(null),[err,setErr]=useState('');
  useEffect(()=>{let on=true;const load=()=>fetch('/api/v1/environment/live').then(r=>r.ok?r.json():r.text().then(t=>{throw new Error(t)})).then(d=>{if(on){setLive(d);setErr('');}}).catch(e=>on&&setErr(String(e).slice(0,200)));
   load();const id=setInterval(load,30000);return()=>{on=false;clearInterval(id);};},[]);
@@ -20,8 +22,9 @@ export function useLive(){
 }
 export function useNow(){const [now,setNow]=useState(()=>Date.now()/1000);useEffect(()=>{const id=setInterval(()=>setNow(Date.now()/1000),1000);return()=>clearInterval(id);},[]);return now;}
 
-export default function LiveStrip({snap}:{snap:Snapshot}){
- const {live,err}=useLive();const now=useNow();const s=snap.state;
+// The caller polls the live feed once (useLive) and shares it with the 3D view.
+export default function LiveStrip({snap,feed}:{snap:Snapshot;feed:LiveFeed}){
+ const {live,err}=feed;const now=useNow();const s=snap.state;
  const hb=live?.dsn?.checked_at??null;const age=hb==null?null:now-hb;const workerOk=age!=null&&age<STALE_S;
  // Readiness is a milestone; operations continue after it, so the strip shows it beside the running state.
  const state=s.status!=='active'?s.status.toUpperCase():workerOk?(s.milestones.ready?'READY · OPERATING':'RUNNING'):'NOT ADVANCING';
