@@ -1,6 +1,6 @@
 'use client';
 // The mission, live: robots move when their work is running, wait visibly when it is not,
-// work orders fly Earth -> relay orbiter -> outpost, and the sun sits where it really is over the site right now.
+// and the sun sits where it really is over the site right now.
 // Motion is a visualization of the simulated job state (progress, assignments); models are illustrative stand-ins.
 import {Canvas,useFrame,useLoader} from '@react-three/fiber';
 import {OrbitControls,Html,useGLTF,Line} from '@react-three/drei';
@@ -38,14 +38,23 @@ export class GroundBoundary extends Component<{children:ReactNode},{failed:boole
 export function PlainGround(){return <mesh rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[1600,1600]}/><meshStandardMaterial color="#b9734a" roughness={1}/></mesh>;}
 
 // Survey: the rover drives the simulated survey distance, east from its start (the route planner's west-to-east
-// convention, D13). Its position is the metres driven in the simulation (job.done), not an animation.
+// convention, D13). Its position is the metres driven in the simulation (job.done). On the live public mission it also
+// advances through the step in progress at the authorized rate (the decision's rate per step) in proportion to the time
+// elapsed toward the next step, never beyond the remaining distance; the step's result is recorded when the step runs.
 const surveyJobs=(s:State)=>s.jobs.filter(j=>j.kind==='survey');
-function Rover({a,s}:{a:Asset;s:State}){
+export type StepClock={next:number;len:number};
+function inStep(s:State,a:Asset,clock:StepClock|null){
+ const j=jobOf(s,a);if(!clock||!a.available||j?.status!=='running'||j.kind!=='survey'||standby(s,a))return 0;
+ const rate=s.decisions.find(d=>d.id===j.decision_id)?.calculation.rate_per_tick;if(!rate)return 0;
+ const f=Math.max(0,Math.min(1,1-(clock.next-Date.now()/1000)/clock.len));
+ return Math.min(rate*f,j.target-j.done);
+}
+function Rover({a,s,clock,labels}:{a:Asset;s:State;clock:StepClock|null;labels:boolean}){
  const ref=useRef<THREE.Group>(null);const j=jobOf(s,a);const moving=a.available&&j?.status==='running'&&j.kind==='survey'&&!standby(s,a);
- const driven=surveyJobs(s).reduce((t,x)=>t+x.done,0);
- const at=new THREE.Vector3(a.position[0]+driven,0,a.position[2]);
- useFrame((_,dt)=>{if(ref.current)ref.current.position.lerp(at,1-Math.exp(-dt*2));});
- return <group ref={ref} position={a.position} rotation={[0,Math.PI/2,0]}><Suspense fallback={null}><Model file={FILE.rover[0]} size={FILE.rover[1]} tint={a.available?null:'#7a2c12'}/></Suspense>{moving&&<Dust/>}</group>;
+ const driven=surveyJobs(s).reduce((t,x)=>t+x.done,0);const at=useMemo(()=>new THREE.Vector3(),[]);
+ useFrame((_,dt)=>{if(!ref.current)return;at.set(a.position[0]+driven+inStep(s,a,clock),0,a.position[2]);ref.current.position.lerp(at,1-Math.exp(-dt*2));});
+ return <group ref={ref} position={a.position}><group rotation={[0,Math.PI/2,0]}><Suspense fallback={null}><Model file={FILE.rover[0]} size={FILE.rover[1]} tint={a.available?null:'#7a2c12'}/></Suspense>{moving&&<Dust/>}</group>
+  {labels&&<Html position={[0,FILE.rover[1]+1.4,0]} center><Tag s={s} a={a}/></Html>}</group>;
 }
 function SurveyLine({a,s}:{a:Asset;s:State}){
  const jobs=surveyJobs(s);if(!jobs.length)return null;
@@ -98,16 +107,18 @@ function Site({s}:{s:State}){
   {hab&&<group position={hab.position}><Suspense fallback={null}><Model file={FILE.habitat[0]} size={FILE.habitat[1]}/></Suspense>
    {(sh?.progress||0)>0&&<mesh scale={[1,(sh?.progress||0),1]} castShadow><sphereGeometry args={[P(s,'habitat.diameter_m')/2,32,16,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#9a5634" roughness={1}/></mesh>}</group>}</>;
 }
-// A work order in flight: Earth (towards the sky) -> relay orbiter -> outpost, with its expected arrival.
-function Tags({s}:{s:State}){
- return <>{s.assets.map(a=>{const j=jobOf(s,a);const sb=standby(s,a);
-  const p=pct(a);const bat=p===null?'':` · battery ${p}%`;
-  const txt=!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
-  const cls=!a.available?'failed':charging(a)?'waiting':sb?'standby':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
-  const dx=a.kind==='rover'?surveyJobs(s).reduce((t,x)=>t+x.done,0):0;// the rover's tag follows the distance it has driven
-  return <Html key={a.id} position={[a.position[0]+dx,(FILE[a.kind]?.[1]||2)+1.4,a.position[2]]} center><span className={'scene-tag '+cls}><b>{a.name.split(' (')[0]}</b>{txt}</span></Html>;})}</>;
+function Tag({s,a}:{s:State;a:Asset}){
+ const j=jobOf(s,a);const sb=standby(s,a);
+ const p=pct(a);const bat=p===null?'':` · battery ${p}%`;
+ const txt=!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
+ const cls=!a.available?'failed':charging(a)?'waiting':sb?'standby':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
+ return <span className={'scene-tag '+cls}><b>{a.name.split(' (')[0]}</b>{txt}</span>;
 }
-function Scene({s,labels}:{s:State;labels:boolean}){
+// The rover carries its own tag so it follows the rover; the other units stay put.
+function Tags({s}:{s:State}){
+ return <>{s.assets.filter(a=>a.kind!=='rover').map(a=><Html key={a.id} position={[a.position[0],(FILE[a.kind]?.[1]||2)+1.4,a.position[2]]} center><Tag s={s} a={a}/></Html>)}</>;
+}
+function Scene({s,labels,clock}:{s:State;labels:boolean;clock:StepClock|null}){
  const sun=s.environment?.clock.site_sun_enu??null;// no sun direction recorded -> neutral light, no invented sun
  const sunPos:[number,number,number]|null=sun?[sun[0]*80,sun[2]*80,-sun[1]*80]:null;
  // Brightness follows the real solar elevation continuously (twilight before sunrise and after sunset), instead of a
@@ -124,7 +135,7 @@ function Scene({s,labels}:{s:State;labels:boolean}){
   <GroundBoundary><Suspense fallback={<PlainGround/>}><Ground/></Suspense></GroundBoundary>
   <Site s={s}/>
   {s.assets.filter(a=>a.kind==='rover').map(a=><SurveyLine key={'line-'+a.id} a={a} s={s}/>)}
-  {s.assets.map((a,i)=>a.kind==='rover'?<Rover key={a.id} a={a} s={s}/>:a.kind==='excavator'?<Excavator key={a.id} a={a} s={s} i={i}/>:a.kind==='rodwell'?<Drill key={a.id} a={a} s={s}/>:a.kind==='power'?<Power key={a.id} a={a} s={s}/>:null)}
+  {s.assets.map((a,i)=>a.kind==='rover'?<Rover key={a.id} a={a} s={s} clock={clock} labels={labels}/>:a.kind==='excavator'?<Excavator key={a.id} a={a} s={s} i={i}/>:a.kind==='rodwell'?<Drill key={a.id} a={a} s={s}/>:a.kind==='power'?<Power key={a.id} a={a} s={s}/>:null)}
   {labels&&<Tags s={s}/>}
  </>;
 }
@@ -137,6 +148,8 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
  const load=(n:number)=>api<{revision:number;state:State}>(`missions/${mid}/revisions/${n}`).then(d=>setReplay({n:d.revision,state:d.state}));
  useEffect(()=>{if(!playing||!revs.length)return;const id=setInterval(()=>{setReplay(r=>{const cur=r?.n||revs[0].revision;const next=revs.find(x=>x.revision>cur);if(!next){setPlaying(false);return r;}load(next.revision);return r;});},700);return()=>clearInterval(id);},[playing,revs]);// eslint-disable-line react-hooks/exhaustive-deps
  const s=replay?.state||snap.state;
+ // Live public mission only: the time to the next step, from the server's schedule. None in replays or experiments.
+ const clock:StepClock|null=!replay&&s.status==='active'&&snap.next_tick_at!=null&&snap.seconds_per_tick?{next:snap.next_tick_at,len:snap.seconds_per_tick}:null;
  // Clock time of a future step, from the server's next-step time and step length only; unknown if either is missing.
  const running=s.jobs.filter(j=>j.status==='running');const reviewing=s.jobs.filter(inReview);const charging_=s.assets.filter(charging);
  const c=s.environment?.clock;
@@ -145,7 +158,7 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
   const xs=[...s.assets.map(a=>a.position[0]),rx];const lo=Math.min(...xs),hi=Math.max(...xs);const span=Math.max(30,hi-lo);const cx=(lo+hi)/2;
   return {target:[cx,0,8] as [number,number,number],position:[cx+span*.35,span*.42,8+span*.8] as [number,number,number]};});
  return <><LiveStrip snap={snap}/><section className="mission-scene">
-  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary></div>
+  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels} clock={clock}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary></div>
   <div className="scene-hud">
    <div className="hud-block"><small>{replay?`REPLAY · revision ${replay.n}`:'LIVE · real Mars time'}</small><strong>{solOf(s.tick)} · step {s.tick}</strong>{c&&<span>Sun {c.site_solar_elevation_deg>0?`${fmt(c.site_solar_elevation_deg,0)}° up`:`${fmt(-c.site_solar_elevation_deg,0)}° below the horizon`} · {c.season}</span>}</div>
    <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>▶ {j.title} · {fmt(j.progress*100,0)}%</span>):<span>No robot is working.</span>}
@@ -156,6 +169,6 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
     <input type="range" min={revs[0]?.revision||1} max={revs.at(-1)?.revision||1} value={replay?.n||revs.at(-1)?.revision||1} onChange={e=>{setPlaying(false);load(Number(e.target.value));}} aria-label="Replay revision"/>
     <div><button onClick={()=>{if(!revs.length)return;if(!replay)load(revs[0].revision);setPlaying(p=>!p);}}>{playing?'Pause':'Play'}</button><button onClick={()=>{setPlaying(false);setReplay(null);}} disabled={!replay}>Stop · back to live</button></div></div>
   </div>
-  <p className="scene-note">Robots move only while their work is running in the simulation; waiting robots stay still and say why. Sun position is computed for the site at this moment. The rover's position is the distance driven in the simulation along its survey line (east, per the route planner); trench size is the published habitat size and depth. Ground: HiRISE orbital image nearest the site (single band, coloured), not to scale. Lighting follows the real sun elevation at the site; the twilight shading curve is illustrative. Layout positions, the spoil pile, excavator shuttling and models are illustrative.</p>
+  <p className="scene-note">Robots move only while their work is running in the simulation; waiting robots stay still and say why. Sun position is computed for the site at this moment. The rover's position is the distance driven in the simulation along its survey line (east, per the route planner); between steps it advances at its authorized rate toward the next recorded step; trench size is the published habitat size and depth. Ground: HiRISE orbital image nearest the site (single band, coloured), not to scale. Lighting follows the real sun elevation at the site; the twilight shading curve is illustrative. Layout positions, the spoil pile, excavator shuttling and models are illustrative.</p>
  </section></>;
 }
