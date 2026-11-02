@@ -41,7 +41,7 @@
 .live-strip span{display:flex;flex-direction:column;min-width:0}.live-strip small{color:#e6a77e;font-weight:800;letter-spacing:1px;font-size:10px}.live-strip b{font-variant-numeric:tabular-nums;color:#fff;font-weight:600}
 .live-strip b.ok{color:#5fd38d}.live-strip b.bad{color:#ff7a5c}
 .live-badge{flex-direction:row!important;align-items:center;gap:8px;font-weight:800;letter-spacing:1.2px;padding:6px 12px;border-radius:999px;background:#2c4652}
-.live-badge i{width:10px;height:10px;border-radius:50%;background:#9fb3ad}.live-badge.run i{background:#5fd38d;animation:pulse 1.6s infinite}.live-badge.stop i{background:#ff7a5c}.live-badge.done i{background:#7fd1ff}
+.live-badge i{width:10px;height:10px;border-radius:50%;background:#9fb3ad}.live-badge.run i{background:#5fd38d;animation:pulse 1.6s infinite}.live-badge.stop i{background:#ff7a5c}
 @keyframes pulse{0%{box-shadow:0 0 0 0 #5fd38d99}70%{box-shadow:0 0 0 10px #5fd38d00}100%{box-shadow:0 0 0 0 #5fd38d00}}
 .scene-tag.held{border-color:#e6a77e}
 .start-screen{max-width:760px;margin:12vh auto;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center}.start-screen h1{font-size:44px}.start-screen p{font-size:17px;color:#46534d}.start-screen .start{font-size:20px;padding:14px 34px}

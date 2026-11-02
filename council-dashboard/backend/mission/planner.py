@@ -187,7 +187,7 @@ def call(store,mid,operation,model,instructions,data,tools,transport=None,previo
         for v in result.get('output',[]):
             if v.get('type')!='function_call':continue
             try:arguments=json.loads(v['arguments'])
-            except (KeyError,TypeError,ValueError) as exc:raise InvalidAction('Provider returned unparseable tool arguments for '+str(v.get('name')))
+            except (KeyError,TypeError,ValueError):raise InvalidAction('Provider returned unparseable tool arguments for '+str(v.get('name')))
             calls.append({'name':v['name'],'arguments':arguments,'call_id':v.get('call_id')})
         with store.transaction() as db:
             receipt=db.get(InferenceReceipt,operation);record=deepcopy(receipt.record)

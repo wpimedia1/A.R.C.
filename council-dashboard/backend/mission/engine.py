@@ -2,7 +2,7 @@
 Agents propose; this module validates and executes. No physical quantity is defined here."""
 from copy import deepcopy
 import math
-from .spec import specification, digest, draw
+from .spec import specification, draw
 
 
 class InvalidAction(ValueError):
@@ -570,7 +570,6 @@ def set_standby(s, asset_ids, ticks, reason, actor, basis):
         raise InvalidAction('Standby needs a list of distinct units')
     units = [asset_by_id(s, aid) for aid in asset_ids]
     for a in units:
-        aid = a['id']
         a['standby_until_tick'] = s['tick'] + ticks
         a['standby'] = {'from_tick': s['tick'], 'until_tick': s['tick'] + ticks, 'reason': reason, 'actor': actor, 'basis': basis}
     s.setdefault('standby_log', []).append({'tick': s['tick'], 'assets': list(asset_ids), 'ticks': ticks, 'reason': reason, 'actor': actor, 'basis': basis})

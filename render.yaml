@@ -14,6 +14,8 @@ services:
         value: "true"
       - key: PUBLIC_ORIGIN
         sync: false
+      - key: MISSION_OPERATOR_TOKEN
+        sync: false
   - type: worker
     name: mars-mission-worker
     runtime: docker
