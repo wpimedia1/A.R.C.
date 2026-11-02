@@ -50,12 +50,12 @@ function inStep(s:State,a:Asset,clock:StepClock|null){
  const f=Math.max(0,Math.min(1,1-(clock.next-Date.now()/1000)/clock.len));
  return Math.min(rate*f,j.target-j.done);
 }
-function Rover({a,s,clock,labels}:{a:Asset;s:State;clock:StepClock|null;labels:boolean}){
- const ref=useRef<THREE.Group>(null);const j=jobOf(s,a);const moving=a.available&&j?.status==='running'&&j.kind==='survey'&&!standby(s,a);
+function Rover({a,s,clock,labels,night}:{a:Asset;s:State;clock:StepClock|null;labels:boolean;night:boolean}){
+ const ref=useRef<THREE.Group>(null);const j=jobOf(s,a);const moving=a.available&&j?.status==='running'&&j.kind==='survey'&&!standby(s,a)&&!night;// D19: no driving at night
  const driven=surveyJobs(s).reduce((t,x)=>t+x.done,0);const at=useMemo(()=>new THREE.Vector3(),[]);
  useFrame((_,dt)=>{if(!ref.current)return;at.set(a.position[0]+driven+inStep(s,a,clock),0,a.position[2]);ref.current.position.lerp(at,1-Math.exp(-dt*2));});
  return <group ref={ref} position={a.position}><group rotation={[0,Math.PI/2,0]}><Suspense fallback={null}><Model file={FILE.rover[0]} size={FILE.rover[1]} tint={a.available?null:'#7a2c12'}/></Suspense>{moving&&<Dust/>}</group>
-  {labels&&<Html position={[0,FILE.rover[1]+1.4,0]} center><Tag s={s} a={a}/></Html>}</group>;
+  {labels&&<Html position={[0,FILE.rover[1]+1.4,0]} center><Tag s={s} a={a} night={night}/></Html>}</group>;
 }
 function SurveyLine({a,s}:{a:Asset;s:State}){
  const jobs=surveyJobs(s);if(!jobs.length)return null;
@@ -108,11 +108,11 @@ function Site({s}:{s:State}){
   {hab&&<group position={hab.position}><Suspense fallback={null}><Model file={FILE.habitat[0]} size={FILE.habitat[1]}/></Suspense>
    {(sh?.progress||0)>0&&<mesh scale={[1,(sh?.progress||0),1]} castShadow><sphereGeometry args={[P(s,'habitat.diameter_m')/2,32,16,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#9a5634" roughness={1}/></mesh>}</group>}</>;
 }
-function Tag({s,a}:{s:State;a:Asset}){
- const j=jobOf(s,a);const sb=standby(s,a);
+function Tag({s,a,night=false}:{s:State;a:Asset;night?:boolean}){
+ const j=jobOf(s,a);const sb=standby(s,a);const dark=night&&a.kind==='rover'&&j?.status==='running'&&j.kind==='survey';
  const p=pct(a);const bat=p===null?'':` · battery ${p}%`;
- const txt=!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
- const cls=!a.available?'failed':charging(a)?'waiting':sb?'standby':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
+ const txt=!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:dark?`${j.title} · ${fmt(j.progress*100,0)}% · waiting for daylight (D19)`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
+ const cls=!a.available?'failed':charging(a)?'waiting':sb?'standby':dark?'waiting':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
  return <span className={'scene-tag '+cls}><b>{a.name.split(' (')[0]}</b>{txt}</span>;
 }
 // The rover carries its own tag so it follows the rover; the other units stay put.
@@ -120,6 +120,7 @@ function Tags({s}:{s:State}){
  return <>{s.assets.filter(a=>a.kind!=='rover').map(a=><Html key={a.id} position={[a.position[0],(FILE[a.kind]?.[1]||2)+1.4,a.position[2]]} center><Tag s={s} a={a}/></Html>)}</>;
 }
 function Scene({s,labels,clock,sun}:{s:State;labels:boolean;clock:StepClock|null;sun:[number,number,number]|null}){
+ const night=sun!==null&&sun[2]<=0;// sun below the horizon at the site
  // sun: the live Mars24 sun direction at the site (live view, read every 30 s) or the one recorded with the step (replay).
  // None -> neutral light, no invented sun.
  const sunPos:[number,number,number]|null=sun?[sun[0]*80,sun[2]*80,-sun[1]*80]:null;
@@ -137,7 +138,7 @@ function Scene({s,labels,clock,sun}:{s:State;labels:boolean;clock:StepClock|null
   <GroundBoundary><Suspense fallback={<PlainGround/>}><Ground/></Suspense></GroundBoundary>
   <Site s={s}/>
   {s.assets.filter(a=>a.kind==='rover').map(a=><SurveyLine key={'line-'+a.id} a={a} s={s}/>)}
-  {s.assets.map((a,i)=>a.kind==='rover'?<Rover key={a.id} a={a} s={s} clock={clock} labels={labels}/>:a.kind==='excavator'?<Excavator key={a.id} a={a} s={s} i={i}/>:a.kind==='rodwell'?<Drill key={a.id} a={a} s={s}/>:a.kind==='power'?<Power key={a.id} a={a} s={s}/>:null)}
+  {s.assets.map((a,i)=>a.kind==='rover'?<Rover key={a.id} a={a} s={s} clock={clock} labels={labels} night={night}/>:a.kind==='excavator'?<Excavator key={a.id} a={a} s={s} i={i}/>:a.kind==='rodwell'?<Drill key={a.id} a={a} s={s}/>:a.kind==='power'?<Power key={a.id} a={a} s={s}/>:null)}
   {labels&&<Tags s={s}/>}
  </>;
 }
@@ -166,7 +167,7 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
   <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels} clock={clock} sun={c?.site_sun_enu??null}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary></div>
   <div className="scene-hud">
    <div className="hud-block"><small>{replay?`REPLAY · revision ${replay.n}`:'LIVE · real Mars time'}</small><strong>{solOf(s.tick)} · step {s.tick}</strong>{c&&<span>Sun {c.site_solar_elevation_deg>0?`${fmt(c.site_solar_elevation_deg,0)}° up`:`${fmt(-c.site_solar_elevation_deg,0)}° below the horizon`} · {c.season}</span>}</div>
-   <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>▶ {j.title} · {fmt(j.progress*100,0)}%</span>):<span>No robot is working.</span>}
+   <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>{j.kind==='survey'&&c&&c.site_solar_elevation_deg<=0?`⏸ ${j.title} · ${fmt(j.progress*100,0)}% · waiting for daylight (D19)`:`▶ ${j.title} · ${fmt(j.progress*100,0)}%`}</span>):<span>No robot is working.</span>}
     {reviewing.map(j=><span key={j.id}>⏳ {j.title}: authorized, awaiting onboard assurance</span>)}
     {charging_.map(a=><span key={a.id}>⚡ {a.name.split(' (')[0]} charging · battery {pct(a)}%</span>)}
     {!replay&&!running.length&&!reviewing.length&&!charging_.length&&<span>{s.planning_status}</span>}</div>
