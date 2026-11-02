@@ -103,3 +103,46 @@ def test_assurance_gets_one_correction_turn(monkeypatch):
     assert job_by_id(s, 'survey')['status'] == 'running'
     assert seen[1][0] == 'c:assurance-review:correction' and seen[1][1] == 'r1' and 'missing acknowledged_conditions' in seen[1][2][0]['output']
     assert [r['validation'][:8] for r in receipts] == ['rejected', 'accepted']
+
+
+def test_full_planning_cycle_survives_a_lost_provider_conversation(tmp_path, request, monkeypatch):
+    # Live run 2026-11-02: a follow-up turn got HTTP 400 "referenced response not found or expired" and planning
+    # stopped. The specialist now restates the conversation once as a fresh request. Whole cycle with a scripted
+    # provider: assessments -> director -> specialists -> assurance -> recorded work orders.
+    import httpx
+    import mission.planner as planner
+    from mission.engine import job_by_id
+    monkeypatch.setenv('MISSION_MODEL_MODE', 'meta')
+    store = make_store(tmp_path, request); store.initialize()
+    pkg = store.snapshot('public')['state']['spec']['package_id']
+    calls = []
+    def fake(store_, mid, operation, model, instructions, data, tools, transport=None, previous_response_id=None):
+        calls.append(operation)
+        tail = operation.split(':', 1)[1]
+        if tail.startswith('assessment:'):
+            world = data['world']
+            return [{'name': 'record_assessment', 'call_id': 'a', 'arguments': {'summary': 'ok', 'recommended_jobs': [],
+                     'job_judgements': [{'job_id': j['id'], 'judgement': 'proceed'} for j in world['jobs']],
+                     'missing_information': [], 'source_ids': [pkg]}}], 'ra'
+        if tail == 'director':
+            return [{'name': 'set_mission_plan', 'call_id': 'd', 'arguments': {'priority': data['priority'], 'summary': 'go'}}], 'rd'
+        if tail == 'power:0':
+            return [{'name': 'estimate_job', 'call_id': 'p0', 'arguments': {'job_id': 'power', 'asset_ids': ['fsp-1']}}], 'rp0'
+        if tail == 'power:1':
+            raise httpx.HTTPStatusError('400', request=httpx.Request('POST', 'https://api.meta.ai/v1/responses'),
+                                        response=httpx.Response(400, json={'error': {'message': 'referenced response not found or expired'}}))
+        if tail == 'power:1:restated':
+            assert previous_response_id is None and 'tool_results_so_far' in data[0]['content']
+            return [{'name': 'submit_work_order', 'call_id': 'p1', 'arguments': {'job_id': 'power', 'asset_ids': ['fsp-1'], 'summary': 'deploy', 'source_ids': [pkg]}}], 'rp1'
+        if tail == 'survey:0':
+            return [{'name': 'submit_work_order', 'call_id': 's0', 'arguments': {'job_id': 'survey', 'asset_ids': ['rover-1'], 'summary': 'survey', 'source_ids': [pkg]}}], 'rs0'
+        if tail == 'assurance-review':
+            return [{'name': 'review_work_orders', 'call_id': 'r', 'arguments': {'approved': [
+                {'job_id': o['job_id'], 'reason': 'ok', 'acknowledged_conditions': [c['id'] for c in o['open_conditions']]} for o in data['orders']], 'held': []}}], 'rr'
+        raise AssertionError('unexpected request ' + operation)
+    monkeypatch.setattr(planner, 'call', fake)
+    assert planner.plan_once(store, mission_id='public')
+    s = store.snapshot('public')['state']
+    assert not s['inference_stopped'], s['planning_status']
+    assert job_by_id(s, 'power')['status'] == 'running' and job_by_id(s, 'survey')['status'] == 'running'
+    assert any(c.endswith('power:1:restated') for c in calls)
