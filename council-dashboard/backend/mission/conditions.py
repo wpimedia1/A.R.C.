@@ -9,7 +9,6 @@
 These conditions keep updating while a mission is paused. The worker records every change of the DSN Mars link
 as an EnvironmentObservation; the public mission applies the conditions at each tick (decision D10/D11).
 """
-import calendar
 import math
 import time
 import xml.etree.ElementTree as ET
@@ -17,8 +16,12 @@ from datetime import datetime, timezone
 import httpx
 
 DSN_URL = 'https://eyes.nasa.gov/dsn/data/dsn.xml'
-# Scenario site: the same assumption used for the SWIM and MOLA evidence (40 N, 170 W = 190 E).
-SITE = {'latitude': 40.0, 'longitude_east': 190.0, 'classification': 'scenario assumption'}
+# Scenario site in Arcadia Planitia, chosen so real full-resolution imagery covers it (owner decision, D13): the centre pixel
+# of HiRISE ESP_056974_2205_RED (0.5 m/pixel), from its PDS label IMAGE_MAP_PROJECTION (LINES 66625, LINE_SAMPLES 18485,
+# MAP_RESOLUTION 118259.58864773 pix/deg, LINE_PROJECTION_OFFSET 4770142.5, SAMPLE_PROJECTION_OFFSET -922911.5, centre 40 N 180 E):
+# https://hirise.lpl.arizona.edu/PDS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.LBL
+SITE = {'latitude': 40.05451, 'longitude_east': 190.28958, 'classification': 'scenario assumption',
+        'basis': 'centre pixel of HiRISE ESP_056974_2205_RED (PDS label projection)'}
 # Spacecraft at Mars, by their DSN abbreviations (JPL DSN Current Mission Set, 7-2020:
 # https://deepspace.jpl.nasa.gov/files/DSN_Current_Mission_Set_7-2020.pdf). The live DSN Now feed reports range and
 # round-trip light time as -1 (owner's capture 2026-10-31, docs/dsn-sample.xml, which lists MRO and M01O), so the

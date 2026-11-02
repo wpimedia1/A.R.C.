@@ -97,7 +97,8 @@ def parse_swim(raw,member_name='Ci.tif'):
     with tifffile.TiffFile(io.BytesIO(raster)) as tif:
         meta=tif.geotiff_metadata;grid=tif.asarray()
         scale=meta['ModelPixelScale'];tie=meta['ModelTiepoint'];radius=meta['GeogSemiMajorAxisGeoKey']
-        x=radius*math.radians(-170);y=radius*math.radians(40)
+        from .conditions import SITE
+        x=radius*math.radians(((SITE['longitude_east']+180)%360)-180);y=radius*math.radians(SITE['latitude'])
         col=int((x-tie[3])/scale[0]);row=int((tie[4]-y)/scale[1])
         if not (0<=row<grid.shape[0] and 0<=col<grid.shape[1]):raise ValueError('Scenario site outside SWIM raster')
         cells=[]
@@ -109,7 +110,7 @@ def parse_swim(raw,member_name='Ci.tif'):
         return {'region':sample_swim_region(grid,meta),'grid':cells,'site_row':row,'site_column':col,'site_value':next(c['value'] for c in cells if c['row']==row and c['column']==col),
                 'pixel_size_m':scale[:2],'projection':'Mars 2000 spherical Plate Carree, central meridian 0°, meters',
                 'raster_shape':list(grid.shape),'raster_hash':hashlib.sha256(raster).hexdigest(),
-                'transform':'swim-geotiff-arcadia-2','site':{'latitude':40,'longitude':-170,'classification':'scenario assumption'},
+                'transform':'swim-geotiff-arcadia-3','site':{'latitude':SITE['latitude'],'longitude':((SITE['longitude_east']+180)%360)-180,'classification':SITE['classification']},
                 'interpretation':'Consistency index [-1,1], not ice fraction or recoverable yield. 3 km projected pixels; effective instrument resolution varies. No rover-scale inference.'}
 
 def ingest(store):
@@ -149,7 +150,7 @@ def ingest(store):
         'retrieved_at':retrieved,'status':'published regional browse product','supports':'Regional consistency with ice over combined sensing depth ~5 m; preliminary, not extraction yield',
         'image_url':'/evidence/swim-arcadia.png','resolution':'3,000 m projected raster spacing, read from GeoTIFF. Effective sensing resolution varies by instrument. Not used for rover routes.',
         'spatial':spatial,'browse_hash':hashlib.sha256(raw).hexdigest(),'numeric_retrieved_at':numeric_retrieved,
-        'uncertainty':'Preliminary multi-instrument consistency index, not an ice concentration measurement','transformation_version':'swim-geotiff-arcadia-2'},numeric)
+        'uncertainty':'Preliminary multi-instrument consistency index, not an ice concentration measurement','transformation_version':'swim-geotiff-arcadia-3'},numeric)
     radar_url='https://swim.psi.edu/PilotStudyProducts.php?C_rdr-GeoTIFF=True&DL-Sel=True'
     radar,retrieved=fetch(radar_url,5_000_000)
     with zipfile.ZipFile(io.BytesIO(radar)) as archive:
@@ -159,7 +160,7 @@ def ingest(store):
     results['swim-radar']=pin(store,'swim-radar',{'title':'SWIM Arcadia deep radar reflectors','url':radar_url,
         'version':'2018 pilot / 2019-01-08','retrieved_at':retrieved,'status':'published radar interpretation',
         'supports':'Spatially mapped SHARAD subsurface reflector evidence','spatial':radar_spatial,
-        'transformation_version':'swim-geotiff-arcadia-2','use':radar_spatial['interpretation']},radar)
+        'transformation_version':'swim-geotiff-arcadia-3','use':radar_spatial['interpretation']},radar)
     from .terrain import arcadia
     results['mola-arcadia']=arcadia(store)
     # Adopt only these explicit versions; retain earlier catalog and mission revisions.

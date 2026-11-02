@@ -6,7 +6,6 @@ Full project definition · October 30, 2026 · Working title, not final branding
 
 This document describes the owner's intended product, its requirements and the proposed technical design. It is **not a statement that these capabilities have been completed or verified**.
 
-The current application is stopped. Generated mission records, API receipts, telemetry caches and reports were removed at the owner's request. Automatic mission initialization is disabled. Earlier claims of verified Meta activity are withdrawn; the discrepancy between local records and the owner's Meta developer account is unresolved. Historical copies and cleanup limits are documented in [UNFINISHED-FEATURES.md](UNFINISHED-FEATURES.md).
 
 Read this document for the project's definition. Read the unfinished-feature inventory for its present gaps. Neither replaces independent acceptance testing.
 

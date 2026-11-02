@@ -32,7 +32,21 @@ def test_stopped_mission_is_not_replanned(tmp_path, request, monkeypatch):
 def test_oversized_context_sheds_background_evidence_first():
     from mission.planner import fit_context, CONTEXT_LIMIT
     from mission.spec import canonical
-    big = {'jobs': [1, 2], 'weather': {'w': 1}, 'evidence': [{'id': f's{i}', 'passages': [{'text': 'x' * 2000} for _ in range(4)]} for i in range(12)]}
+    big = {'jobs': [1, 2], 'weather': {'w': 1}, 'evidence': [{'id': f's{i}', 'passages': [{'text': 'x' * 2000} for _ in range(4)]} for i in range(CONTEXT_LIMIT // 8000 + 2)]}
     d, note = fit_context(big)
     assert len(canonical(d).encode()) <= CONTEXT_LIMIT and note and d['jobs'] == [1, 2] and d['weather'] == {'w': 1}
     assert fit_context({'a': 1}) == ({'a': 1}, None)
+
+
+def test_fit_context_trims_evidence_inside_agent_observations():
+    # Agent assessments carry evidence under 'world'; it must be shortened like top-level evidence, never other state.
+    from mission.planner import fit_context, CONTEXT_LIMIT
+    from mission.spec import canonical
+    big = [{'id': f'src{i}', 'passages': [{'text': 'x' * 3000} for _ in range(4)], 'observations': [{'v': 'y' * 2000}] * 3,
+            'spatial_summary': {'grid': 'z' * 3000}, 'supports': 'kept'} for i in range(CONTEXT_LIMIT // 15000 + 2)]
+    data = {'role': 'power', 'world': {'jobs': [{'id': 'power'}], 'evidence': big}, 'own_memory': ['m']}
+    assert len(canonical(data).encode()) > CONTEXT_LIMIT
+    out, note = fit_context(data)
+    assert len(canonical(out).encode()) <= CONTEXT_LIMIT and note
+    assert out['world']['jobs'] == data['world']['jobs'] and out['own_memory'] == ['m']
+    assert all(e['supports'] == 'kept' for e in out['world']['evidence'])

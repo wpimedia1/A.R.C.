@@ -25,19 +25,6 @@ def test_derived_values_are_recomputed_from_inputs(approved_package):
     v = load()['values']
     assert v['excavator.rate_kg_h'] == pytest.approx(v['excavator.min_rate_kg_per_day'] / 24)
     assert v['water.rodwell_kwh_per_kg'] == pytest.approx(v['rodwell.power_kw'] * 24 / v['rodwell.water_kg_per_day'])
-    assert v['water.melt_min_kwh_per_kg'] < v['water.rodwell_kwh_per_kg'] < v['water.regolith_mwip_kwh_per_kg']
-
-
-def test_iapws_properties(approved_package):
-    v = load()['values']
-    assert v['ice.fusion_kj_per_kg'] == pytest.approx(333.4, abs=0.5)
-    assert v['ice.sublimation_kj_per_kg'] == pytest.approx(2834.4, abs=1)
-
-
-def test_conflicts_report_both_values(approved_package):
-    c = load()['conflicts']
-    assert set(c['regolith_extraction_power']['values']) == {'water.energy_kwh_per_kg', 'water.regolith_mwip_kwh_per_kg'}
-    assert c['ice_extraction_energy']['selected'] == 'water.rodwell_kwh_per_kg'
 
 
 def test_missing_quote_is_rejected(approved_package):

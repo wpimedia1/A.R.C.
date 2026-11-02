@@ -1,8 +1,8 @@
 'use client';
 import {useEffect,useState} from 'react';
-import {api,Conflict,Decision,fmt,solOf} from '../lib/mission';
+import {api,Decision,fmt,solOf} from '../lib/mission';
 type Unc={method?:string;status?:string;error?:string;tick?:number;readiness_tick_range?:[number,number]|null;unbounded?:string[];parameters?:{parameter:string;nominal:number;minimum:number;maximum:number;minimum_readiness_tick:number|null;maximum_readiness_tick:number|null;note:string|null}[]};
-type Plan={uncertainty:Unc;as_of_tick:number;method:string;time_basis:string;forecast_readiness_tick:number|null;conflicts:Record<string,Conflict>;decisions:Record<string,Decision>;
+type Plan={uncertainty:Unc;as_of_tick:number;method:string;time_basis:string;forecast_readiness_tick:number|null;decisions:Record<string,Decision>;
  jobs:{job_id:string;title:string;status:string;target:number;unit:string;done:number;actual_start_tick:number|null;actual_finish_tick:number|null;forecast_start_tick:number|null;forecast_finish_tick:number|null;blocker:string|null;constraint_ids:string[];basis:string}[];
  constraints:{id:string;title:string;source_id:string;source_version:string|null;page:number;printed_page:string;interpretation:string;enforcement:string}[]};
 export default function Schedule({mid,revision,select}:{mid:string;revision:number;select:(id:string)=>void}){
@@ -14,6 +14,5 @@ export default function Schedule({mid,revision,select}:{mid:string;revision:numb
    :<p>{data.uncertainty.error?`Uncertainty forecast failed: ${data.uncertainty.error}`:data.uncertainty.status}</p>}</div>
   <div className="measurement-table"><table><thead><tr><th>Work</th><th>Status</th><th>Progress</th><th>Start</th><th>Finish</th><th>What affects it</th></tr></thead><tbody>{data.jobs.map(j=><tr key={j.job_id}><td><button onClick={()=>select(j.job_id)}>{j.title}</button></td><td>{j.status}</td><td>{fmt(j.done)} / {fmt(j.target)} {j.unit}</td><td>{solOf(j.actual_start_tick??j.forecast_start_tick)} {j.actual_start_tick!==null?'actual':'forecast'}</td><td>{solOf(j.actual_finish_tick??j.forecast_finish_tick)} {j.actual_finish_tick!==null?'actual':'forecast'}</td><td>{j.blocker||j.basis}</td></tr>)}</tbody></table></div>
   <details><summary>Architectural requirements</summary>{data.constraints.map(c=><article key={c.id}><h3>{c.title}</h3><p>{c.interpretation}</p><p>{c.enforcement}</p><small>{c.source_id} · PDF page {c.page}, printed page {c.printed_page} · pinned version {c.source_version||'not yet ingested'}</small></article>)}</details>
-  <details><summary>Tracked conflicts between sources</summary>{Object.entries(data.conflicts).map(([id,c])=><article key={id}><h3>{id.replaceAll('_',' ')}</h3><p>{c.note}</p><p>{Object.entries(c.values).map(([k,v])=>`${k} = ${fmt(v,4)}`).join(' · ')}</p><p>Selected: {c.selected||'none'} · {c.status}</p></article>)}</details>
   <details><summary>Operator decisions in force</summary>{Object.entries(data.decisions).map(([id,d])=><p key={id}><strong>{id.replaceAll('_',' ')}</strong>: {String(d.choice)} — {d.reason} {d.approved?'(approved)':'(NOT APPROVED)'}</p>)}</details></>}</section>;
 }

@@ -12,6 +12,8 @@ RUN npm run build
 FROM python:3.12-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app/backend
+# OpenJPEG: glymur decodes only the site window of full-resolution HiRISE JPEG2000 images (D13).
+RUN apt-get update && apt-get install -y --no-install-recommends libopenjp2-7 && rm -rf /var/lib/apt/lists/*
 COPY council-dashboard/backend/requirements-mission.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 COPY council-dashboard/backend/mission ./mission

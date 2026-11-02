@@ -279,10 +279,76 @@ def pending_visual(store, mid='public'):
 # ---------------------------------------------------------------- SAM 3.1 on HiRISE
 
 def _label_value(label, key):
-    m = re.search(rf'^\s*{key}\s*=\s*([0-9.]+)', label, re.M)
+    m = re.search(rf'^\s*{re.escape(key)}\s*=\s*(-?[0-9.]+(?:[eE][-+]?[0-9]+)?)', label, re.M)
     if not m:
         raise MediaError(f'HiRISE label has no {key}')
     return float(m.group(1))
+
+
+# Full-resolution crop for SAM when the image contains the site. Side length in full-resolution pixels: at the 0.5 m/pixel
+# HiRISE map scale this is 512 m, wider than the 175.15 m one-sol survey drive in every direction from the site.
+CROP_PX = 1024
+
+
+def site_pixel(label, lat, lon_east):
+    """0-based (line, sample) of a planetocentric lat / east lon in a HiRISE equirectangular RDR, from its label
+    (PDS3 IMAGE_MAP_PROJECTION: line = LINE_PROJECTION_OFFSET - lat * MAP_RESOLUTION;
+    sample = SAMPLE_PROJECTION_OFFSET + MAP_RESOLUTION * (lon - CENTER_LONGITUDE) * cos(CENTER_LATITUDE))."""
+    res = _label_value(label, 'MAP_RESOLUTION')
+    line = _label_value(label, 'LINE_PROJECTION_OFFSET') - lat * res
+    sample = _label_value(label, 'SAMPLE_PROJECTION_OFFSET') + res * (lon_east - _label_value(label, 'CENTER_LONGITUDE')) * math.cos(math.radians(_label_value(label, 'CENTER_LATITUDE')))
+    return line - 1, sample - 1
+
+
+def fetch_file(url, path, transport=None):
+    """Download a large file to disk once (streamed), then reuse it. Fails loud on any HTTP or size mismatch."""
+    from pathlib import Path
+    path = Path(path)
+    if path.exists():
+        return path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + '.part')
+    with httpx.Client(timeout=httpx.Timeout(60, read=300), follow_redirects=True, transport=transport) as c:
+        with c.stream('GET', url) as r:
+            r.raise_for_status()
+            expected = int(r.headers['content-length']) if r.headers.get('content-length') else None
+            size = 0
+            with open(tmp, 'wb') as out:
+                for part in r.iter_bytes(1 << 20):
+                    out.write(part); size += len(part)
+    if expected is not None and size != expected:
+        tmp.unlink(missing_ok=True)
+        raise MediaError(f'Incomplete download of {url}: {size} of {expected} bytes')
+    tmp.replace(path)
+    return path
+
+
+def site_crop(label, jp2_path, lat, lon_east, side=CROP_PX):
+    """Full-resolution window centred on the site, decoded from the JPEG2000 RDR (only the window is decoded).
+    10-bit DN are stretched to 8 bits with the label's own display stretch (MRO:MINIMUM_STRETCH..MRO:MAXIMUM_STRETCH);
+    null pixels (CORE_NULL) stay black. Returns (JPEG bytes, window record)."""
+    import io
+    import glymur
+    import numpy as np
+    from PIL import Image
+    lines, samples = int(_label_value(label, 'LINES')), int(_label_value(label, 'LINE_SAMPLES'))
+    line, sample = site_pixel(label, lat, lon_east)
+    if not (0 <= line < lines and 0 <= sample < samples):
+        raise MediaError(f'Mission site falls outside the image: line {line:.0f} of {lines}, sample {sample:.0f} of {samples}')
+    half = side // 2
+    r0, c0 = max(0, int(round(line)) - half), max(0, int(round(sample)) - half)
+    r1, c1 = min(lines, r0 + side), min(samples, c0 + side)
+    dn = glymur.Jp2k(str(jp2_path))[r0:r1, c0:c1].astype('float64')
+    lo, hi = _label_value(label, 'MRO:MINIMUM_STRETCH'), _label_value(label, 'MRO:MAXIMUM_STRETCH')
+    null = dn == _label_value(label, 'CORE_NULL')
+    px = np.clip((dn - lo) / (hi - lo) * 255, 0, 255)
+    px[null] = 0
+    out = io.BytesIO()
+    Image.fromarray(px.astype('uint8'), 'L').save(out, format='JPEG', quality=92)
+    window = {'rows': [r0, r1], 'columns': [c0, c1], 'site_pixel': [round(line, 1), round(sample, 1)],
+              'site_in_crop_px': [round(sample - c0, 1), round(line - r0, 1)], 'null_fraction': round(float(null.mean()), 4),
+              'stretch_dn': [lo, hi], 'method': 'JPEG2000 region decode (glymur/OpenJPEG) at full resolution'}
+    return out.getvalue(), window
 
 
 def _segment(store, mid, prompt, image_url, transport=None, product=None):
@@ -328,18 +394,33 @@ def analyze_site(store, mid='public', transport=None):
     from .conditions import SITE
     from .package import load
     img = site_image(SITE['latitude'], SITE['longitude_east'], load()['values']['mars.mean_radius_km'], transport)
-    raw, retrieved = fetch(img['browse'], 60_000_000)
-    label_raw, _ = fetch(img['label'], 2_000_000)
+    label_raw, retrieved = fetch(img['label'], 2_000_000)
     label = label_raw.decode('ascii', errors='replace')
     full_samples = _label_value(label, 'LINE_SAMPLES')
     full_lines = _label_value(label, 'LINES')
     map_scale = _label_value(label, 'MAP_SCALE')  # metres per pixel of the full-resolution product
+    window = None
+    if img['applies_to_site']:
+        # The image contains the site: segment a full-resolution window centred on it (D13).
+        from .science import CACHE
+        jp2_url = img['label'][:-len('.LBL')] + '.JP2'
+        jp2 = fetch_file(jp2_url, CACHE / 'hirise' / (img['product'] + '_RED.JP2'), transport)
+        raw, window = site_crop(label, jp2, SITE['latitude'], SITE['longitude_east'])
+        sam_image = 'data:image/jpeg;base64,' + base64.b64encode(raw).decode()
+        # The exact JPEG SAM segmented is kept so the detections can be shown over it and re-checked.
+        image_source = {'jp2_url': jp2_url, 'window': window, 'segmented_jpeg_b64': base64.b64encode(raw).decode()}
+        m_per_px = map_scale
+    else:
+        raw, retrieved = fetch(img['browse'], 60_000_000)
+        sam_image = img['browse']
+        image_source = {'browse_url': img['browse']}
     with Image.open(io.BytesIO(raw)) as picture:  # not `img`: that name holds the chosen site image record
         width, height = picture.size
-    m_per_px = map_scale * full_samples / width
+    if window is None:
+        m_per_px = map_scale * full_samples / width
     results = []
     for prompt in SAM_PROMPTS:
-        seg = _segment(store, mid, prompt, img['browse'], transport, img['product'])
+        seg = _segment(store, mid, prompt, sam_image, transport, img['product'])
         for o in seg['objects']:
             w = (o['right'] - o['left']) * m_per_px
             h = (o['bottom'] - o['top']) * m_per_px
@@ -348,15 +429,15 @@ def analyze_site(store, mid='public', transport=None):
         seg['summary'] = {'count': len(sizes), 'min_m': sizes[0] if sizes else None, 'median_m': sizes[len(sizes) // 2] if sizes else None,
                           'max_m': sizes[-1] if sizes else None}
         results.append(seg)
-    record = {**img, 'url': img['page'], 'image_url': img['browse'], 'retrieved_at': retrieved,
+    record = {**img, 'url': img['page'], 'image_url': image_source.get('jp2_url', img['browse']), 'image_source': image_source, 'retrieved_at': retrieved,
               'status': 'orbital image segmented by sam-3.1', 'classification': 'model detection on observed imagery',
               'image_size_px': [width, height], 'full_product_px': [full_samples, full_lines], 'map_scale_m': map_scale,
-              'browse_m_per_px': round(m_per_px, 3),
-              'resolution_limit': f'Objects smaller than about {round(2 * m_per_px, 1)} m cannot be resolved in this browse image.',
+              'browse_m_per_px': round(m_per_px, 3), 'segmented_m_per_px': round(m_per_px, 3),
+              'resolution_limit': f'Objects smaller than about {round(2 * m_per_px, 1)} m cannot be resolved in the segmented image.',
               'supports': 'Count and size of boulders and impact craters SAM 3.1 detects in real HiRISE orbital imagery of Arcadia Planitia.',
               'use': 'Model detections, not ground truth. ' + ('The image footprint contains the mission site.' if img['applies_to_site'] else
                      f"PROXY IMAGE: {img['site_relation']}. Detections do not describe the mission site and must not be used to approve or plan site work."),
-              'segmentations': results, 'transformation_version': 'sam-3.1-hirise-browse-1',
+              'segmentations': results, 'transformation_version': 'sam-3.1-hirise-fullres-crop-1' if window else 'sam-3.1-hirise-browse-1',
               'summary': {r['prompt']: r['summary'] for r in results}}
     from .route import plan
     record['route'] = plan(width, height, m_per_px, results)
@@ -392,5 +473,6 @@ def site_analysis_due(store, mid='public'):
     if s['mode'] != 'meta' or s.get('site_imagery'):
         return False
     # D13: orbital site characterization runs at genesis, before surface work.
-    failed = store.status('site-analysis')
-    return not failed  # a failed attempt is recorded and not retried automatically
+    st = store.status('site-analysis')
+    # A failed attempt is recorded and not retried automatically; `python -m mission.cli retry-site-analysis` clears it.
+    return not st or bool(st.get('cleared_at'))

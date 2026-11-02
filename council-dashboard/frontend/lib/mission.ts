@@ -15,7 +15,6 @@ export const usd=(n:number)=>new Intl.NumberFormat('en-US',{style:'currency',cur
 export const solOf=(tick:number|null)=>tick===null?'—':`Sol ${(tick/24).toFixed(2)}`;
 
 export const jobPower=(s:State,j:Job):number|null=>j.power_per_asset_kw===null?null:j.power_per_asset_kw!==undefined?j.power_per_asset_kw*j.assigned.length:(()=>{const kw=j.assigned.map(a=>s.assets.find(x=>x.id===a)?.grid_power_kw);return kw.some(v=>v==null)?null:kw.reduce((t,v)=>t+(v as number),0);})();
-export const HIRISE_HERO={local:'/api/v1/site/hirise.jpg',src:'https://static.uahirise.org/images/2017/details/ESP_052358_2210.jpg',fallback:'https://hirise-pds.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_052300_052399/ESP_052358_2210/ESP_052358_2210_RED.abrowse.jpg',page:'https://www.uahirise.org/ESP_052358_2210',credit:'NASA/JPL-Caltech/UArizona'};
 export const realHours=(ticks:number,secondsPerTick:number|null)=>secondsPerTick?ticks*secondsPerTick/3600:null;
 export type DsnLink={dish:string;station:string|null;spacecraft:string;direction:'up'|'down';data_rate_bps:number|null;band:string|null;range_km:number;rtlt_s:number};
 export type MarsConditions={clock:{utc:string;unix:number;mars_sol_date:number;mars_year:number;ls_deg:number;season:string;mtc_h:number;site_lmst_h:number;site_ltst_h:number;site_solar_elevation_deg:number;site_sun_enu?:[number,number,number];dusty_season?:boolean};

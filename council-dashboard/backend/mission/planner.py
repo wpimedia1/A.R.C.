@@ -68,7 +68,10 @@ def context(s):
 
 def reserve(store,mid,operation,model,payload):
     size=len(canonical(payload).encode())
-    if size>CONTEXT_LIMIT: raise InvalidAction(f'Bounded model context exceeded {CONTEXT_LIMIT//1000} KB after shortening background evidence ({size} bytes)')
+    if size>CONTEXT_LIMIT:
+        try:data=json.loads(payload['input']) if isinstance(payload['input'],str) else {}
+        except Exception:data={}
+        raise InvalidAction(f'Bounded model context exceeded {CONTEXT_LIMIT//1000} KB after shortening background evidence ({size} bytes; largest parts: {context_breakdown(data) or "unavailable"})')
     cap=round(max_cost_usd(model,size,payload['max_output_tokens'])+0.000001,6)
     now=datetime.now(timezone.utc)
     with store.transaction() as db:
@@ -106,23 +109,47 @@ def credential_status():
     except ProviderConfigError as exc:
         return {'configured':False,'provider':'Meta','endpoint':ENDPOINT,'error':str(exc)}
 
-CONTEXT_LIMIT=50000
+# Request-size bound per model call. Owner decision 2026-11-01: raised from 50 KB so agents keep the full real evidence;
+# the trimming stages remain only as a fallback above this bound.
+CONTEXT_LIMIT=100000
+
+def _evidence_lists(d):
+    """Every background-evidence list in a request: top level, inside an agent observation ('world') or a nested state."""
+    out=[]
+    for holder in (d, d.get('world') if isinstance(d,dict) else None, d.get('state') if isinstance(d,dict) else None):
+        if isinstance(holder,dict) and isinstance(holder.get('evidence'),list):out.append(holder['evidence'])
+    return out
 
 def fit_context(data):
-    """Keep a request inside the bounded context by shortening background evidence first (never state, jobs or weather).
+    """Keep a request inside the bounded context by shortening background evidence only (never state, jobs, weather,
+    assessments or memory). Stages, in order, stop as soon as the request fits; each stage is recorded.
     Returns (data, note of what was shortened or None)."""
-    if len(canonical(data).encode())<=CONTEXT_LIMIT:return data,None
+    size=lambda x:len(canonical(x).encode())
+    if size(data)<=CONTEXT_LIMIT:return data,None
     d=deepcopy(data);notes=[]
-    def ev(x):
-        return x.get('evidence') if isinstance(x,dict) and isinstance(x.get('evidence'),list) else (x.get('state',{}).get('evidence') if isinstance(x,dict) and isinstance(x.get('state'),dict) else None)
-    for limit in (2,1,0):
-        e=ev(d)
-        if e is None:break
-        for item in e:
-            if isinstance(item,dict) and isinstance(item.get('passages'),list):item['passages']=[{**p,'text':str(p.get('text',''))[:400]} for p in item['passages'][:limit]]
-        notes.append(f'evidence passages cut to {limit} per source')
-        if len(canonical(d).encode())<=CONTEXT_LIMIT:return d,'; '.join(notes)
+    lists=_evidence_lists(d)
+    def each(fn):
+        for e in lists:
+            for item in e:
+                if isinstance(item,dict):fn(item)
+    stages=[(f'evidence passages cut to {n} per source (400 characters each)',
+             (lambda n:lambda i:i.__setitem__('passages',[{**p,'text':str(p.get('text',''))[:400]} for p in (i.get('passages') or [])[:n]]))(n)) for n in (2,1,0)]
+    stages+=[(f'evidence observations cut to {n} per source',(lambda n:lambda i:i.__setitem__('observations',(i.get('observations') or [])[:n]))(n)) for n in (1,0)]
+    stages+=[('evidence spatial summaries and regional metrics removed (still available through inspect tools)',
+              lambda i:[i.pop(k,None) for k in ('spatial_summary','regional_metrics','regional_bounds')])]
+    for note,fn in stages:
+        if not lists:break
+        each(fn);notes.append(note)
+        if size(d)<=CONTEXT_LIMIT:return d,'; '.join(notes)
     return d,'; '.join(notes) or None
+
+def context_breakdown(data):
+    """Largest parts of an oversized request, for the failure message."""
+    parts=[]
+    for holder,prefix in ((data,''),(data.get('world') if isinstance(data,dict) else None,'world.')):
+        if isinstance(holder,dict):
+            parts+=[(prefix+k,len(canonical(v).encode())) for k,v in holder.items()]
+    return ', '.join(f'{k} {n//1000} KB' for k,n in sorted(parts,key=lambda x:-x[1])[:6])
 
 def call(store,mid,operation,model,instructions,data,tools,transport=None,previous_response_id=None):
     """One real Responses API request. Returns (tool_calls, response_id). Never retried automatically."""

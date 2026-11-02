@@ -36,6 +36,7 @@ export default function LiveStrip({snap}:{snap:Snapshot}){
   <span><small>MARS SITE LOCAL TIME</small><b>{ltst==null?'—':clock(ltst)}</b></span>
   <span><small>NEXT STEP (1 MARS HOUR)</small><b>{s.status!=='active'?'—':toNext==null?'—':toNext>0?`in ${dur(toNext)}`:`due · worker catching up`}</b></span>
   <span><small>WORKER</small><b className={workerOk?'ok':'bad'}>{age==null?(err?'unreachable':'no report yet'):workerOk?`active · DSN read ${ago(age)}`:`not reporting · last DSN read ${ago(age)}`}</b></span>
+  <span><small>PLANNING</small><b className={s.inference_stopped?'bad':undefined}>{s.planning_status}</b></span>
   <span><small>DSN → MARS</small><b>{up.length?`uplink now: ${up.map(l=>`${l.station} ${l.dish} → ${l.spacecraft}`).join(', ')}`:live?.dsn?.last_mars_uplink_at?`last uplink ${ago(now-live.dsn.last_mars_uplink_at)}`:'no uplink to Mars seen yet'}</b></span>
  </div>;
 }

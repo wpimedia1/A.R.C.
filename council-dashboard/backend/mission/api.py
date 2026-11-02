@@ -7,7 +7,7 @@ import secrets
 import time
 from pathlib import Path
 from fastapi import FastAPI, Request, Response, HTTPException
-from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ConfigDict
 from .store import Store
@@ -113,46 +113,6 @@ def create_app(store=None):
             rows=db.execute(select(Revision.revision,Revision.created,Revision.operation).where(Revision.mission_id==mid).order_by(Revision.revision)).all()
         return {'revisions':[{'revision':r[0],'at':r[1],'kind':(r[2] or {}).get('kind')} for r in rows]}
 
-    @app.get('/api/v1/missions/{mid}/landing')
-    def landing(mid:str,request:Request):
-        # D17: landing at the mission site on NASA's published Mars 2020 EDL timeline, replayed after Start.
-        # Every number is a package parameter with its source and quote; unpublished values are null, never filled in.
-        store.snapshot(mid,owner(request))
-        from sqlalchemy import select
-        from sqlalchemy.orm import Session
-        from .store import Revision
-        from .package import load
-        from .conditions import SITE
-        pkg=load();v=pkg['values'];P=pkg['parameters'];S=pkg['sources']
-        with Session(store.engine) as db:
-            r=db.scalar(select(Revision).where(Revision.mission_id==mid).order_by(Revision.revision).limit(1))
-            if not r:raise HTTPException(404,'Mission has no genesis revision')
-            genesis,assets=r.created,r.state['assets']
-        def cite(*names):
-            out=[]
-            for n in names:
-                p=P[n];src=S.get(p.get('source'),{})
-                out.append({'parameter':n,'value':v[n],'unit':p.get('unit'),'classification':p['classification'],
-                            'quote':p.get('quote'),'source':src.get('title'),'url':src.get('url'),'formula':p.get('formula')})
-            return out
-        def ev(key,title,t,alt_m,speed_kph,names,note=None):
-            return {'key':key,'title':title,'t_s':t,'altitude_m':alt_m,'speed_kph':speed_kph,'evidence':cite(*names),'note':note}
-        td=v['edl.touchdown_time_s']
-        events=[
-            ev('cruise-separation','Cruise stage separates',-v['edl.cruise_sep_before_entry_min']*60,None,None,['edl.cruise_sep_before_entry_min'],'Altitude and speed not published for this event.'),
-            ev('entry','Atmospheric entry',0,None,v['edl.entry_speed_kph'],['edl.entry_speed_kph'],'Entry altitude not published in the cited source.'),
-            ev('parachute','Parachute deploys',v['edl.parachute_time_s'],v['edl.parachute_altitude_km']*1000,v['edl.parachute_speed_kph'],['edl.parachute_time_s','edl.parachute_altitude_km','edl.parachute_speed_kph','edl.under_chute_speed_kph']),
-            ev('heat-shield','Heat shield separates',v['edl.heatshield_time_s'],None,None,['edl.heatshield_time_s','edl.heatshield_time_conflict_min'],pkg['conflicts']['edl_heatshield_time']['note']),
-            ev('backshell','Backshell and parachute separate',None,v['edl.backshell_altitude_m'],None,['edl.backshell_altitude_m'],'Time not published; placed where the interpolated altitude reaches 2,100 m.'),
-            ev('skycrane','Skycrane lowers the payload',td-v['edl.skycrane_before_touchdown_s'],v['edl.skycrane_altitude_m'],None,['edl.skycrane_before_touchdown_s','edl.skycrane_altitude_m','edl.bridle_length_m']),
-            ev('touchdown','Touchdown at the mission site',td,0,v['edl.final_descent_speed_kph'],['edl.duration_min','edl.final_descent_speed_kph']),
-        ]
-        return {'decision':pkg['decisions']['D17_landing'],
-                'site':SITE,'genesis_unix':genesis,
-                'edl':{'reference':'Mars 2020 Perseverance EDL, NASA/JPL captions','events':events,
-                       'conflict':pkg['conflicts']['edl_heatshield_time']},
-                'payload':[{'id':a['id'],'name':a['name'],'kind':a['kind'],'position':a['position']} for a in assets]}
-
     @app.get('/api/v1/missions/{mid}/revisions/{n}')
     def revision_state(mid:str,n:int,request:Request):
         store.snapshot(mid,owner(request))
@@ -245,7 +205,7 @@ def create_app(store=None):
         if si:
             with store.transaction() as db:
                 v=db.get(SourceVersion,s['source_pins'].get(si['source_id'],''))
-                if v:url,product=v.record.get('image_url',url),v.record.get('product',product)
+                if v:url,product=v.record.get('browse',url),v.record.get('product',product)  # browse JPEG, never the full-resolution JP2
         try:raw,_=fetch(url,60_000_000)
         except Exception as exc:raise HTTPException(502,f'HiRISE image unavailable: {type(exc).__name__}: {exc}')
         with Image.open(io.BytesIO(raw)) as im:
@@ -254,18 +214,18 @@ def create_app(store=None):
             out=io.BytesIO();crop.save(out,format='JPEG',quality=85)
         return Response(out.getvalue(),media_type='image/jpeg',headers={'Cache-Control':'public, max-age=86400','X-Source-URL':url,'X-Product':product})
 
-    @app.get('/api/v1/site/hirise.jpg')
-    def hirise_photo():
-        # Real HiRISE photograph for the launch view, fetched by the server and cached on disk.
-        from .media import HIRISE
-        from .science import fetch
-        last=None
-        for url in (HIRISE['hero'],HIRISE['browse']):
-            try:
-                raw,_=fetch(url,60_000_000)
-                return Response(raw,media_type='image/jpeg',headers={'Cache-Control':'public, max-age=86400','X-Source-URL':url,'X-Credit':HIRISE['credit']})
-            except Exception as exc:last=f'{url}: {exc}'
-        raise HTTPException(502,f'HiRISE image unavailable: {last}')
+    @app.get('/api/v1/site/segmented.jpg')
+    def segmented_image():
+        # The exact image SAM 3.1 segmented for the mission site (full-resolution window), so detections overlay correctly.
+        import base64
+        from .store import SourceVersion
+        s=store.snapshot('public')['state'];si=s.get('site_imagery')
+        if not si:raise HTTPException(404,'Site imagery has not been analysed yet')
+        with store.transaction() as db:
+            v=db.get(SourceVersion,s['source_pins'].get(si['source_id'],''))
+            b64=(v.record.get('image_source') or {}).get('segmented_jpeg_b64') if v else None
+        if not b64:raise HTTPException(404,'The segmented image is the browse JPEG; see image_url')
+        return Response(base64.b64decode(b64),media_type='image/jpeg',headers={'Cache-Control':'public, max-age=86400'})
 
     @app.get('/api/v1/missions/{mid}/export')
     def records(mid:str,request:Request): return store.export(mid,owner(request))
@@ -276,6 +236,11 @@ def create_app(store=None):
         if app.state.init_error: return Response('Mission cannot start: '+app.state.init_error,503)
         created=store.genesis()
         return {'started':True,'created':created,'mission':store.snapshot('public')}
+
+    @app.delete('/api/v1/missions/{mid}')
+    def end_experiment(mid:str,request:Request):
+        # The visitor ends their own experiment; the copy and its history are deleted. Never the public mission.
+        return store.end_experiment(mid,owner(request))
 
     @app.post('/api/v1/forks')
     def fork(body:ForkRequest,request:Request,response:Response):

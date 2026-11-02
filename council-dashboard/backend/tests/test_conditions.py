@@ -194,11 +194,11 @@ def test_stamp_burns_label_into_pixels():
     assert out.getpixel((2, 225)) != (120, 60, 30) and out.getpixel((400, 445)) != (120, 60, 30)
 
 
-def test_reference_image_is_about_524_km_from_the_mission_site():
+def test_reference_image_is_about_511_km_from_the_mission_site():
     from mission.media import _distance_km, HIRISE
     from mission.conditions import SITE
     d = _distance_km(SITE['latitude'], SITE['longitude_east'], HIRISE['latitude'], HIRISE['longitude_east'], V['mars.mean_radius_km'])
-    assert d == pytest.approx(524.4, abs=0.5)
+    assert d == pytest.approx(510.9, abs=0.5)
 
 
 def test_dsn_range_from_round_trip_light_time_and_unreadable_feed_fails_loud():

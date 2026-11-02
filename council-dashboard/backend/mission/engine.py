@@ -476,6 +476,3 @@ def set_standby(s, asset_ids, ticks, reason, actor, basis):
     s.setdefault('standby_log', []).append({'tick': s['tick'], 'assets': list(asset_ids), 'ticks': ticks, 'reason': reason, 'actor': actor, 'basis': basis})
     event(s, 'Standby ordered: ' + ', '.join(asset_by_id(s, a)['name'] for a in asset_ids), f"{ticks} ticks. {reason}")
 
-
-def state_hash(s):
-    return digest(s)

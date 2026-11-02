@@ -305,6 +305,20 @@ class Store:
             self.save(db,m,state,{'kind':'fork','parent':m.parent})
             return self.payload(m)
 
+    def end_experiment(self, mid, owner):
+        """Delete a visitor's own experiment and its revisions. The public mission can never be deleted."""
+        if mid == 'public':
+            raise PermissionError('The public mission cannot be ended')
+        with self.transaction() as db:
+            m = db.scalar(select(Mission).where(Mission.id == mid).with_for_update())
+            if not m: raise KeyError(mid)
+            if not m.owner or m.owner != owner: raise PermissionError('This experiment belongs to another visitor')
+            if m.state.get('planning_claim'): raise InvalidAction('Agents are planning in this experiment; end it after they finish')
+            for r in db.scalars(select(Revision).where(Revision.mission_id == mid)).all(): db.delete(r)
+            db.delete(m)
+        self.log('api', 'experiment-ended', {'mission_id': mid})
+        return {'ended': mid}
+
     def control(self, mid, owner, revision, action, changes=None, ticks=0):
         with self.transaction() as db:
             m = self.row(db,mid)

@@ -5,16 +5,26 @@ from .store import Store
 from .planner import plan_once, recover_claims, credential_status
 from .evidence import refresh, adopt_latest
 
+def site_analysis(store):
+    from .media import analyze_site
+    try:
+        store.status('site-analysis',{'started_at':time.time(),'status':'downloading imagery and segmenting'})
+        vid=analyze_site(store)
+        store.status('site-analysis',{'finished_at':time.time(),'status':'pinned','version':vid})
+        logging.info('Site segmentation pinned as %s',vid)
+    except Exception as exc:
+        store.status('site-analysis',{'failed_at':time.time(),'error':f'{type(exc).__name__}: {exc}'[:600]})
+        logging.exception('Site segmentation failed; recorded, not retried automatically')
+
+_analysis=[None]
+
 def media_step(store):
-    """One media action per loop: SAM site analysis after the survey, else the next pending illustration."""
-    from .media import site_analysis_due, analyze_site, pending_visual, illustrate
-    if site_analysis_due(store):
-        try:
-            vid=analyze_site(store)
-            logging.info('Site segmentation pinned as %s',vid)
-        except Exception as exc:
-            store.status('site-analysis',{'failed_at':time.time(),'error':f'{type(exc).__name__}: {exc}'[:600]})
-            logging.exception('Site segmentation failed; recorded, not retried automatically')
+    """One media action per loop. SAM site analysis runs beside the loop (the full-resolution image download can take
+    minutes and must not hold up DSN reads, planning or ticks); else the next pending illustration."""
+    from .media import site_analysis_due, pending_visual, illustrate
+    import threading
+    if (_analysis[0] is None or not _analysis[0].is_alive()) and site_analysis_due(store):
+        _analysis[0]=threading.Thread(target=site_analysis,args=(store,),daemon=True,name='site-analysis');_analysis[0].start()
         return
     trigger=pending_visual(store)
     if trigger:

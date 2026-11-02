@@ -25,6 +25,6 @@ export default function Weather(){
     <td>{v.forecast.length?v.forecast.map(f=><div key={f.target_sol}><small>sol {f.target_sol}: {fmt(f.value,1)} [{fmt(f.low95,1)}…{fmt(f.high95,1)}]</small></div>):'—'}</td>
     <td>{v.calibration.checked?<><b>{v.calibration.confirmed}/{v.calibration.checked}</b> inside the 95 % band · MAE {v.calibration.mean_abs_error}<br/>{v.calibration.recent.slice(-3).map(c=><small key={c.target_sol}>sol {c.target_sol}: est {fmt(c.estimated,1)} → meas {fmt(c.measured,1)} ({c.status})<br/></small>)}</>:<small>No estimate has been checked yet</small>}</td></tr>)}
    </tbody></table></article>)}
-  <p className="live-note">Stations are hundreds to thousands of kilometres from the scenario site (40° N, 190° E); measurements describe Gale and Jezero craters, not Arcadia. Source: NASA public weather feeds (REMS data via CAB, outreach quality).</p>
+  <p className="live-note">Stations are hundreds to thousands of kilometres from the scenario site (40.05° N, 190.29° E); measurements describe Gale and Jezero craters, not Arcadia. Source: NASA public weather feeds (REMS data via CAB, outreach quality).</p>
  </section>;
 }

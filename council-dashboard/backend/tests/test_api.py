@@ -41,28 +41,6 @@ def test_same_host_origin_allowed_and_foreign_origin_rejected(tmp_path, monkeypa
     asyncio.run(exercise())
 
 
-def test_landing_is_fully_sourced(tmp_path, request):
-    store=make_store(tmp_path,request);store.initialize();app=create_app(store)
-    async def exercise():
-        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
-            r=await client.get('/api/v1/missions/public/landing')
-            assert r.status_code==200
-            return r.json()
-    t=asyncio.run(exercise())
-    assert t['decision']['approved'] and t['payload']
-    assert 'cruise' not in t
-    keys=[e['key'] for e in t['edl']['events']]
-    assert keys[0]=='cruise-separation' and keys[-1]=='touchdown'
-    for e in t['edl']['events']:
-        assert e['evidence'], e['key']
-        for c in e['evidence']:
-            assert c['classification']=='derived' or (c['quote'] and c['url']), c
-    # Unpublished values stay null instead of being filled in.
-    entry=next(e for e in t['edl']['events'] if e['key']=='entry')
-    assert entry['altitude_m'] is None and entry['speed_kph']==20000
-    assert next(e for e in t['edl']['events'] if e['key']=='backshell')['t_s'] is None
-
-
 def test_mission_waits_for_start(tmp_path, request):
     # The API and worker never create the mission; genesis happens when a user presses Start, once.
     store=make_store(tmp_path,request);app=create_app(store)
@@ -80,3 +58,21 @@ def test_mission_waits_for_start(tmp_path, request):
             return (await client.get('/api/v1/missions/public/revisions')).json()['revisions']
     revs=asyncio.run(exercise())
     assert revs[0]['kind']=='initialize'
+
+
+def test_visitor_ends_own_experiment_only(tmp_path, monkeypatch, request):
+    monkeypatch.setenv('COOKIE_SECURE','false')
+    store=make_store(tmp_path,request);store.initialize();app=create_app(store)
+    async def exercise():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
+            p=(await client.get('/api/v1/missions/public')).json()
+            fork=(await client.post('/api/v1/forks',json={'revision':p['revision']})).json()
+            assert (await client.delete('/api/v1/missions/public')).status_code==403
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as outsider:
+                assert (await outsider.delete('/api/v1/missions/'+fork['id'])).status_code==403
+            assert (await client.delete('/api/v1/missions/'+fork['id'])).status_code==200
+            assert (await client.get('/api/v1/missions/'+fork['id'])).status_code==404
+            again=await client.post('/api/v1/forks',json={'revision':p['revision']})
+            assert again.status_code==200  # a fresh experiment can start once the old one is ended
+            assert (await client.get('/api/v1/missions/public')).status_code==200
+    asyncio.run(exercise())

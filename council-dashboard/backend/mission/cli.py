@@ -37,14 +37,23 @@ def benchmark(max_ticks=24 * 400):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('action', choices=['benchmark', 'enable-agents', 'replan', 'pause', 'resume'])
+    p.add_argument('action', choices=['benchmark', 'enable-agents', 'replan', 'pause', 'resume', 'retry-site-analysis'])
     p.add_argument('--mission', default='public')
     args = p.parse_args()
     if args.action == 'benchmark':
         print(json.dumps(benchmark(), indent=2))
         return
     store = Store()
-    store.initialize()
+    if not store.check():
+        raise SystemExit('The mission has not been started; press Start in the app first')
+    if args.action == 'retry-site-analysis':
+        # A failed SAM site analysis is recorded and not retried automatically; the operator clears it to run it again.
+        failed = store.status('site-analysis') or {}
+        if not failed.get('failed_at'):
+            raise SystemExit('No failed site analysis to retry: ' + str(failed or 'none recorded'))
+        store.status('site-analysis', {'cleared_at': __import__('time').time(), 'previous_failure': failed.get('error')})
+        print('site analysis will run again on the next worker pass')
+        return
     with store.transaction() as db:
         m = store.row(db, args.mission)
         s = deepcopy(m.state)

@@ -12,7 +12,11 @@ def inspect(store,mid,owner=None):
         history=db.scalars(select(Revision).where(Revision.mission_id==mid).order_by(Revision.revision)).all()
         series={r.state['tick']:{'tick':r.state['tick'],**r.state['resources'],'energy_used_kwh':r.state['energy_used_kwh'],'spent_usd':r.state['spent_usd']} for r in history}
         evidence=[{'source_id':k,'version_id':v,**db.get(SourceVersion,v).record} for k,v in s['source_pins'].items()]
-        for row in evidence:row.pop('raw_content_hex',None);row.pop('content',None)
+        for row in evidence:
+            row.pop('raw_content_hex',None);row.pop('content',None)
+            # The segmented site image is served by /api/v1/site/segmented.jpg, not inlined here.
+            if isinstance(row.get('image_source'),dict) and row['image_source'].get('segmented_jpeg_b64'):
+                row['image_source']={k:v for k,v in row['image_source'].items() if k!='segmented_jpeg_b64'};row['segmented_image']='/api/v1/site/segmented.jpg'
         comparison=None
         if snap['parent']:
             parent=db.scalar(select(Revision).where(Revision.mission_id=='public',Revision.revision==snap['parent']['revision']))

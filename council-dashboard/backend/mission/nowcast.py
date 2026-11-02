@@ -115,11 +115,6 @@ def history(store, station):
     return [by_sol[s] for s in sorted(by_sol)]
 
 
-def _circ(a, b):
-    d = abs(a - b) % 360
-    return min(d, 360 - d)
-
-
 def model(obs, variable):
     """Climatology and anomaly persistence for one variable from a station's history."""
     pts = [(o['sol'], o['ls'], o['values'][variable]) for o in obs if o['ls'] is not None and o['values'].get(variable) is not None]
@@ -146,7 +141,7 @@ def model(obs, variable):
 
 
 def estimate(m, target_sol, target_ls, sol_s):
-    last_sol, last_ls, last_val, last_anom = m['last']
+    last_sol, _, last_val, last_anom = m['last']
     k = max(0, target_sol - last_sol)
     mean, sd, n, window, used = m['clim'](target_ls)
     persistence = last_anom * m['r'] ** k

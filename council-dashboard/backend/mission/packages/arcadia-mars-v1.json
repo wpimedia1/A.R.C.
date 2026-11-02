@@ -11,14 +11,6 @@
    "url": "https://sciences.ucf.edu/class/wp-content/uploads/sites/23/2017/02/An-ISRU-propellant-production-system-for-a-fully-fueled-Mars-Ascent-Vehicle-AIAA-2017-0423.pdf",
    "local_file": "sources/An-ISRU-propellant-production-system-for-a-fully-fueled-Mars-Ascent-Vehicle-AIAA-2017-0423.pdf"
   },
-  "mwip2016": {
-   "title": "Mars Water In-Situ Resource Utilization (ISRU) Planning (M-WIP) Study",
-   "authors": "Abbud-Madrid, A.; Beaty, D. W.; et al.",
-   "year": 2016,
-   "venue": "NASA MEPAG study (slides)",
-   "url": "https://sciences.ucf.edu/class/wp-content/uploads/sites/23/2020/04/Mars_Water_ISRU_Stud1.pdf",
-   "local_file": "sources/Mars_Water_ISRU_Stud1.pdf"
-  },
   "rassor2016": {
    "title": "Design of an Excavation Robot: Regolith Advanced Surface Systems Operations Robot (RASSOR) 2.0",
    "authors": "Mueller, R. P.; Smith, J. D.; Schuler, J. M.; et al.",
@@ -72,14 +64,6 @@
    "venue": "AIAA ASCEND 2023",
    "url": "https://ntrs.nasa.gov/api/citations/20220010430/downloads/Offloading%20a%2090-Ton%20Hab%20from%20its%20Lander%20on%20Mars.pdf",
    "local_file": "sources/Offloading a 90-Ton Hab from its Lander on Mars.pdf"
-  },
-  "bramson2015": {
-   "title": "Widespread excess ice in Arcadia Planitia, Mars",
-   "authors": "Bramson, A. M.; Byrne, S.; Putzig, N. E.; et al.",
-   "year": 2015,
-   "venue": "Geophysical Research Letters (arXiv:1509.03210)",
-   "url": "https://arxiv.org/pdf/1509.03210",
-   "local_file": "sources/1509.03210v1.pdf"
   },
   "mank2021": {
    "title": "RedWater: A Rodwell System to Extract Water from Martian Ice Deposits",
@@ -136,12 +120,6 @@
    "year": 2015,
    "url": "https://lasp.colorado.edu/maven/2015/06/03/mars-missions-to-pause-commanding-in-june-due-to-sun/"
   },
-  "nasa_fsp_mars": {
-   "title": "Powering Up NASA Human Reach for the Red Planet",
-   "authors": "NASA Space Technology Mission Directorate",
-   "year": 2018,
-   "url": "https://www.nasa.gov/directorates/spacetech/feature/Powering_Up_NASA_Human_Reach_for_the_Red_Planet"
-  },
   "erfa": {
    "title": "ERFA (Essential Routines for Fundamental Astronomy), IAU SOFA-derived: epv00 (Earth), plan94 (Mars), utctai/taitt, DAU, CMPS",
    "authors": "IAU SOFA Board / ERFA via pyerfa",
@@ -154,23 +132,11 @@
    "year": 2000,
    "url": "https://www.giss.nasa.gov/tools/mars24/help/algorithm.html"
   },
-  "dsn_now": {
-   "title": "DSN Now live feed",
-   "authors": "NASA JPL Deep Space Network",
-   "year": 2026,
-   "url": "https://eyes.nasa.gov/dsn/data/dsn.xml"
-  },
   "dust_gds_2021": {
    "title": "Global dust storms on Mars (NASA NTRS 20210012819)",
    "authors": "NASA Technical Reports Server document 21-56",
    "year": 2021,
    "url": "https://ntrs.nasa.gov/api/citations/20210012819/downloads/21-56.pdf"
-  },
-  "usgs_hirise_footprints": {
-   "title": "HiRISE Observation Coverage Footprints (PDS ODE), OGC API Features",
-   "authors": "USGS Astrogeology Science Center",
-   "year": 2026,
-   "url": "https://astrogeology.usgs.gov/pygeoapi/collections/mars/hirise-observation-footprints-equatorial"
   },
   "stancliff2005": {
    "title": "Towards a Predictive Model of Mobile Robot Reliability",
@@ -185,23 +151,17 @@
    "year": 2008,
    "url": "https://ntrs.nasa.gov/api/citations/20080012690/downloads/20080012690.pdf"
   },
-  "nasa_pia24316": {
-   "title": "PIA24316: Perseverance Deploys its Parachute (Illustration)",
-   "authors": "NASA/JPL-Caltech",
-   "year": 2021,
-   "url": "https://pds-rings.seti.org/press_releases/pages/PIA24xxx/PIA24316.html"
+  "dsn_now": {
+   "title": "DSN Now live feed",
+   "authors": "NASA JPL Deep Space Network",
+   "year": 2026,
+   "url": "https://eyes.nasa.gov/dsn/data/dsn.xml"
   },
-  "nasa_pia24317": {
-   "title": "PIA24317: Perseverance Heat Shield Separates (Illustration)",
-   "authors": "NASA/JPL-Caltech",
-   "year": 2021,
-   "url": "https://pds-rings.seti.org/press_releases/pages/PIA24xxx/PIA24317.html"
-  },
-  "nasa_pia24318": {
-   "title": "PIA24318: Perseverance Skycrane / Powered Descent (Illustration)",
-   "authors": "NASA/JPL-Caltech",
-   "year": 2021,
-   "url": "https://pds-rings.seti.org/press_releases/pages/PIA24xxx/PIA24318.html"
+  "usgs_hirise_footprints": {
+   "title": "HiRISE Observation Coverage Footprints (PDS ODE), OGC API Features",
+   "authors": "USGS Astrogeology Science Center",
+   "year": 2026,
+   "url": "https://astrogeology.usgs.gov/pygeoapi/collections/mars/hirise-observation-footprints-equatorial"
   }
  },
  "parameters": {
@@ -243,15 +203,6 @@
    "retrieved": "2026-10-30",
    "note": "Mass goal, not as-built mass."
   },
-  "power.fsp_life_years": {
-   "classification": "published",
-   "value": 10,
-   "unit": "year",
-   "source": "fsp2024",
-   "locator": "p.1",
-   "quote": "designed for a 10-year life without the need for maintenance",
-   "retrieved": "2026-10-30"
-  },
   "excavator.mass_kg": {
    "classification": "published",
    "value": 66,
@@ -280,26 +231,6 @@
    "quote": "power usage of 4 W per kg of regolith excavation rate",
    "retrieved": "2026-10-30"
   },
-  "excavator.load_kg": {
-   "classification": "published",
-   "value": 80,
-   "unit": "kg",
-   "source": "kleinhenz2017",
-   "locator": "p.3",
-   "quote": "uses twin bucket drums to excavate ~80 kg of regolith",
-   "retrieved": "2026-10-31",
-   "note": "Not used by the engine."
-  },
-  "excavator.haul_m": {
-   "classification": "published",
-   "value": 100,
-   "unit": "m",
-   "source": "kleinhenz2017",
-   "locator": "p.4, essential-attribute table, column D (Typical Regolith)",
-   "quote": "Distance to processing plant 1 km 1 km 1 km 100 m",
-   "retrieved": "2026-10-31",
-   "note": "Table columns A–D; 100 m applies to Case D. Not used by the engine."
-  },
   "excavator.rate_kg_h": {
    "classification": "derived",
    "unit": "kg/h",
@@ -319,39 +250,6 @@
    ],
    "note": "Published specific power times derived rate."
   },
-  "water.regolith_fraction": {
-   "classification": "published",
-   "value": 0.013,
-   "unit": "kg water/kg regolith",
-   "source": "kleinhenz2017",
-   "locator": "p.4",
-   "quote": "The baseline temperature condition for c ase D was chosen as 300°C which gives a 1.3 wt% water yield",
-   "retrieved": "2026-10-30",
-   "note": "Gale crater regolith; not measured at Arcadia.",
-   "range": {
-    "minimum": 0.013,
-    "maximum": 0.015,
-    "note": "p.4: higher temperature results in higher yield (1.5 wt% water at 500°C)"
-   }
-  },
-  "water.extraction_thermal_kw": {
-   "classification": "published",
-   "value": 17,
-   "unit": "kW",
-   "source": "kleinhenz2017",
-   "locator": "p.7",
-   "quote": "The majority of the power increase is attributed to the thermal energy needed to extract the water from the regolith at 17 kW",
-   "retrieved": "2026-10-30"
-  },
-  "water.extraction_rate_kg_h": {
-   "classification": "published",
-   "value": 1.36,
-   "unit": "kg/h",
-   "source": "kleinhenz2017",
-   "locator": "p.2, Figure 2",
-   "quote": "H2O 15701 kg (785,050 kg 2% soil) 1.36 kg/hr",
-   "retrieved": "2026-10-30"
-  },
   "water.target_kg": {
    "classification": "published",
    "value": 15701,
@@ -361,54 +259,6 @@
    "quote": "H2O 15701 kg (785,050 kg 2% soil) 1.36 kg/hr",
    "retrieved": "2026-10-30",
    "note": "Water needed to fuel one Mars Ascent Vehicle via ISRU (Figure 2 table)."
-  },
-  "water.production_window_days": {
-   "classification": "published",
-   "value": 480,
-   "unit": "day",
-   "source": "kleinhenz2017",
-   "locator": "p.2",
-   "quote": "ISRU production must take place in 16 months (480 days)",
-   "retrieved": "2026-10-30"
-  },
-  "water.plant_mass_kg": {
-   "classification": "published",
-   "value": 1700,
-   "unit": "kg",
-   "source": "kleinhenz2017",
-   "locator": "p.7",
-   "quote": "The addition of regolith processing for the methane system in case 2 increases hardware mass to 1.7 mT and power to 52 kW",
-   "retrieved": "2026-10-30",
-   "note": "Whole propellant plant; water-extraction subsystem mass not reported separately."
-  },
-  "water.energy_kwh_per_kg": {
-   "classification": "derived",
-   "unit": "kWh/kg",
-   "formula": "water.extraction_thermal_kw/water.extraction_rate_kg_h",
-   "inputs": [
-    "water.extraction_thermal_kw",
-    "water.extraction_rate_kg_h"
-   ],
-   "note": "Thermal energy per kg of water extracted."
-  },
-  "water.feedstock_per_kg": {
-   "classification": "derived",
-   "unit": "kg regolith/kg water",
-   "formula": "1/water.regolith_fraction",
-   "inputs": [
-    "water.regolith_fraction"
-   ],
-   "note": "Regolith processed per kg water."
-  },
-  "water.cross_check_mwip_kw": {
-   "classification": "published",
-   "value": 8,
-   "unit": "kW",
-   "source": "mwip2016",
-   "locator": "slide 50, Power Estimate 1 (Summary)",
-   "quote": "~1,300 tons (@1.25%) Not Required /Minimal 300 C / Continuous or Batch (8 kW)",
-   "retrieved": "2026-10-30",
-   "note": "Conflicting estimate retained for comparison; Kleinhenz 2017 is used for execution."
   },
   "rover.mass_kg": {
    "classification": "published",
@@ -570,40 +420,6 @@
    ],
    "note": "Earth-side operations cost of one flagship rover per sol."
   },
-  "ice.temperature_k": {
-   "classification": "published",
-   "value": 214,
-   "unit": "K",
-   "source": "nssdc_mars",
-   "locator": "Mean temperature",
-   "quote": "Average temperature (K) ~214",
-   "retrieved": "2026-10-31",
-   "note": "Bramson 2015 p.8: temperatures decameters into the subsurface equal the annual mean surface temperature. Global mean, not an Arcadia measurement."
-  },
-  "ice.volume_fraction": {
-   "classification": "published",
-   "value": 0.75,
-   "unit": "m3 ice/m3",
-   "source": "bramson2015",
-   "locator": "p.8",
-   "quote": "excess ice of up to 75% volumetric fraction ice",
-   "retrieved": "2026-10-31",
-   "note": "Upper bound from SHARAD dielectric constant 2.5 ± 0.28."
-  },
-  "ice.layer_base_depth_m": {
-   "classification": "published",
-   "value": 42,
-   "unit": "m",
-   "source": "bramson2015",
-   "locator": "p.9",
-   "quote": "mode depth = 42 m, mean depth = 51 m, standard deviation = 18 m",
-   "retrieved": "2026-10-31",
-   "range": {
-    "minimum": 33,
-    "maximum": 69,
-    "note": "mean ± 1 sd: 51 ± 18 m"
-   }
-  },
   "ice.overburden_max_m": {
    "classification": "published",
    "value": 20,
@@ -613,53 +429,6 @@
    "quote": "covered by at most 20 m of overburden",
    "retrieved": "2026-10-31",
    "note": "Stolov et al. 2026 (p.14) report many locations with less than 5 m of overburden; the 20 m upper bound is used."
-  },
-  "ice.sensible_kj_per_kg": {
-   "classification": "computed",
-   "unit": "kJ/kg",
-   "source": "iapws",
-   "function": "ice_enthalpy_rise",
-   "args": {
-    "t_from_k": "ice.temperature_k",
-    "t_to_k": 273.15
-   },
-   "note": "Enthalpy of ice Ih from ice temperature to 273.15 K at 0.101325 MPa."
-  },
-  "ice.fusion_kj_per_kg": {
-   "classification": "computed",
-   "unit": "kJ/kg",
-   "source": "iapws",
-   "function": "fusion_enthalpy",
-   "args": {},
-   "note": "Melting enthalpy at the triple point."
-  },
-  "ice.sublimation_kj_per_kg": {
-   "classification": "computed",
-   "unit": "kJ/kg",
-   "source": "iapws",
-   "function": "sublimation_enthalpy",
-   "args": {},
-   "note": "Sublimation enthalpy at the triple point."
-  },
-  "water.melt_min_kwh_per_kg": {
-   "classification": "derived",
-   "unit": "kWh/kg",
-   "formula": "(ice.sensible_kj_per_kg+ice.fusion_kj_per_kg)/3600",
-   "inputs": [
-    "ice.sensible_kj_per_kg",
-    "ice.fusion_kj_per_kg"
-   ],
-   "note": "Thermodynamic minimum to warm and melt ice (Rodwell / pressurized melt). No losses."
-  },
-  "water.sublimation_min_kwh_per_kg": {
-   "classification": "derived",
-   "unit": "kWh/kg",
-   "formula": "(ice.sensible_kj_per_kg+ice.sublimation_kj_per_kg)/3600",
-   "inputs": [
-    "ice.sensible_kj_per_kg",
-    "ice.sublimation_kj_per_kg"
-   ],
-   "note": "Thermodynamic minimum for sublimation capture at Mars pressure. No condenser or losses."
   },
   "rodwell.power_kw": {
    "classification": "published",
@@ -720,46 +489,6 @@
     "rodwell.water_kg_per_day"
    ],
    "note": "Operating energy per kg at the modeled steady state (24 h day)."
-  },
-  "water.regolith_mwip_kwh_per_kg": {
-   "classification": "derived",
-   "unit": "kWh/kg",
-   "formula": "water.cross_check_mwip_kw*mars.day_length_h*mwip.window_sols/mwip.water_kg",
-   "inputs": [
-    "water.cross_check_mwip_kw",
-    "mars.day_length_h",
-    "mwip.window_sols",
-    "mwip.water_kg"
-   ],
-   "note": "Continuous 8 kW over the production window."
-  },
-  "mwip.water_kg": {
-   "classification": "published",
-   "value": 16000,
-   "unit": "kg",
-   "source": "mwip2016",
-   "locator": "slide 33",
-   "quote": "total of 16 mt of water would need to be delivered/processed in 480 sols available (33 kg/sol)",
-   "retrieved": "2026-10-30"
-  },
-  "mwip.window_sols": {
-   "classification": "published",
-   "value": 480,
-   "unit": "sol",
-   "source": "mwip2016",
-   "locator": "slide 33",
-   "quote": "total of 16 mt of water would need to be delivered/processed in 480 sols available (33 kg/sol)",
-   "retrieved": "2026-10-30"
-  },
-  "excavator.mining_hours_per_day": {
-   "classification": "published",
-   "value": 16,
-   "unit": "h/day",
-   "source": "rassor2016",
-   "locator": "p.3",
-   "quote": "Each 24 hour period will consist of 16 hours of mining operations and eight hours of recharging",
-   "retrieved": "2026-10-31",
-   "note": "Average power over 24 h (450 W) gives the same daily energy as 675 W while mining for 16 h."
   },
   "fsp.deploy.offload_days": {
    "classification": "published",
@@ -853,25 +582,6 @@
     "maximum": 3,
     "note": "Lower bound used (conservative)."
    }
-  },
-  "drill.max_depth_m": {
-   "classification": "published",
-   "value": 25,
-   "unit": "m",
-   "source": "stolov2026",
-   "locator": "p.2",
-   "quote": "RedWater, developed and tested at Honeybee Robotics, is a system designed to mine water at up to 25 m in depth on Mars",
-   "retrieved": "2026-10-31"
-  },
-  "drill.gas_kg_per_m_max": {
-   "classification": "published",
-   "value": 3.95,
-   "unit": "kg/m",
-   "source": "stolov2026",
-   "locator": "Table 4, p.13",
-   "quote": "Total required gas per meter drilled 3.95–0.50 kg/m",
-   "retrieved": "2026-10-31",
-   "note": "CO2 compressed from the atmosphere; compressor energy not published here."
   },
   "drill.hours_through_overburden": {
    "classification": "derived",
@@ -970,24 +680,6 @@
    "quote": "We consider the dusty season as the time interval from Ls ~ 135° to 360° in each Martian year.",
    "retrieved": "2026-10-31"
   },
-  "excavator.duty_cycle_mwip": {
-   "classification": "published",
-   "value": 0.6,
-   "unit": "fraction",
-   "source": "mwip2016",
-   "locator": "p.38 (PDF page 38), excavator key characteristics",
-   "quote": "Duty Cycle / Recharge: 60% on- duty, 40% off-duty",
-   "retrieved": "2026-10-31"
-  },
-  "excavator.duty_cycle_rassor": {
-   "classification": "derived",
-   "unit": "fraction",
-   "formula": "excavator.mining_hours_per_day/24",
-   "inputs": [
-    "excavator.mining_hours_per_day"
-   ],
-   "note": "RASSOR 2.0: 16 h mining in a 24 h period."
-  },
   "mars.mean_radius_km": {
    "classification": "published",
    "value": 3389.5,
@@ -1083,151 +775,6 @@
    "locator": "primary science orbit description",
    "quote": "a 3:03 PM local mean solar time at the ascending node",
    "retrieved": "2026-10-31"
-  },
-  "edl.entry_speed_kph": {
-   "classification": "published",
-   "value": 20000,
-   "unit": "km/h",
-   "source": "nasa_pia24316",
-   "locator": "Caption",
-   "quote": "begins when the spacecraft reaches the top of the Martian atmosphere, traveling nearly 12,500 mph (20,000 kph).",
-   "retrieved": "2026-10-31"
-  },
-  "edl.parachute_time_s": {
-   "classification": "published",
-   "value": 240,
-   "unit": "s",
-   "source": "nasa_pia24316",
-   "locator": "Caption",
-   "quote": "deploys about 240 seconds after entry into the Martian atmosphere",
-   "retrieved": "2026-10-31"
-  },
-  "edl.parachute_altitude_km": {
-   "classification": "published",
-   "value": 11,
-   "unit": "km",
-   "source": "nasa_pia24316",
-   "locator": "Caption",
-   "quote": "at an altitude of about 7 miles (11 kilometers) and a velocity of about 940 mph (1,512 kph).",
-   "retrieved": "2026-10-31"
-  },
-  "edl.parachute_speed_kph": {
-   "classification": "published",
-   "value": 1512,
-   "unit": "km/h",
-   "source": "nasa_pia24316",
-   "locator": "Caption",
-   "quote": "at an altitude of about 7 miles (11 kilometers) and a velocity of about 940 mph (1,512 kph).",
-   "retrieved": "2026-10-31"
-  },
-  "edl.under_chute_speed_kph": {
-   "classification": "published",
-   "value": 320,
-   "unit": "km/h",
-   "source": "nasa_pia24316",
-   "locator": "Caption",
-   "quote": "The parachute slows the vehicle to about 200 mph (320 kph).",
-   "retrieved": "2026-10-31"
-  },
-  "edl.heatshield_after_chute_s": {
-   "classification": "published",
-   "value": 20,
-   "unit": "s",
-   "source": "nasa_pia24317",
-   "locator": "Caption",
-   "quote": "The heat shield separates about 20 seconds, and the rover is exposed to the atmosphere of Mars for the first time.",
-   "retrieved": "2026-10-31"
-  },
-  "edl.heatshield_time_conflict_min": {
-   "classification": "published",
-   "value": 6,
-   "unit": "min",
-   "source": "nasa_pia24317",
-   "locator": "Caption",
-   "quote": "after dropping its heat shield just under six minutes after entry into the Mars atmosphere.",
-   "retrieved": "2026-10-31"
-  },
-  "edl.backshell_altitude_m": {
-   "classification": "published",
-   "value": 2100,
-   "unit": "m",
-   "source": "nasa_pia24318",
-   "locator": "Caption",
-   "quote": "At about 6,900 feet (2,100 meters) above the surface, the rover separates from the parachute and backshell.",
-   "retrieved": "2026-10-31"
-  },
-  "edl.cruise_sep_before_entry_min": {
-   "classification": "published",
-   "value": 10,
-   "unit": "min",
-   "source": "nasa_pia24318",
-   "locator": "Caption",
-   "quote": "The cruise stage separates about 10 minutes before entering into the atmosphere,",
-   "retrieved": "2026-10-31"
-  },
-  "edl.final_descent_speed_kph": {
-   "classification": "published",
-   "value": 2.7,
-   "unit": "km/h",
-   "source": "nasa_pia24318",
-   "locator": "Caption",
-   "quote": "and slows to its final descent speed of about 1.7 mph (2.7 kph).",
-   "retrieved": "2026-10-31"
-  },
-  "edl.skycrane_before_touchdown_s": {
-   "classification": "published",
-   "value": 12,
-   "unit": "s",
-   "source": "nasa_pia24318",
-   "locator": "Caption",
-   "quote": "It then initiates the \"skycrane\" maneuver: about 12 seconds before touchdown,",
-   "retrieved": "2026-10-31"
-  },
-  "edl.skycrane_altitude_m": {
-   "classification": "published",
-   "value": 20,
-   "unit": "m",
-   "source": "nasa_pia24318",
-   "locator": "Caption",
-   "quote": "roughly 66 feet (20 meters) above the surface,",
-   "retrieved": "2026-10-31"
-  },
-  "edl.bridle_length_m": {
-   "classification": "published",
-   "value": 6.4,
-   "unit": "m",
-   "source": "nasa_pia24318",
-   "locator": "Caption",
-   "quote": "the descent stage lowers the rover on a set of cables about 21 feet (6.4 meters) long.",
-   "retrieved": "2026-10-31"
-  },
-  "edl.duration_min": {
-   "classification": "published",
-   "value": 7,
-   "unit": "min",
-   "source": "nasa_pia24318",
-   "locator": "Caption",
-   "quote": "EDL ends about seven minutes after atmospheric entry, with Perseverance stationary on the Martian surface.",
-   "retrieved": "2026-10-31"
-  },
-  "edl.heatshield_time_s": {
-   "classification": "derived",
-   "unit": "s",
-   "formula": "edl.parachute_time_s+edl.heatshield_after_chute_s",
-   "inputs": [
-    "edl.parachute_time_s",
-    "edl.heatshield_after_chute_s"
-   ],
-   "note": "Parachute deploy time plus the stated 20 s."
-  },
-  "edl.touchdown_time_s": {
-   "classification": "derived",
-   "unit": "s",
-   "formula": "edl.duration_min*60",
-   "inputs": [
-    "edl.duration_min"
-   ],
-   "note": "Unit conversion of \"about seven minutes\"."
   }
  },
  "operator_decisions": {
@@ -1316,50 +863,12 @@
    "approved": true,
    "approved_on": "2026-10-31"
   },
-  "D17_landing": {
-   "choice": "After the user presses Start (genesis), the landing at the mission site is replayed on the Mars 2020 Perseverance entry, descent and landing timeline published by NASA (edl.* parameters); it is a replay of published values, not a physics simulation. Altitude and speed are shown only at the published events; between events the vehicle position is interpolated and labelled interpolated. Unpublished values (entry altitude, backshell time) stay unknown. The outpost cargo landers are not specified by any source; the Mars 2020 profile is the reference for each landing. No Earth-Mars cruise is shown.",
-   "reason": "Owner instruction: the user starts the mission and plays the landing at the location.",
+  "D17_user_start": {
+   "choice": "The mission starts only when a user presses Start (genesis); the API and worker never create it. Before Start only the live DSN reading runs. Start creates the public mission once; pressing again changes nothing.",
+   "reason": "Owner instruction: the user is the launcher, not Docker.",
    "approved": true,
    "approved_on": "2026-11-01"
   }
  },
- "conflicts": {
-  "regolith_extraction_power": {
-   "parameters": [
-    "water.energy_kwh_per_kg",
-    "water.regolith_mwip_kwh_per_kg"
-   ],
-   "selected": null,
-   "status": "not used for execution after D1 change; both retained",
-   "note": "Kleinhenz 2017 17 kW thermal vs M-WIP ~8 kW for regolith Case D."
-  },
-  "ice_extraction_energy": {
-   "parameters": [
-    "water.melt_min_kwh_per_kg",
-    "water.sublimation_min_kwh_per_kg",
-    "water.rodwell_kwh_per_kg"
-   ],
-   "selected": "water.rodwell_kwh_per_kg",
-   "status": "selected operating point; thermodynamic minimum is the lower bound",
-   "note": "Rodwell melts ice in a pressurized pool; sublimation shown for comparison only."
-  },
-  "excavator_duty_cycle": {
-   "parameters": [
-    "excavator.duty_cycle_rassor",
-    "excavator.duty_cycle_mwip"
-   ],
-   "selected": "excavator.duty_cycle_rassor",
-   "status": "selected RASSOR 2.0 test basis (the excavator modeled); M-WIP reference-model value retained",
-   "note": "RASSOR 2.0 (Mueller 2016) 16/24 = 0.667 vs M-WIP (2016) 0.60 for a RASSOR-based reference excavator."
-  },
-  "edl_heatshield_time": {
-   "parameters": [
-    "edl.heatshield_time_s",
-    "edl.heatshield_time_conflict_min"
-   ],
-   "selected": "edl.heatshield_time_s",
-   "status": "selected parachute + 20 s; both retained and shown",
-   "note": "The same NASA caption (PIA24317) states 240 s + about 20 s (~4.3 min) and also \"just under six minutes\" after entry."
-  }
- }
+ "conflicts": {}
 }
