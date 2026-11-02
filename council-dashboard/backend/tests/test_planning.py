@@ -53,17 +53,20 @@ def test_fit_context_trims_evidence_inside_agent_observations():
 
 
 def test_malformed_assurance_answer_applies_no_decision():
-    # Live run 2026-11-02: assurance omitted `approve` for one order; the cycle stopped with a bare KeyError after
-    # applying the other decision. The whole answer is now checked first and the reason is stated.
+    # Live runs 2026-11-02: the reviewer dropped a required `approve` boolean. Decisions are now lists (approved / held);
+    # the whole answer is checked first and the reason is stated.
     import pytest
     from mission.planner import validate_review
     from mission.engine import InvalidAction
-    ok = {'job_id': 'power', 'approve': True, 'reason': 'ok', 'acknowledged_conditions': []}
-    assert validate_review({'decisions': [ok]}, ['power']) == [ok]
-    with pytest.raises(InvalidAction, match='survey is missing approve; no decision applied'):
-        validate_review({'decisions': [ok, {'job_id': 'survey', 'reason': 'x', 'acknowledged_conditions': []}]}, ['power', 'survey'])
+    ok = {'job_id': 'power', 'reason': 'ok', 'acknowledged_conditions': []}
+    assert validate_review({'approved': [ok], 'held': [{'job_id': 'survey', 'reason': 'wait'}]}, ['power', 'survey']) == [
+        {**ok, 'approve': True}, {'job_id': 'survey', 'approve': False, 'reason': 'wait', 'acknowledged_conditions': []}]
+    with pytest.raises(InvalidAction, match='approval for survey is missing acknowledged_conditions; no decision applied'):
+        validate_review({'approved': [ok, {'job_id': 'survey', 'reason': 'x'}]}, ['power', 'survey'])
+    with pytest.raises(InvalidAction, match='more than once'):
+        validate_review({'approved': [ok], 'held': [{'job_id': 'power', 'reason': 'x'}]}, ['power'])
     with pytest.raises(InvalidAction, match='not awaiting review'):
-        validate_review({'decisions': [{**ok, 'job_id': 'water'}]}, ['power'])
+        validate_review({'approved': [{**ok, 'job_id': 'water'}]}, ['power'])
 
 
 def test_new_evidence_does_not_restart_a_planning_stop(tmp_path, request, monkeypatch):
@@ -90,13 +93,13 @@ def test_assurance_gets_one_correction_turn(monkeypatch):
     def fake_call(store, mid, operation, model, instructions, data, tools, transport=None, previous_response_id=None):
         seen.append((operation, previous_response_id, data))
         if operation.endswith(':correction'):
-            return [{'name': 'review_work_orders', 'call_id': 'c2', 'arguments': {'decisions': [
-                {'job_id': 'survey', 'approve': True, 'reason': 'ok', 'acknowledged_conditions': ['no-site-imagery']}]}}], 'r2'
-        return [{'name': 'review_work_orders', 'call_id': 'c1', 'arguments': {'decisions': [
-            {'job_id': 'survey', 'reason': 'ok', 'acknowledged_conditions': ['no-site-imagery']}]}}], 'r1'
+            return [{'name': 'review_work_orders', 'call_id': 'c2', 'arguments': {'approved': [
+                {'job_id': 'survey', 'reason': 'ok', 'acknowledged_conditions': ['no-site-imagery']}], 'held': []}}], 'r2'
+        return [{'name': 'review_work_orders', 'call_id': 'c1', 'arguments': {'approved': [
+            {'job_id': 'survey', 'reason': 'ok'}], 'held': []}}], 'r1'
     monkeypatch.setattr(planner, 'call', fake_call)
     receipts = []
     planner.review_orders(None, 'public', 'c', s, {'assessments': []}, receipts)
     assert job_by_id(s, 'survey')['status'] == 'running'
-    assert seen[1][0] == 'c:assurance-review:correction' and seen[1][1] == 'r1' and 'missing approve' in seen[1][2][0]['output']
+    assert seen[1][0] == 'c:assurance-review:correction' and seen[1][1] == 'r1' and 'missing acknowledged_conditions' in seen[1][2][0]['output']
     assert [r['validation'][:8] for r in receipts] == ['rejected', 'accepted']

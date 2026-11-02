@@ -29,10 +29,14 @@ TOOLS=[tool('inspect_state','Read authoritative mission state: jobs, equipment, 
              'summary':{'type':'string','maxLength':600},'source_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':6}}),
        tool('request_replanning','Record a blockage for the director.',{'summary':{'type':'string','maxLength':600}}),
        tool('inspect_site_evidence','Read pinned orbital elevation, composite ice consistency and radar interpretation nearest a geographic coordinate. Does not infer ground sensor values.',{'latitude':{'type':'number','minimum':33.87,'maximum':64.17},'longitude':{'type':'number','minimum':165.86,'maximum':210.43}})]
-REVIEW=tool('review_work_orders','Approve or hold every authorized work order awaiting onboard assurance; an approved order starts at once. A hold releases its equipment and power and escalates to the director.',
-    {'decisions':{'type':'array','minItems':1,'maxItems':8,'items':{'type':'object','properties':{'job_id':{'type':'string'},'approve':{'type':'boolean'},
-     'reason':{'type':'string','minLength':1,'maxLength':600},'acknowledged_conditions':{'type':'array','items':{'type':'string'},'maxItems':12}},
-     'required':['job_id','approve','reason','acknowledged_conditions'],'additionalProperties':False}}})
+# The decision is which list an order is in (approved or held), not a boolean field: live runs showed the reviewer
+# dropping a required `approve` boolean from orders with acknowledged conditions, even after a correction request.
+REVIEW=tool('review_work_orders','Decide every authorized work order awaiting onboard assurance: put each order in exactly one list. An approved order starts at once. A held order releases its equipment and power and escalates to the director.',
+    {'approved':{'type':'array','maxItems':8,'items':{'type':'object','properties':{'job_id':{'type':'string'},
+      'reason':{'type':'string','minLength':1,'maxLength':600},'acknowledged_conditions':{'type':'array','items':{'type':'string'},'maxItems':12}},
+      'required':['job_id','reason','acknowledged_conditions'],'additionalProperties':False}},
+     'held':{'type':'array','maxItems':8,'items':{'type':'object','properties':{'job_id':{'type':'string'},'reason':{'type':'string','minLength':1,'maxLength':600}},
+      'required':['job_id','reason'],'additionalProperties':False}}})
 ORDER=tool('order_replacement','Order an identical replacement for a failed robot (decision D12). Launch at the next Earth-Mars Hohmann window; cost = mass x landed cost per kg (D5).',
     {'asset_id':{'type':'string'},'summary':{'type':'string','maxLength':600},'source_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':6}})
 CREATE=tool('create_job','Create new work from a package job template (water-batch, survey-extension). Use only when the evidence supports more work; readiness criteria do not change.',
@@ -54,16 +58,24 @@ ASSESS=tool('record_assessment','Record an independent public assessment; no exe
     'source_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':6}})
 
 def validate_review(arguments,pending_ids):
-    """The whole assurance answer is checked before any decision is applied: a malformed decision applies none of them."""
-    decisions=arguments.get('decisions') if isinstance(arguments,dict) else None
-    if not isinstance(decisions,list) or not decisions:raise InvalidAction('Assurance returned no decisions')
-    need={'job_id','approve','reason','acknowledged_conditions'}
-    for d in decisions:
-        missing=sorted(need-set(d)) if isinstance(d,dict) else sorted(need)
-        if missing:raise InvalidAction(f"Assurance decision for {d.get('job_id','an unnamed order') if isinstance(d,dict) else 'an order'} is missing {', '.join(missing)}; no decision applied")
-        if not isinstance(d['approve'],bool) or not isinstance(d['acknowledged_conditions'],list):
-            raise InvalidAction(f"Assurance decision for {d['job_id']} is malformed; no decision applied")
-        if d['job_id'] not in pending_ids:raise InvalidAction(f"Assurance decided {d['job_id']}, which is not awaiting review; no decision applied")
+    """The whole assurance answer is checked before any decision is applied: a malformed decision applies none of them.
+    Returns one decision per order: job_id, approve, reason, acknowledged_conditions."""
+    if not isinstance(arguments,dict):raise InvalidAction('Assurance returned no decisions')
+    approved,held=arguments.get('approved') or [],arguments.get('held') or []
+    if not isinstance(approved,list) or not isinstance(held,list):raise InvalidAction('Assurance lists are malformed; no decision applied')
+    decisions=[]
+    for items,approve,need in ((approved,True,{'job_id','reason','acknowledged_conditions'}),(held,False,{'job_id','reason'})):
+        for d in items:
+            missing=sorted(need-set(d)) if isinstance(d,dict) else sorted(need)
+            name=d.get('job_id','an unnamed order') if isinstance(d,dict) else 'an order'
+            if missing:raise InvalidAction(f"Assurance {'approval' if approve else 'hold'} for {name} is missing {', '.join(missing)}; no decision applied")
+            if approve and not isinstance(d['acknowledged_conditions'],list):raise InvalidAction(f"Assurance approval for {name} is malformed; no decision applied")
+            decisions.append({'job_id':d['job_id'],'approve':approve,'reason':d['reason'],'acknowledged_conditions':d.get('acknowledged_conditions',[])})
+    ids=[d['job_id'] for d in decisions]
+    if not decisions:raise InvalidAction('Assurance returned no decisions')
+    if len(set(ids))!=len(ids):raise InvalidAction('Assurance decided an order more than once; no decision applied')
+    for jid in ids:
+        if jid not in pending_ids:raise InvalidAction(f"Assurance decided {jid}, which is not awaiting review; no decision applied")
     return decisions
 
 def atomic(s,fn,*args):
@@ -281,7 +293,7 @@ def review_orders(store,mid,claim,s,cycle,receipts,transport=None):
              'decision':next((d for d in s['decisions'] if d['id']==j['decision_id']),None)} for j in pending]
     own=next((a['assessment'] for a in cycle['assessments'] if a['role']=='assurance'),None)
     proposals,review_id=call(store,mid,claim+':assurance-review',SPECIALIST_MODEL,
-        'You are the onboard assurance reviewer. Every work order below was authorized onboard and starts as soon as you approve it. Return exactly one review_work_orders call deciding every order. '
+        'You are the onboard assurance reviewer. Every work order below was authorized onboard and starts as soon as you approve it. Return exactly one review_work_orders call that puts every order in exactly one list, approved or held. '
         'Hold an order only for a specific, stated safety, evidence or dependency concern; a hold releases its equipment and escalates to the director. '
         'Each order lists the simulator\'s open_conditions. To approve, list every condition id in acknowledged_conditions and say in the reason why the order may proceed despite it; never claim there are no blockers when conditions are listed. '
         'Your own earlier assessment is included: if you now approve something it advised against, state what changed. Public reasons only.',
@@ -293,7 +305,7 @@ def review_orders(store,mid,claim,s,cycle,receipts,transport=None):
         # malformed and must answer again; a second malformed answer stops planning with that reason.
         receipts.append({'role':'assurance','proposal':proposals[0],'validation':'rejected: '+str(exc)})
         proposals,_=call(store,mid,claim+':assurance-review:correction',SPECIALIST_MODEL,
-            'Your review_work_orders call was rejected by the validator. Return exactly one corrected review_work_orders call deciding every order; every decision needs job_id, approve (true or false), reason and acknowledged_conditions.',
+            'Your review_work_orders call was rejected by the validator. Return exactly one corrected review_work_orders call that puts every order in exactly one list: approved (job_id, reason, acknowledged_conditions) or held (job_id, reason).',
             [{'type':'function_call_output','call_id':proposals[0]['call_id'],'output':canonical({'rejected':str(exc)})}],[REVIEW],transport,review_id)
         if len(proposals)!=1 or proposals[0]['name']!='review_work_orders':raise InvalidAction('Assurance correction must return one review_work_orders call')
         decisions=validate_review(proposals[0]['arguments'],[j['id'] for j in pending])
