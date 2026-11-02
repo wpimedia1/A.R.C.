@@ -171,8 +171,9 @@ class Store:
 
     def check(self):
         """Validate the database against the current package and engine. Returns True if the public mission exists, False
-        if it has not been started. A public mission recorded under another package or engine version is archived (kept,
-        read-only, with its full revision history) and the check returns False so Start begins a new genesis beside it."""
+        if it has not been started. A public mission recorded under another package or engine version came from a build
+        that is no longer the tool, so it is discarded (mission, revisions, model receipts and illustrations); Start then
+        begins a new genesis. The append-only event log, which also holds every model receipt and spend, is kept."""
         from .spec import specification
         spec = specification()  # the package must load and every operator decision must be approved before Start is offered
         with self.transaction() as db:
@@ -182,30 +183,14 @@ class Store:
             stored = existing.state.get('spec', {})
             if stored.get('package_hash') == spec['package_hash'] and stored.get('version') == spec['version']:
                 return True
-            # Different package or engine: this engine must not advance it. Archive it under a new id; nothing is deleted.
-            aid = f"archive-{int(time.time())}-{str(stored.get('package_hash'))[:8]}"
-            state = deepcopy(existing.state)
-            state.pop('planning_claim', None)
-            state['status'] = 'archived'
-            state['archived'] = {'at': time.time(), 'package_hash': stored.get('package_hash'), 'engine_version': stored.get('version'),
-                                 'replaced_by_package': spec['package_hash'], 'replaced_by_engine': spec['version']}
-            archived = Mission(id=aid, owner=None, state=state, revision=existing.revision, pending_ticks=0, used_ticks=existing.used_ticks,
-                               next_tick=existing.next_tick, expires=None, parent=existing.parent)
-            db.add(archived)
-            for r in db.scalars(select(Revision).where(Revision.mission_id == 'public')).all():
-                r.mission_id = aid
-            for r in db.scalars(select(InferenceReceipt).where(InferenceReceipt.mission_id == 'public')).all():
-                r.mission_id = aid
-            db.flush()
-            self.save(db, archived, state, {'kind': 'archive', 'reason': 'package or engine version changed', **state['archived']})
+            record = {'package_hash': stored.get('package_hash'), 'engine_version': stored.get('version'), 'revisions': existing.revision,
+                      'tick': existing.state.get('tick'), 'replaced_by_package': spec['package_hash'], 'replaced_by_engine': spec['version']}
+            for model in (Revision, InferenceReceipt, Visual):
+                for r in db.scalars(select(model).where(model.mission_id == 'public')).all():
+                    db.delete(r)
             db.delete(existing)
-            db.merge(ServiceStatus(id='archive', record={'mission_id': aid, **state['archived']}))
+            db.add(EventLog(id=str(uuid.uuid4()), at=time.time(), source='store', kind='mission-discarded', mission_id='public', record=record))
         return False
-
-    def archives(self):
-        with Session(self.engine) as db:
-            return [{'id': m.id, 'revision': m.revision, 'tick': m.state['tick'], **m.state.get('archived', {})}
-                    for m in db.scalars(select(Mission).where(Mission.id.like('archive-%'))).all()]
 
     def genesis(self):
         """Start the public mission (genesis). Called when a user presses Start; does nothing if it already exists."""

@@ -2,7 +2,7 @@
 #   cp deploy/env.example .env      # fill in values; .env is git-ignored
 #   docker compose -f compose.yaml -f compose.prod.yaml up -d --build
 # Genesis happens when the operator presses Start (operator token). After an upgrade that changes the package or engine,
-# the earlier mission is archived with its full history and Start begins a new genesis beside it; nothing is deleted.
+# the earlier mission is discarded on startup (it came from a build that is no longer the tool); Start begins a new genesis.
 services:
   database:
     environment:

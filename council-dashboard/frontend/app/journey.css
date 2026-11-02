@@ -45,3 +45,4 @@
 @keyframes pulse{0%{box-shadow:0 0 0 0 #5fd38d99}70%{box-shadow:0 0 0 10px #5fd38d00}100%{box-shadow:0 0 0 0 #5fd38d00}}
 .scene-tag.held{border-color:#e6a77e}
 .start-screen{max-width:760px;margin:12vh auto;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center}.start-screen h1{font-size:44px}.start-screen p{font-size:17px;color:#46534d}.start-screen .start{font-size:20px;padding:14px 34px}
+.scene-canvas{background:#140d0b}

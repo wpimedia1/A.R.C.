@@ -119,6 +119,26 @@ def power_known(j):
     return j is None or j.get('power_per_asset_kw', 0.0) is not None
 
 
+def sun_elevation_at(s, tick):
+    """Sun elevation (deg) at the site at the end of `tick`, from the simulated clock (Mars24), or None if the mission has
+    no clock (no live conditions applied, e.g. the offline benchmark)."""
+    env = s.get('environment')
+    if env is None:
+        return None
+    from .conditions import mars_clock
+    unix = env['clock']['unix'] + (tick - env.get('applied_tick', tick)) * s['spec']['tick_seconds']
+    return mars_clock(unix)['site_solar_elevation_deg']
+
+
+def daylight_steps(s, sol_index):
+    """D19: how many of the 24 steps of this simulation sol end with the sun above the horizon (cached per sol)."""
+    cache = s.setdefault('daylight_steps', {})
+    key = str(sol_index)
+    if key not in cache:
+        cache[key] = sum(1 for k in range(1, 24 + 1) if (sun_elevation_at(s, sol_index * 24 + k) or 0) > 0)
+    return cache[key]
+
+
 def demand_kw(s, asset_ids, j=None):
     """Grid power for these assets on this job, or None when the job's power draw is not published (unknown, not zero)."""
     if j is not None and 'power_per_asset_kw' in j:
@@ -203,7 +223,7 @@ def start(s, jid, asset_ids, rationale, actor, source_ids):
         d['authorization'] = j['authorization']
         event(s, j['title'] + ' authorized onboard', rationale, jid)
         return d['id']
-    j.update(status='running', assigned=list(asset_ids), reason='', decision_id=d['id'], run_since_tick=s['tick'], done_at_run=j['done'], behind_flagged=False,
+    j.update(status='running', assigned=list(asset_ids), reason='', decision_id=d['id'], run_since_tick=s['tick'], done_at_run=j['done'], night_steps_at_run=j.get('night_steps', 0), behind_flagged=False,
              started_tick=j['started_tick'] if j['started_tick'] is not None else s['tick'])
     event(s, j['title'] + ' started', rationale, jid)
     return d['id']
@@ -249,7 +269,7 @@ def assurance_decision(s, jid, approve, reason, actor, acknowledged=None):
     d['assurance'] = review
     if approve:
         j['authorization']['assurance'] = 'approved'
-        j.update(status='running', reason='', run_since_tick=s['tick'], done_at_run=j['done'], behind_flagged=False,
+        j.update(status='running', reason='', run_since_tick=s['tick'], done_at_run=j['done'], night_steps_at_run=j.get('night_steps', 0), behind_flagged=False,
                  started_tick=j['started_tick'] if j['started_tick'] is not None else s['tick'])
         event(s, j['title'] + ' passed onboard assurance and started', reason, jid)
     else:
@@ -386,6 +406,19 @@ def advance(state, env=None):
             j['reason'] = ''
             event(s, j['title'] + ' resumed', 'Standby ended.', j['id'])
         units = [asset_by_id(s, a) for a in j['assigned']]
+        # D19: the rover drives only in daylight (auto-navigation needs light; NASA). The published distance per sol is
+        # kept: it is driven over that sol's daylight steps. Without a mission clock the rule cannot be evaluated.
+        night = False
+        if j['kind'] == 'survey' and any(a['kind'] == 'rover' for a in units):
+            elev = sun_elevation_at(s, s['tick'])
+            if elev is not None and elev <= 0:
+                night = True
+                j['night_steps'] = j.get('night_steps', 0) + 1
+                j['reason'] = f"Night: sun {-elev:.0f}\u00b0 below the horizon; the rover drives in daylight (D19)"
+                j['day_rate_per_tick'] = None
+                continue
+        if j['reason'].startswith('Night'):
+            j['reason'] = ''
         empty = [a for a in units if battery(a) and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]
         for a in empty:
             if not a.get('low_flagged'):
@@ -398,7 +431,13 @@ def advance(state, env=None):
             continue
         if j['reason'].startswith('Paused'):
             j['reason'] = ''
-        amount = min(rate_per_tick(s, [a['id'] for a in working], j), j['target'] - j['done'])
+        rate = rate_per_tick(s, [a['id'] for a in working], j)
+        if j['kind'] == 'survey' and s.get('environment') is not None and not night:
+            day = daylight_steps(s, sol_index)
+            if day:
+                rate = rate * 24 / day  # a sol's distance over its daylight steps
+                j['day_rate_per_tick'] = rate
+        amount = min(rate, j['target'] - j['done'])
         for a in [a for a in working if battery(a)]:
             a['soc_wh'] = max(0.0, a['soc_wh'] - amount / len(working) * a['energy_wh_per_kg'])
         if not power_known(j):
@@ -436,7 +475,8 @@ def advance(state, env=None):
     for j in [j for j in s['jobs'] if j['status'] == 'running' and j.get('run_since_tick') is not None and not j.get('behind_flagged')]:
         d = next((x for x in s['decisions'] if x['id'] == j.get('decision_id')), None)
         if d:
-            expected = d['calculation']['rate_per_tick'] * (s['tick'] - j['run_since_tick'])
+            # Planned night pauses (D19) are not shortfalls.
+            expected = d['calculation']['rate_per_tick'] * (s['tick'] - j['run_since_tick'] - j.get('night_steps', 0) + j.get('night_steps_at_run', 0))
             actual = j['done'] - j.get('done_at_run', 0.0)
             if expected - actual > d['calculation']['rate_per_tick'] + 1e-9:
                 j['behind_flagged'] = True

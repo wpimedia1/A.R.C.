@@ -86,7 +86,7 @@ def context(s):
             'department_conflicts':s.get('department_conflicts',[])[-6:],
             'mars_conditions':None if not s.get('environment') else {'clock':s['environment']['clock'],'geometry':s['environment']['geometry'],
                 'link':{k:v for k,v in s['environment']['link'].items() if k!='links'},'dusty_season':s['environment']['clock'].get('dusty_season'),
-                'rule':'You run onboard at the outpost and act without waiting for Earth (decision D10). Approved work orders start at once. The Earth link (DSN, light time, solar conjunction) only decides when Earth can hear from you. Keep the excavators online: their batteries drain while working and must be recharged from the fission grid (decision D18).'},
+                'rule':'You run onboard at the outpost and act without waiting for Earth (decision D10). Approved work orders start at once. The Earth link (DSN, light time, solar conjunction) only decides when Earth can hear from you. Keep the excavators online: their batteries drain while working and must be recharged from the fission grid (decision D18). The rover drives only in daylight (D19): it covers its per-sol distance during the sun-up steps and waits at night; site_solar_elevation_deg and site_ltst_h in clock tell you where the sun is.'},
             'replacements':s.get('orders',[]),'failed_assets':failed_without_order(s),
             'weather':s.get('weather_brief'),
             'work_orders_awaiting_assurance':[{'job_id':j['id'],**j.get('authorization',{})} for j in s['jobs'] if j['status']=='review'],

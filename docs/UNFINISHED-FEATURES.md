@@ -51,7 +51,9 @@ Status: **Implemented** (built and run) · **Unverified** (built; the live exter
 | 49 | Forecast with created work | Implemented | Created jobs resolve through their template in the forecast and uncertainty. Test: forecast and uncertainty after `water-batch` and `survey-extension` | — |
 | 50 | Fair experiment comparison | Implemented | Baseline replays the fork snapshot through the same harness (`store.step`: engine + benchmark logistics) with the fork's failure seed, frozen conditions and the same experiment changes at the same ticks. Test: same planner on both sides gives identical results | — |
 | 51 | Different-seed robustness experiments | Missing | Comparisons use one seed; repeated runs across seeds are not offered | Batch runner over seeds |
-| 52 | Upgrades keep history | Implemented | A public mission from another package or engine version is archived with every revision and receipt (read-only, exportable); Start begins a new genesis beside it. Test covers package and engine changes | — |
+| 52 | Upgrades | Implemented | A mission recorded under another package or engine version came from a build that is no longer the tool: it is discarded on startup and Start begins a new genesis. Model receipts and spend stay in the append-only event log. Test covers package and engine changes | — |
+| 53 | Rover drives in daylight | Implemented / Unverified | D19: no driving while the sun is below the horizon at the site; the sol's published distance is driven over its daylight steps; agents are told the rule; the 3D rover holds still at night. Test: progress only on daylight steps, full distance per sol, no behind-plan flag | First live sunrise on the local stack |
+| 54 | 3D light follows the live sun | Implemented | Live view lights the scene from the live Mars24 reading (every 30 s); replays use each step's recorded sun. Browser check: recorded day vs live night rendered dark | — |
 
 ## Measured → estimated → checked (D16)
 

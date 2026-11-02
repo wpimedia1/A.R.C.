@@ -73,7 +73,7 @@ def create_app(store=None):
         heartbeat=store.status('worker')
         if not store.started():
             return {'status':'ok','started':False,'worker':heartbeat,'worker_stale':not heartbeat or time.time()-heartbeat['heartbeat_at']>600,
-                    'archived_missions':store.archives(),'operator_token_configured':bool(operator_token())}
+                    'operator_token_configured':bool(operator_token())}
         s=store.snapshot('public')['state']
         return {'status':'ok','started':True,'planner':s['mode'],'model_calls_enabled':s['mode']=='meta','planning_status':s['planning_status'],
                 'worker':heartbeat,'worker_stale':not heartbeat or time.time()-heartbeat['heartbeat_at']>600,'sources':store.status('source-refresh')}

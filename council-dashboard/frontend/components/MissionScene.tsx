@@ -42,10 +42,11 @@ export function PlainGround(){return <mesh rotation={[-Math.PI/2,0,0]} receiveSh
 // advances through the step in progress at the authorized rate (the decision's rate per step) in proportion to the time
 // elapsed toward the next step, never beyond the remaining distance; the step's result is recorded when the step runs.
 const surveyJobs=(s:State)=>s.jobs.filter(j=>j.kind==='survey');
-export type StepClock={next:number;len:number};
+// D19: no driving while the live sun is below the horizon; in daylight the rate is the one the last step used.
+export type StepClock={next:number;len:number;sunUp:boolean};
 function inStep(s:State,a:Asset,clock:StepClock|null){
- const j=jobOf(s,a);if(!clock||!a.available||j?.status!=='running'||j.kind!=='survey'||standby(s,a))return 0;
- const rate=s.decisions.find(d=>d.id===j.decision_id)?.calculation.rate_per_tick;if(!rate)return 0;
+ const j=jobOf(s,a);if(!clock||!clock.sunUp||!a.available||j?.status!=='running'||j.kind!=='survey'||standby(s,a))return 0;
+ const rate=(j as unknown as {day_rate_per_tick?:number|null}).day_rate_per_tick??s.decisions.find(d=>d.id===j.decision_id)?.calculation.rate_per_tick;if(!rate)return 0;
  const f=Math.max(0,Math.min(1,1-(clock.next-Date.now()/1000)/clock.len));
  return Math.min(rate*f,j.target-j.done);
 }
@@ -149,14 +150,14 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
  const load=(n:number)=>api<{revision:number;state:State}>(`missions/${mid}/revisions/${n}`).then(d=>setReplay({n:d.revision,state:d.state}));
  useEffect(()=>{if(!playing||!revs.length)return;const id=setInterval(()=>{setReplay(r=>{const cur=r?.n||revs[0].revision;const next=revs.find(x=>x.revision>cur);if(!next){setPlaying(false);return r;}load(next.revision);return r;});},700);return()=>clearInterval(id);},[playing,revs]);// eslint-disable-line react-hooks/exhaustive-deps
  const s=replay?.state||snap.state;
- // Live public mission only: the time to the next step, from the server's schedule. None in replays or experiments.
- const clock:StepClock|null=!replay&&s.status==='active'&&snap.next_tick_at!=null&&snap.seconds_per_tick?{next:snap.next_tick_at,len:snap.seconds_per_tick}:null;
  // Clock time of a future step, from the server's next-step time and step length only; unknown if either is missing.
  const running=s.jobs.filter(j=>j.status==='running');const reviewing=s.jobs.filter(inReview);const charging_=s.assets.filter(charging);
  // Light follows the sun continuously: the live view uses the server's live Mars24 reading (polled every 30 s);
  // a replay uses the sun recorded with each step.
  const feed=useLive();
  const c:LiveClock|undefined=!replay&&feed.live?.now?.clock?feed.live.now.clock:s.environment?.clock;
+ // Live public mission only: the time to the next step, from the server's schedule. None in replays or experiments.
+ const clock:StepClock|null=!replay&&s.status==='active'&&snap.next_tick_at!=null&&snap.seconds_per_tick&&c?{next:snap.next_tick_at,len:snap.seconds_per_tick,sunUp:c.site_solar_elevation_deg>0}:null;
  // Opening view frames the outpost and the rover's current point on its survey line (camera only; set once per visit).
  const [view]=useState(()=>{const rover=s.assets.find(a=>a.kind==='rover');const rx=rover?rover.position[0]+surveyJobs(s).reduce((t,x)=>t+x.done,0):0;
   const xs=[...s.assets.map(a=>a.position[0]),rx];const lo=Math.min(...xs),hi=Math.max(...xs);const span=Math.max(30,hi-lo);const cx=(lo+hi)/2;
@@ -173,6 +174,6 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
     <input type="range" min={revs[0]?.revision||1} max={revs.at(-1)?.revision||1} value={replay?.n||revs.at(-1)?.revision||1} onChange={e=>{setPlaying(false);load(Number(e.target.value));}} aria-label="Replay revision"/>
     <div><button onClick={()=>{if(!revs.length)return;if(!replay)load(revs[0].revision);setPlaying(p=>!p);}}>{playing?'Pause':'Play'}</button><button onClick={()=>{setPlaying(false);setReplay(null);}} disabled={!replay}>Stop · back to live</button></div></div>
   </div>
-  <p className="scene-note">Robots move only while their work is running in the simulation; waiting robots stay still and say why. Sun position is computed for the site at this moment. The rover's position is the distance driven in the simulation along its survey line (east, per the route planner); between steps it advances at its authorized rate toward the next recorded step; trench size is the published habitat size and depth. Ground: HiRISE orbital image nearest the site (single band, coloured), not to scale. Lighting follows the real sun elevation at the site; the twilight shading curve is illustrative. Layout positions, the spoil pile, excavator shuttling and models are illustrative.</p>
+  <p className="scene-note">Robots move only while their work is running in the simulation; waiting robots stay still and say why. Sun position is computed for the site at this moment. The rover's position is the distance driven in the simulation along its survey line (east, per the route planner); between steps it advances at its authorized rate toward the next recorded step, and it drives only in daylight (D19); trench size is the published habitat size and depth. Ground: HiRISE orbital image nearest the site (single band, coloured), not to scale. Lighting follows the real sun elevation at the site; the twilight shading curve is illustrative. Layout positions, the spoil pile, excavator shuttling and models are illustrative.</p>
  </section></>;
 }

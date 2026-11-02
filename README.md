@@ -35,7 +35,7 @@ Requires Docker with Compose. From the repository root:
 2. `docker compose up --build -d database api worker`
 3. Open http://localhost:8020/.
 
-Set `MISSION_OPERATOR_TOKEN=<a secret you choose>` in `.env` in the repository root (git-ignored): only a Start request carrying it creates the mission. The app waits for the operator to press Start with that token; that creates the mission once (revision 1, the genesis record) in the `mission-db` volume; every later change is an appended revision. Without a key the worker stops planning and the interface shows the reason. To run without model calls, start with `MISSION_MODEL_MODE=fixed-priority docker compose up --build -d database api worker`: the interface labels it a fixed-priority benchmark. After an upgrade that changes the package or engine, the earlier mission is archived with its full history (listed on the start screen, exportable) and Start begins a new genesis beside it.
+Set `MISSION_OPERATOR_TOKEN=<a secret you choose>` in `.env` in the repository root (git-ignored): only a Start request carrying it creates the mission. The app waits for the operator to press Start with that token; that creates the mission once (revision 1, the genesis record) in the `mission-db` volume; every later change is an appended revision. Without a key the worker stops planning and the interface shows the reason. To run without model calls, start with `MISSION_MODEL_MODE=fixed-priority docker compose up --build -d database api worker`: the interface labels it a fixed-priority benchmark. A mission recorded under another package or engine version came from a build that is no longer the tool: it is discarded on startup and Start begins a new genesis. Model receipts and spend stay in the append-only event log.
 
 Tests in Docker: `docker compose --profile test run --rm tests`.
 
@@ -50,7 +50,7 @@ docker compose -f compose.yaml -f compose.prod.yaml up -d --build
 ```
 
 - **Genesis** happens when the operator presses Start in the app (with `MISSION_OPERATOR_TOKEN`), not when the containers start: the mission record begins at that moment and is append-only from then on. Visitors cannot start it.
-- **Upgrades** that change the package or engine archive the running mission with its full history and offer a new genesis beside it; nothing is deleted.
+- **Upgrades** that change the package or engine: A mission recorded under another package or engine version came from a build that is no longer the tool: it is discarded on startup and Start begins a new genesis. Model receipts and spend stay in the append-only event log.
 - Missing `DOMAIN`, `POSTGRES_PASSWORD`, `MODEL_API_KEY` or `MISSION_OPERATOR_TOKEN` stops the start with a message naming it. The API port is not exposed; only the HTTPS proxy is.
 - **Spending:** visitor experiments are limited to $0 of model calls by default (`MISSION_VISITOR_*_LIMIT_USD`); cap the public mission with `MISSION_PUBLIC_DAILY_LIMIT_USD` / `MISSION_PUBLIC_MONTHLY_LIMIT_USD`.
 - **Prebuilt image:** every push to `master`/`main` runs the test suite in Docker and publishes `ghcr.io/<owner>/<repo>:latest` (GitHub Actions, `.github/workflows/ci.yml`) for platforms that run images (API: default command; worker: `python -m mission.worker`; both need `DATABASE_URL` to PostgreSQL, worker needs `MODEL_API_KEY`).

@@ -32,7 +32,7 @@ def benchmark(max_ticks=24 * 400):
                         'capital_unestimated': s['capital_unestimated'],
                         'blocked': {j['id']: j['reason'] for j in s['jobs'] if j['status'] != 'complete'}, 'state_hash': digest(s)})
     return {'package': s['spec']['package_id'], 'package_hash': s['spec']['package_hash'], 'max_ticks': max_ticks,
-            'note': 'Fixed-priority nominal baseline without random failures (D14). Not a measure of agent planning quality.', 'results': results}
+            'note': 'Fixed-priority nominal baseline without random failures (D14) and without a mission clock, so the rover daylight rule (D19) is not applied. Not a measure of agent planning quality.', 'results': results}
 
 
 def main():

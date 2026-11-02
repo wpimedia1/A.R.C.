@@ -1,7 +1,7 @@
 {
  "id": "arcadia-mars-v1",
  "environment": "mars",
- "status": "operator decisions D1-D18 approved (D15 retired, D16 weather, D17 user start)",
+ "status": "operator decisions D1-D19 approved (D15 retired)",
  "sources": {
   "kleinhenz2017": {
    "title": "An ISRU Propellant Production System to Fully Fuel a Mars Ascent Vehicle",
@@ -163,6 +163,12 @@
    "year": 2019,
    "venue": "Lunar ISRU 2019: Developing a New Space Economy (LPI contribution 5061)",
    "url": "https://www.hou.usra.edu/meetings/lunarisru2019/pdf/5061.pdf"
+  },
+  "nasa_night2022": {
+   "title": "Things that go bump in the night on Mars",
+   "authors": "Newman, C. (NASA Science Editorial Team)",
+   "year": 2022,
+   "url": "https://science.nasa.gov/blogs/things-that-go-bump-in-the-night-on-mars"
   }
  },
  "parameters": {
@@ -888,14 +894,20 @@
    "approved_on": "2026-10-31"
   },
   "D17_user_start": {
-   "choice": "The mission starts only when the operator presses Start (genesis); the API and worker never create it. Start requires the operator token (MISSION_OPERATOR_TOKEN); visitors can only follow the mission and run private experiments. Before Start only the live DSN reading runs. Start creates the public mission once; pressing again changes nothing. A public mission recorded under another package or engine version is archived with its full revision history (read-only, exportable) and Start begins a new genesis beside it; the database is never deleted to upgrade.",
-   "reason": "Owner instruction: the user is the launcher, not Docker. Review 2026-11-02: Start lacked operator authentication, and upgrades advised deleting mission history.",
+   "choice": "The mission starts only when the operator presses Start (genesis); the API and worker never create it. Start requires the operator token (MISSION_OPERATOR_TOKEN); visitors can only follow the mission and run private experiments. Before Start only the live DSN reading runs. Start creates the public mission once; pressing again changes nothing. A mission recorded under another package or engine version came from a build that is no longer the tool: it is discarded on startup and Start begins a new genesis. Model receipts and spend stay in the append-only event log.",
+   "reason": "Owner instruction: the user is the launcher, not Docker. Review 2026-11-02: Start lacked operator authentication, and upgrades advised deleting mission history. Owner 2026-11-02: runs from an earlier build are not kept.",
    "approved": true,
    "approved_on": "2026-11-02"
   },
   "D18_excavator_batteries": {
    "choice": "Excavators run on their batteries (capacity and energy per kilogram from Schuler et al. 2019) and must be recharged from the fission grid; they start each mission fully charged. Work stops when a battery cannot supply the next step; recharging is decided by the agents (or automatically in the fixed-priority benchmark) and draws grid power. Driving between the work site and the charger is not modeled. The rover is not battery-modeled: it runs on its MMRTG and its published one-sol drive distance already reflects its energy limits; Rodwell and the reactor run on grid or own power.",
    "reason": "Owner instruction 2026-11-02: agents keep themselves online by managing recharging.",
+   "approved": true,
+   "approved_on": "2026-11-02"
+  },
+  "D19_rover_daylight_driving": {
+   "choice": "The survey rover drives only while the sun is above the horizon at the site (sun elevation at the end of the step, Mars24). The published distance per sol (rover.max_drive_m_per_sol) is kept and driven over that simulation sol's daylight steps. At night the rover waits and its job says so; night steps are planned pauses, not shortfalls. The excavators are unchanged (RASSOR 16 h mining / 8 h recharge, D18). Without a mission clock (the offline benchmark) the rule is not applied and the benchmark says so.",
+   "reason": "NASA (Perseverance): \"the rover needs light for taking images or driving using auto-navigation\". Owner instruction 2026-11-02: the agents must account for light.",
    "approved": true,
    "approved_on": "2026-11-02"
   }

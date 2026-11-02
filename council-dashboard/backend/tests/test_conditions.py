@@ -65,7 +65,7 @@ def commissioned_meta_state(env):
 
 def test_agent_work_order_runs_onboard_without_waiting_for_earth():
     # D10: agents run onboard. No DSN uplink, no light-time wait: approved work starts at once.
-    t = utc(2026, 10, 31, 12)
+    t = utc(2026, 10, 31, 5)  # daytime at the site (sun about 35 deg up), so the rover may drive (D19)
     s = commissioned_meta_state(env_at(t, uplink=False))
     start(s, 'survey', ['rover-1'], 'Survey first.', 'survey / muse-spark-1.3', [s['spec']['package_id']])
     j = job_by_id(s, 'survey')
@@ -166,29 +166,25 @@ def test_uncertainty_override_must_stay_in_recorded_range():
         load(overrides={'regolith.density_g_cm3': 5.0})
 
 
-def test_mission_from_older_package_or_engine_is_archived_not_destroyed(tmp_path):
-    from mission.store import Store, Mission, Revision
+def test_mission_from_older_package_or_engine_is_discarded(tmp_path):
+    from mission.store import Store, Mission, Revision, EventLog
     from sqlalchemy import select
     st = Store('sqlite:///' + str(tmp_path / 'old.db'))
-    st.initialize()
     for field, old in (('package_hash', 'an-older-package'), ('version', 'arcadia-mars-v1/engine-0')):
+        st.initialize()
         with st.transaction() as db:
             m = db.get(Mission, 'public')
             state = deepcopy(m.state)
             state['spec'][field] = old
             m.state = state
-            revisions = m.revision
-        assert st.check() is False  # not started: Start begins a new genesis beside the archive
-        archives = st.archives()
-        archived = next(a for a in archives if (a['package_hash'] if field == 'package_hash' else a['engine_version']) == old)
-        snap = st.snapshot(archived['id'])
-        assert snap['state']['status'] == 'archived' and snap['revision'] == revisions + 1
+        assert st.check() is False  # an earlier build's run is not kept; Start begins a new genesis
         with st.transaction() as db:
-            kept = db.scalars(select(Revision).where(Revision.mission_id == archived['id'])).all()
-            assert len(kept) == revisions + 1 and kept[-1].operation['kind'] == 'archive'
-        st.initialize()  # new genesis beside the archive
-        assert st.check() is True
-    assert len(st.archives()) == 2
+            assert db.get(Mission, 'public') is None
+            assert db.scalars(select(Revision).where(Revision.mission_id == 'public')).all() == []
+            logged = [e.record for e in db.scalars(select(EventLog).where(EventLog.kind == 'mission-discarded')).all()]
+            assert any((e['package_hash'] if field == 'package_hash' else e['engine_version']) == old for e in logged)
+    st.initialize()
+    assert st.check() is True
 
 
 def test_assurance_cannot_approve_without_acknowledging_open_conditions():
@@ -338,3 +334,29 @@ def test_illustration_round_trip_over_real_http_is_stored_and_stamped(tmp_path, 
     with st.transaction() as db:
         v = db.get(Visual, 'visual:public:genesis'); r = db.get(InferenceReceipt, 'visual:public:genesis')
         assert v.image and v.raw_image and v.image != v.raw_image and r.record['status'] == 'received'
+
+
+def test_rover_drives_only_in_daylight_and_keeps_its_distance_per_sol():
+    # D19: no progress while the sun is below the horizon; the sol's distance is driven over its daylight steps.
+    from mission.engine import start, assurance_decision, open_conditions, job_by_id, advance, sun_elevation_at, daylight_steps
+    s = commissioned_meta_state(env_at(utc(2026, 11, 2, 17), uplink=False))
+    start(s, 'survey', ['rover-1'], 'survey', 'survey / test', [s['spec']['package_id']])
+    assurance_decision(s, 'survey', True, 'ok', 'assurance / test', [c['id'] for c in open_conditions(s, job_by_id(s, 'survey'))])
+    s['failures_enabled'] = False
+    day = daylight_steps(s, 0)
+    assert 0 < day < 24
+    moved = 0
+    for _ in range(24):
+        if job_by_id(s, 'survey')['status'] == 'complete':
+            break
+        before = job_by_id(s, 'survey')['done']
+        s = advance(s)
+        up = sun_elevation_at(s, s['tick']) > 0
+        progressed = job_by_id(s, 'survey')['done'] > before
+        assert progressed == up, (s['tick'], up)
+        if not up:
+            assert job_by_id(s, 'survey')['reason'].startswith('Night')
+        moved += progressed
+    sv = job_by_id(s, 'survey')
+    assert moved == day and sv['status'] == 'complete' and sv['done'] == pytest.approx(V['rover.max_drive_m_per_sol'])
+    assert not any(a['title'].endswith('behind plan') for a in s['activity'])  # night is planned, not a shortfall
