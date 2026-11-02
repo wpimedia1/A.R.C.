@@ -14,7 +14,7 @@ function Conditions({c}:{c:MarsConditions}){
   <div><small><Tag kind="computed"/> MARS DATE</small><strong>Year {c.clock.mars_year} · Ls {fmt(c.clock.ls_deg,1)}°</strong><span>{c.clock.season}{c.clock.dusty_season?' · dusty season (Ls ≥ 135°)':''} · sol date {fmt(c.clock.mars_sol_date,2)}</span></div>
   <div><small>LOCAL TIME AT THE SITE</small><strong>{hhmm(c.clock.site_lmst_h)} LMST</strong><span>{c.site.latitude}° N, {c.site.longitude_east}° E (scenario site) · sun {c.clock.site_solar_elevation_deg>0?`up, ${fmt(c.clock.site_solar_elevation_deg,1)}° high`:`down (${fmt(c.clock.site_solar_elevation_deg,1)}°)`}</span></div>
   <div><small><Tag kind="computed"/> EARTH → MARS</small><strong>{fmt(c.geometry.one_way_light_s/60,1)} light-minutes</strong><span>{fmt(c.geometry.earth_mars_km/1e6,1)} million km · Sun–Mars {fmt(c.geometry.sun_mars_separation_deg,1)}° apart from Earth</span></div>
-  <div className={c.link.conjunction?'live-alert':''}><small>SOLAR CONJUNCTION</small><strong>{c.link.conjunction?'In conjunction: uplinks held':'Clear'}</strong><span>Uplinks stop inside {c.link.conjunction_threshold_deg}° of the Sun (D10)</span></div>
+  <div className={c.link.conjunction?'live-alert':''}><small>SOLAR CONJUNCTION</small><strong>{c.link.conjunction?'In conjunction: Earth contact interrupted':'Clear'}</strong><span>Earth contact stops inside {c.link.conjunction_threshold_deg}° of the Sun; the outpost keeps working (D10)</span></div>
  </div>;
 }
 export default function LiveMars({missionStatus}:{missionStatus:string}){
@@ -24,7 +24,7 @@ export default function LiveMars({missionStatus}:{missionStatus:string}){
  const dsn=data.dsn;const up=(dsn?.links||[]).filter(l=>l.direction==='up');const down=(dsn?.links||[]).filter(l=>l.direction==='down');
  return <section className="live-mars">
   <div className="live-head"><div><span className="eyebrow">LIVE · UPDATES EVERY MINUTE{missionStatus!=='active'?' · MISSION PAUSED':''}</span><h2>Mars right now.</h2>
-   <p>{missionStatus==='active'?'These conditions are applied to the mission at every tick. Agent work orders are sent from Earth and wait for a real DSN uplink to Mars.':'The mission is paused, but Mars keeps moving. Everything below is recorded and applied when the mission resumes; the agents then replan.'}</p></div>
+   <p>{missionStatus==='active'?'These conditions are applied to the mission at every step. The agents run onboard and never wait for Earth; DSN activity shows when Earth and Mars are actually in contact.':'The mission is paused, but Mars keeps moving. Everything below is recorded and applied when the mission resumes; the agents then replan.'}</p></div>
    <span>{dsn&&!dsn.error&&dsn.checked_at?<><Tag kind="measured"/> DSN Now read</>:<b className="tag sim">DSN Now: unavailable</b>}</span></div>
   {data.error&&<p role="alert">Could not compute conditions: {data.error}</p>}
   {data.conditions_status?.error&&<p role="alert">Public mission halted: live conditions failed ({data.conditions_status.error})</p>}

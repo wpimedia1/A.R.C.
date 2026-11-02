@@ -179,7 +179,7 @@ def fetch_dsn(transport=None):
         return r.content
 
 
-def snapshot(unix, soi_km, dsn_status=None, conjunction_deg=None, tick_seconds=None, previous_tick_unix=None, relay_node_lmst_h=None):
+def snapshot(unix, soi_km, dsn_status=None, conjunction_deg=None, tick_seconds=None, previous_tick_unix=None):
     """Conditions applied to the public mission at one tick. dsn_status is the worker's latest DSN record."""
     geo = geometry(unix)
     link = {'conjunction': conjunction_deg is not None and geo['sun_mars_separation_deg'] < conjunction_deg,
@@ -202,13 +202,6 @@ def snapshot(unix, soi_km, dsn_status=None, conjunction_deg=None, tick_seconds=N
                     mars_spacecraft=dsn_status.get('mars_spacecraft', []), links=dsn_status.get('links', []))
     link['uplink_open'] = not link['conjunction'] and link['uplink_window'] is not False
     clock = mars_clock(unix)
-    if relay_node_lmst_h is not None and tick_seconds:
-        # D15: one site LMST hour = one tick. After the light time, the order waits for the next MRO node pass over the site.
-        lmst_at_mars = (clock['site_lmst_h'] + geo['one_way_light_s'] / tick_seconds) % 24
-        passes = [relay_node_lmst_h % 24, (relay_node_lmst_h + 12) % 24]
-        wait_h = min((p - lmst_at_mars) % 24 for p in passes)
-        link.update(relay_pass_lmst_h=sorted(round(p, 4) for p in passes), relay_wait_h=round(wait_h, 3),
-                    delivery_ticks=max(1, math.ceil(geo['one_way_light_s'] / tick_seconds + wait_h)))
     return {'clock': clock, 'geometry': geo, 'link': link, 'site': SITE}
 
 

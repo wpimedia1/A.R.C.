@@ -8,7 +8,7 @@ import {HowItWorks,Legend,Tag,paramTag} from './Explain';
 import dynamic from 'next/dynamic';
 const MissionScene=dynamic(()=>import('./MissionScene'),{ssr:false,loading:()=><p className="fallback">Loading the outpost…</p>});
 
-const status=(j:Job)=>j.status==='complete'?'Complete':j.status==='running'?'In progress':j.status==='uplink'?'In transit to Mars':j.reason&&!j.reason.includes('Awaiting')?'Waiting':'Planned';
+const status=(j:Job)=>j.status==='complete'?'Complete':j.status==='running'?'In progress':j.status==='review'?'Awaiting onboard assurance':j.reason&&!j.reason.includes('Awaiting')?'Waiting':'Planned';
 
 function ProgressChart({s,data,job}:{s:State;data:Operations|null;job:Job}){
  const rows=(data?.series||[]).filter(r=>typeof r[job.output]==='number');

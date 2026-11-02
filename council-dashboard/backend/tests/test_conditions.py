@@ -63,28 +63,20 @@ def commissioned_meta_state(env):
     return s
 
 
-def test_agent_work_order_is_held_until_dsn_uplink_and_arrives_after_light_time():
+def test_agent_work_order_runs_onboard_without_waiting_for_earth():
+    # D10: agents run onboard. No DSN uplink, no light-time wait: approved work starts at once.
     t = utc(2026, 10, 31, 12)
     s = commissioned_meta_state(env_at(t, uplink=False))
     start(s, 'survey', ['rover-1'], 'Survey first.', 'survey / muse-spark-1.3', [s['spec']['package_id']])
     j = job_by_id(s, 'survey')
-    assert j['uplink']['assurance'] == 'pending' and 'assurance' in j['reason']
+    assert j['status'] == 'review' and j['authorization']['assurance'] == 'pending' and 'assurance' in j['reason']
     assurance_decision(s, 'survey', True, 'Dependencies and equipment checked.', 'assurance / muse-spark-1.3', [c['id'] for c in open_conditions(s, job_by_id(s, 'survey'))])
-    j = job_by_id(s, 'survey')
-    assert j['status'] == 'uplink' and j['uplink']['sent_tick'] is None and 'DSN' in j['reason']
+    assert job_by_id(s, 'survey')['status'] == 'running'
     s = advance(s, env_at(t + TICK_S, uplink=False))
-    assert job_by_id(s, 'survey')['status'] == 'uplink' and job_by_id(s, 'survey')['done'] == 0
-    s = advance(s, env_at(t + 2 * TICK_S, uplink=True))
-    j = job_by_id(s, 'survey')
-    assert j['uplink']['sent_tick'] == s['tick'] and j['uplink']['arrival_tick'] == s['tick'] + s['environment']['link']['light_ticks']
-    while job_by_id(s, 'survey')['status'] == 'uplink':
-        s = advance(s, env_at(t + (s['tick'] + 1) * TICK_S, uplink=True))
-    assert job_by_id(s, 'survey')['status'] == 'running' and job_by_id(s, 'survey')['done'] == 0
-    s = advance(s, env_at(t + (s['tick'] + 1) * TICK_S, uplink=True))
     assert job_by_id(s, 'survey')['done'] > 0
 
 
-def test_conjunction_holds_orders_and_forces_replanning():
+def test_conjunction_interrupts_earth_contact_but_not_work():
     t = utc(2026, 10, 31, 12)
     s = commissioned_meta_state(env_at(t, uplink=True))
     s['planning_needed'] = False
@@ -92,7 +84,7 @@ def test_conjunction_holds_orders_and_forces_replanning():
     assert s['planning_needed'] and any(a['title'] == 'Solar conjunction began' for a in s['activity'])
     start(s, 'survey', ['rover-1'], 'Survey.', 'survey / muse-spark-1.3', [s['spec']['package_id']])
     assurance_decision(s, 'survey', True, 'Checked.', 'assurance / muse-spark-1.3', [c['id'] for c in open_conditions(s, job_by_id(s, 'survey'))])
-    assert job_by_id(s, 'survey')['uplink']['sent_tick'] is None and 'conjunction' in job_by_id(s, 'survey')['reason']
+    assert job_by_id(s, 'survey')['status'] == 'running'
 
 
 def test_assurance_hold_releases_equipment_and_escalates():
@@ -178,10 +170,10 @@ def test_assurance_cannot_approve_without_acknowledging_open_conditions():
     s = commissioned_meta_state(env_at(t, uplink=False))
     start(s, 'survey', ['rover-1'], 'Survey.', 'survey / muse-spark-1.3', [s['spec']['package_id']])
     ids = [c['id'] for c in open_conditions(s, job_by_id(s, 'survey'))]
-    assert 'no-site-imagery' in ids and 'no-uplink-window' in ids
+    assert 'no-site-imagery' in ids
     with pytest.raises(Exception, match='acknowledge'):
         assurance_decision(s, 'survey', True, 'No blockers.', 'assurance', [])
-    review = assurance_decision(s, 'survey', True, 'Proceeding; order waits for uplink; survey itself characterizes the site.', 'assurance', ids)
+    review = assurance_decision(s, 'survey', True, 'Proceeding; the survey itself characterizes the site.', 'assurance', ids)
     assert review['open_conditions'] and review['acknowledged'] == ids
 
 
@@ -213,18 +205,17 @@ def test_dsn_range_from_round_trip_light_time_and_unreadable_feed_fails_loud():
         parse_dsn(b'<dsn><dish name="DSS14"><target uplegRange="-1" downlegRange="-1" rtlt="-1"/></dish></dsn>', d, SOI)
 
 
-def test_unconfirmed_mars_test_never_holds_orders():
+def test_unconfirmed_dsn_reading_never_holds_work():
     t = utc(2026, 10, 31, 12)
     status = {'checked_at': t, 'error': None, 'last_mars_uplink_at': None, 'last_mars_target_seen_at': None, 'links': []}
     e = snapshot(t, SOI, status, V['comms.conjunction_sun_sep_deg'], TICK_S, t - TICK_S)
-    assert e['link']['dsn'] == 'unconfirmed' and e['link']['uplink_open'] is True
+    assert e['link']['dsn'] == 'unconfirmed'
     s = commissioned_meta_state(e)
     start(s, 'survey', ['rover-1'], 'Survey.', 'survey / muse-spark-1.3', [s['spec']['package_id']])
     ids = [c['id'] for c in open_conditions(s, job_by_id(s, 'survey'))]
-    assert 'dsn-unconfirmed' in ids
-    assurance_decision(s, 'survey', True, 'Proceed; DSN unconfirmed is flagged.', 'assurance', ids)
-    assert job_by_id(s, 'survey')['uplink']['sent_tick'] == s['tick']
-
+    assert not any(i.startswith('dsn') for i in ids)
+    assurance_decision(s, 'survey', True, 'Proceed.', 'assurance', ids)
+    assert job_by_id(s, 'survey')['status'] == 'running'
 
 def test_event_log_keeps_every_status_write_and_receipt_change(tmp_path):
     from mission.store import Store, InferenceReceipt
@@ -243,14 +234,6 @@ def test_event_log_keeps_every_status_write_and_receipt_change(tmp_path):
 def test_http_429_retry_wait():
     from mission.provider import retry_wait
     assert retry_wait('2', 0) == 2.0 and retry_wait('600', 0) == 60.0 and [retry_wait(None, a) for a in range(3)] == [5.0, 15.0, 45.0]
-
-
-def test_relay_pass_delays_delivery_to_next_mro_node_time():
-    t = utc(2026, 10, 31, 12)
-    e = snapshot(t, SOI, None, V['comms.conjunction_sun_sep_deg'], TICK_S, None, V['relay.mro_ascending_node_lmst_h'])
-    link = e['link']
-    assert link['relay_pass_lmst_h'] == [3.05, 15.05] and 0 <= link['relay_wait_h'] < 12
-    assert link['delivery_ticks'] == max(1, math.ceil(e['geometry']['one_way_light_s'] / TICK_S + link['relay_wait_h']))
 
 
 def test_real_dsn_now_capture_identifies_mars_spacecraft():

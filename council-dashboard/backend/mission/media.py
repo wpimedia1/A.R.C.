@@ -453,7 +453,7 @@ def analyze_site(store, mid='public', transport=None):
         survey = next(j for j in s['jobs'] if j['id'] == 'survey')
         if not img['applies_to_site']:
             event(s, 'Hazard route not applied', f"SAM ran on a proxy image ({img['site_relation']}); the survey is unchanged (D13).", 'survey')
-        elif route.get('detour_factor') and survey['status'] in ('pending', 'blocked', 'uplink') and not survey.get('route'):
+        elif route.get('detour_factor') and survey['status'] in ('pending', 'blocked', 'review') and not survey.get('route'):
             # D13: hazard avoidance lengthens the survey drive.
             survey['route'] = {k: route[k] for k in ('detour_factor', 'route_m', 'straight_m', 'blocked_fraction')} | {'base_target': survey['target'], 'source_version': vid}
             survey['target'] = survey['target'] * route['detour_factor']

@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 import httpx
 from sqlalchemy import select
 from .store import Mission, Budget, InferenceReceipt, SourceVersion
-from .engine import set_standby, instantiate_job, open_conditions, start, reasons, job_by_id, InvalidAction, event, rate_per_tick, demand_kw, compatible_free, assurance_decision, place_order, failed_without_order, sim_unix
+from .engine import set_standby, charge, battery, step_energy_wh, instantiate_job, open_conditions, start, reasons, job_by_id, InvalidAction, event, rate_per_tick, demand_kw, compatible_free, assurance_decision, place_order, failed_without_order, sim_unix
 from .spec import canonical, digest
 
 from .provider import ENDPOINT,PRICE_SOURCE,DIRECTOR_MODEL,SPECIALIST_MODEL,ProviderConfigError,credential,fingerprint,cost_usd,max_cost_usd,send
@@ -29,7 +29,7 @@ TOOLS=[tool('inspect_state','Read authoritative mission state: jobs, equipment, 
              'summary':{'type':'string','maxLength':600},'source_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':6}}),
        tool('request_replanning','Record a blockage for the director.',{'summary':{'type':'string','maxLength':600}}),
        tool('inspect_site_evidence','Read pinned orbital elevation, composite ice consistency and radar interpretation nearest a geographic coordinate. Does not infer ground sensor values.',{'latitude':{'type':'number','minimum':33.87,'maximum':64.17},'longitude':{'type':'number','minimum':165.86,'maximum':210.43}})]
-REVIEW=tool('review_work_orders','Approve or hold every authorized work order awaiting assurance before it is uplinked. A hold releases its equipment and power and escalates to the director.',
+REVIEW=tool('review_work_orders','Approve or hold every authorized work order awaiting onboard assurance; an approved order starts at once. A hold releases its equipment and power and escalates to the director.',
     {'decisions':{'type':'array','minItems':1,'maxItems':8,'items':{'type':'object','properties':{'job_id':{'type':'string'},'approve':{'type':'boolean'},
      'reason':{'type':'string','minLength':1,'maxLength':600},'acknowledged_conditions':{'type':'array','items':{'type':'string'},'maxItems':12}},
      'required':['job_id','approve','reason','acknowledged_conditions'],'additionalProperties':False}}})
@@ -40,6 +40,8 @@ CREATE=tool('create_job','Create new work from a package job template (water-bat
 STANDBY=tool('set_standby','Put units in protective standby for 1-72 ticks (no work; jobs resume automatically). Cite in basis the measured value or estimate (station, variable, sol, value, interval) the decision rests on.',
     {'asset_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':8},'ticks':{'type':'integer','minimum':1,'maximum':72},
      'reason':{'type':'string','maxLength':600},'basis':{'type':'string','minLength':1,'maxLength':600}})
+CHARGE=tool('charge_batteries','Recharge battery-powered units from the fission grid (decision D18). They do no work while charging and stop when full; charging draws grid power. Use before a battery cannot supply the next step of work.',
+    {'asset_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':8},'reason':{'type':'string','minLength':1,'maxLength':600}})
 PLAN=tool('set_mission_plan','Prioritize all jobs; this does not authorize execution.',{'priority':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':32},'summary':{'type':'string','maxLength':600}})
 ASSESS=tool('record_assessment','Record an independent public assessment; no execution authority.',{
     'summary':{'type':'string','minLength':1,'maxLength':600},
@@ -61,10 +63,12 @@ def context(s):
             'department_conflicts':s.get('department_conflicts',[])[-6:],
             'mars_conditions':None if not s.get('environment') else {'clock':s['environment']['clock'],'geometry':s['environment']['geometry'],
                 'link':{k:v for k,v in s['environment']['link'].items() if k!='links'},'dusty_season':s['environment']['clock'].get('dusty_season'),
-                'rule':'You operate from Earth. Each work order is uplinked: held during solar conjunction or until a DSN uplink to Mars is available, then arrives after the one-way light time (decision D10).'},
+                'rule':'You run onboard at the outpost and act without waiting for Earth (decision D10). Approved work orders start at once. The Earth link (DSN, light time, solar conjunction) only decides when Earth can hear from you. Keep the excavators online: their batteries drain while working and must be recharged from the fission grid (decision D18).'},
             'replacements':s.get('orders',[]),'failed_assets':failed_without_order(s),
             'weather':s.get('weather_brief'),
-            'work_orders_in_transit':[{'job_id':j['id'],**j.get('uplink',{})} for j in s['jobs'] if j['status']=='uplink']}
+            'work_orders_awaiting_assurance':[{'job_id':j['id'],**j.get('authorization',{})} for j in s['jobs'] if j['status']=='review'],
+            'batteries':[{'asset_id':a['id'],'charge_wh':round(a['soc_wh'],1),'capacity_wh':a['battery_wh'],'charging':bool(a.get('charging')),
+                'one_step_of_work_wh':round(step_energy_wh(s,a),1),'charge_kw':a['charge_kw']} for a in s['assets'] if battery(a)]}
 
 def reserve(store,mid,operation,model,payload):
     size=len(canonical(payload).encode())
@@ -238,7 +242,7 @@ def execute_tool(s,name,args,role):
         if not isinstance(args.get('summary'),str) or not 1<=len(args['summary'])<=600:raise InvalidAction('Concise public summary required')
         if not isinstance(args.get('source_ids'),list) or not 1<=len(args['source_ids'])<=6:raise InvalidAction('Evidence references required')
         decision=start(s,j['id'],list(args['asset_ids']),args['summary'],role+' / '+SPECIALIST_MODEL,args['source_ids'])
-        return {'accepted':True,'decision_id':decision,'status':j['status'],'uplink':j.get('uplink'),'note':j['reason'] or None}
+        return {'accepted':True,'decision_id':decision,'status':j['status'],'authorization':j.get('authorization'),'note':j['reason'] or None}
     if name=='request_replanning':
         summary=str(args['summary'])[:600]
         s.setdefault('department_conflicts',[]).append({'role':role,'tick':s['tick'],'summary':summary,'status':'unresolved'})
@@ -291,12 +295,17 @@ def plan_once(store,transport=None,mission_id=None):
                 'assessment':assessment,'request_id':claim+':assessment:'+role})
         cycle['status']='reconciling'
         director_context=context(s)|{'independent_assessments':cycle['assessments']}
-        proposals,_=call(store,mid,claim+':director',DIRECTOR_MODEL,'Direct the configured robotic outpost simulator. Reconcile the independent assessments and explicitly explain unresolved evidence gaps or disagreements. Return exactly one set_mission_plan tool call. Prioritize feasible work, dependencies and constraints. Package parameters carry their sources and limits; operator decisions are assumptions. You cannot manufacture missing observations or override validation. Give a short public summary, never private reasoning. You may also call create_job to add work from the listed templates. Weather: measured values, statistical estimates with 95% intervals and their track record are in weather; if conditions warrant protecting units, call set_standby citing the exact measurement or estimate, and state its uncertainty. Never present an estimate as a measurement.',director_context|{'job_templates':[{k:t[k] for k in ('template_id','title','owner','basis','dependencies')} for t in s['spec'].get('templates',[])]},[PLAN,CREATE,STANDBY],transport)
+        proposals,_=call(store,mid,claim+':director',DIRECTOR_MODEL,'Direct the configured robotic outpost simulator. Reconcile the independent assessments and explicitly explain unresolved evidence gaps or disagreements. Return exactly one set_mission_plan tool call. Prioritize feasible work, dependencies and constraints. Package parameters carry their sources and limits; operator decisions are assumptions. You cannot manufacture missing observations or override validation. Give a short public summary, never private reasoning. You may also call create_job to add work from the listed templates. Weather: measured values, statistical estimates with 95% intervals and their track record are in weather; if conditions warrant protecting units, call set_standby citing the exact measurement or estimate, and state its uncertainty. Never present an estimate as a measurement. You run onboard and act without waiting for Earth. Batteries: if an excavator battery cannot supply the next step of work (batteries.one_step_of_work_wh), call charge_batteries; charging needs commissioned grid power and spare capacity.',director_context|{'job_templates':[{k:t[k] for k in ('template_id','title','owner','basis','dependencies')} for t in s['spec'].get('templates',[])]},[PLAN,CREATE,STANDBY,CHARGE],transport)
         for c in [x for x in proposals if x['name']=='set_standby']:
             a=c['arguments']
             try:set_standby(s,list(a['asset_ids']),int(a['ticks']),str(a['reason'])[:600],'director / '+DIRECTOR_MODEL,str(a['basis'])[:600]);receipts.append({'role':'director','proposal':c,'validation':'accepted'})
             except (InvalidAction,KeyError,TypeError,ValueError) as exc:receipts.append({'role':'director','proposal':c,'validation':'rejected: '+str(exc)})
         proposals=[x for x in proposals if x['name']!='set_standby']
+        for c in [x for x in proposals if x['name']=='charge_batteries']:
+            a=c['arguments']
+            try:charge(s,list(a['asset_ids']),str(a['reason'])[:600],'director / '+DIRECTOR_MODEL);receipts.append({'role':'director','proposal':c,'validation':'accepted'})
+            except (InvalidAction,KeyError,TypeError,ValueError) as exc:receipts.append({'role':'director','proposal':c,'validation':'rejected: '+str(exc)})
+        proposals=[x for x in proposals if x['name']!='charge_batteries']
         created=[]
         for c in [x for x in proposals if x['name']=='create_job']:
             try:created.append(instantiate_job(s,c['arguments']['template_id'],'director / '+DIRECTOR_MODEL,str(c['arguments']['summary'])[:600]))
@@ -332,17 +341,17 @@ def plan_once(store,transport=None,mission_id=None):
                     except (InvalidAction,KeyError,TypeError) as exc:result={'rejected':str(exc)}
                     results.append(deepcopy({'tool':p['name'],'arguments':p['arguments'],'result':result,'response_id':previous}))
                     turn_input.append({'type':'function_call_output','call_id':p['call_id'],'output':canonical(result)})
-                if job_by_id(s,jid)['status'] in ('running','uplink') or any(r['tool']=='request_replanning' and r['result'].get('requested') for r in results):break
+                if job_by_id(s,jid)['status'] in ('running','review') or any(r['tool']=='request_replanning' and r['result'].get('requested') for r in results):break
             receipts.append({'role':role,'receipts':results})
-            if job_by_id(s,jid)['status'] not in ('running','uplink') and not any(r['tool']=='request_replanning' and r['result'].get('requested') for r in results):raise InvalidAction('Specialist reached the four-request limit without an accepted work order or explicit escalation')
-        pending=[j for j in s['jobs'] if j['status']=='uplink' and j['uplink'].get('assurance')=='pending']
+            if job_by_id(s,jid)['status'] not in ('running','review') and not any(r['tool']=='request_replanning' and r['result'].get('requested') for r in results):raise InvalidAction('Specialist reached the four-request limit without an accepted work order or explicit escalation')
+        pending=[j for j in s['jobs'] if j['status']=='review' and j['authorization'].get('assurance')=='pending']
         if pending:
             orders=[{'job_id':j['id'],'title':j['title'],'assets':j['assigned'],'dependencies':j['dependencies'],'parameters':j['parameters'],
                      'open_conditions':open_conditions(s,j),
                      'decision':next((d for d in s['decisions'] if d['id']==j['decision_id']),None)} for j in pending]
             own=next((a['assessment'] for a in cycle['assessments'] if a['role']=='assurance'),None)
             proposals,_=call(store,mid,claim+':assurance-review',SPECIALIST_MODEL,
-                'You are the assurance reviewer. Every work order below was authorized on Earth and is not yet uplinked. Return exactly one review_work_orders call deciding every order. '
+                'You are the onboard assurance reviewer. Every work order below was authorized onboard and starts as soon as you approve it. Return exactly one review_work_orders call deciding every order. '
                 'Hold an order only for a specific, stated safety, evidence or dependency concern; a hold releases its equipment and escalates to the director. '
                 'Each order lists the simulator\'s open_conditions. To approve, list every condition id in acknowledged_conditions and say in the reason why the order may proceed despite it; never claim there are no blockers when conditions are listed. '
                 'Your own earlier assessment is included: if you now approve something it advised against, state what changed. Public reasons only.',

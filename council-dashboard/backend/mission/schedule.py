@@ -33,7 +33,7 @@ def forecast(state,horizon=24*400):
             'status':original['status'],'parameters':original['parameters'],'basis':original['basis'],
             'constraint_ids':[c['id'] for c in CONSTRAINTS if original['id'] in c['jobs']]})
     return {'version':'resource-schedule-2','input_state_hash':digest(state),'as_of_tick':state['tick'],'horizon_ticks':horizon,
-        'method':'Deterministic fixed-priority projection using all compatible free equipment, without random failures (D14) or uplink delays. Actual Meta decisions and failures will differ.',
+        'method':'Deterministic fixed-priority projection using all compatible free equipment, without random failures (D14); excavators recharge by the benchmark rule (charge when a battery cannot supply the next step, D18). Actual Meta decisions and failures will differ.',
         'time_basis':f"24 ticks per sol; one tick = {state['spec']['tick_hours']:.4f} h (D7)",
         'forecast_readiness_tick':s.get('readiness_tick'),
         'jobs':rows,'constraints':[{**c,'source_version':state.get('source_pins',{}).get(c['source_id'])} for c in CONSTRAINTS],

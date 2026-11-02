@@ -16,7 +16,7 @@
 - Evidence ingestion for MOLA, SWIM, REMS, NASA documents (`mission/science.py`, `terrain.py`, `telemetry.py`, `region.py`, `evidence.py`).
 - Muse Image site chronicle and SAM 3.1 segmentation of HiRISE imagery (`mission/media.py`, `frontend/components/Visuals.tsx`, `SiteImagery.tsx`).
 - Interface (`council-dashboard/frontend`), including the live 3D outpost (`MissionScene.tsx`) the user-started genesis (Start).
-- Live Mars conditions, DSN uplink gating, relay passes, random failures, replacement logistics (`mission/conditions.py`, `logistics.py`, `route.py`, `engine.py`).
+- Autonomous onboard agents with battery management and plan-vs-actual replanning (D10, D18); live Mars conditions, random failures, replacement logistics (`mission/conditions.py`, `logistics.py`, `route.py`, `engine.py`).
 - Measured → estimated → checked weather nowcast (`mission/nowcast.py`, `frontend/components/Weather.tsx`).
 - Deployment: `compose.prod.yaml`, `deploy/`, `.github/workflows/ci.yml`.
 

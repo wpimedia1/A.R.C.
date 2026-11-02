@@ -10,5 +10,5 @@
   - `retry-site-analysis`: run SAM site analysis again after a recorded failure.
   - `enable-agents`: switch a mission to Meta agents. `benchmark`: fixed-priority baseline runs (no model calls).
 - Health: `GET /api/v1/health` reports whether the mission has started, the worker heartbeat, and 503 with the reason if the database belongs to another package version.
-- Pace: the public mission advances one step (1/24 sol, about 61.6 minutes) per Mars hour of real time. Agents plan at genesis, after each job completes or a fault, at solar conjunction, at a change of season and on resume.
+- Pace: the public mission advances one step (1/24 sol, about 61.6 minutes) per Mars hour of real time. Agents run onboard and plan at genesis, after each job completes or a fault, on a low battery, when work falls behind its authorized rate, at solar conjunction, at a change of season and on resume.
 - Spending: visitor experiments may not spend Meta credits unless `MISSION_VISITOR_DAILY_LIMIT_USD` / `MISSION_VISITOR_MONTHLY_LIMIT_USD` are raised (default 0, local and cloud). Visitors can end their own experiment from the experiment bar.

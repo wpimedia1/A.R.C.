@@ -21,10 +21,11 @@ export function Model({file,size,tint}:{file:string;size:number;tint?:string|nul
 export const FILE:Record<string,[string,number]>={rover:['/models/perseverance.glb',2.4],excavator:['/models/kenney/rover.glb',1.5],rodwell:['/models/kenney/machine_barrelLarge.glb',1.8],power:['/models/kenney/machine_generatorLarge.glb',3],habitat:['/models/kenney/hangar_roundB.glb',5.5]};
 
 const jobOf=(s:State,a:Asset)=>s.jobs.find(j=>j.assigned.includes(a.id));
-// A work order is in flight only once it has been sent with a known arrival step; before that it waits on Earth.
-const sent=(j:Job)=>j.status==='uplink'&&j.uplink?.sent_tick!=null&&j.uplink?.arrival_tick!=null;
-const held=(j:Job)=>j.status==='uplink'&&!sent(j);
-const heldText=(j:Job)=>j.uplink?.assurance==='pending'?'Awaiting assurance review on Earth':`Approved · waiting for DSN uplink to Mars${j.reason?` (${j.reason})`:''}`;
+// D10: agents run onboard; an authorized order waits only for onboard assurance, then runs.
+const inReview=(j:Job)=>j.status==='review';
+// D18: battery state of charge as a percentage, for battery-powered units only.
+const pct=(a:Asset)=>{const b=a as unknown as {battery_wh?:number|null;soc_wh?:number};return b.battery_wh?Math.round(100*(b.soc_wh??0)/b.battery_wh):null;};
+const charging=(a:Asset)=>Boolean((a as unknown as {charging?:boolean}).charging);
 const standby=(s:State,a:Asset)=>((a as unknown as {standby_until_tick?:number}).standby_until_tick||0)>s.tick;
 
 export function Ground(){
@@ -98,20 +99,15 @@ function Site({s}:{s:State}){
    {(sh?.progress||0)>0&&<mesh scale={[1,(sh?.progress||0),1]} castShadow><sphereGeometry args={[P(s,'habitat.diameter_m')/2,32,16,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#9a5634" roughness={1}/></mesh>}</group>}</>;
 }
 // A work order in flight: Earth (towards the sky) -> relay orbiter -> outpost, with its expected arrival.
-function Packet({to,label}:{to:[number,number,number];label:string}){
- const ref=useRef<THREE.Mesh>(null);const from=new THREE.Vector3(-60,70,-60),via=new THREE.Vector3(0,38,40),dest=new THREE.Vector3(to[0],1.5,to[2]);
- useFrame(({clock})=>{if(!ref.current)return;const f=(clock.elapsedTime*.18)%1;const p=f<.6?from.clone().lerp(via,f/.6):via.clone().lerp(dest,(f-.6)/.4);ref.current.position.copy(p);});
- return <><Line points={[from,via,dest]} color="#7fd1ff" lineWidth={1.5} dashed dashSize={2} gapSize={1.5}/><mesh ref={ref}><sphereGeometry args={[.6,16,16]}/><meshBasicMaterial color="#7fd1ff"/></mesh>
-  <Html position={[dest.x,dest.y+3.2,dest.z]} center><span className="scene-chip order">{label}</span></Html></>;
-}
-function Tags({s,at}:{s:State;at:(t:number)=>string}){
+function Tags({s}:{s:State}){
  return <>{s.assets.map(a=>{const j=jobOf(s,a);const sb=standby(s,a);
-  const txt=!a.available?'FAILED':sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%`:j&&sent(j)?`Order in flight · arrives ${at(j.uplink!.arrival_tick!)}`:j&&held(j)?'Order approved · waiting for DSN uplink':'Idle';
-  const cls=!a.available?'failed':sb?'standby':j?.status==='running'?'working':j&&sent(j)?'waiting':j&&held(j)?'held':'idle';
+  const p=pct(a);const bat=p===null?'':` · battery ${p}%`;
+  const txt=!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
+  const cls=!a.available?'failed':charging(a)?'waiting':sb?'standby':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
   const dx=a.kind==='rover'?surveyJobs(s).reduce((t,x)=>t+x.done,0):0;// the rover's tag follows the distance it has driven
   return <Html key={a.id} position={[a.position[0]+dx,(FILE[a.kind]?.[1]||2)+1.4,a.position[2]]} center><span className={'scene-tag '+cls}><b>{a.name.split(' (')[0]}</b>{txt}</span></Html>;})}</>;
 }
-function Scene({s,at,labels}:{s:State;at:(t:number)=>string;labels:boolean}){
+function Scene({s,labels}:{s:State;labels:boolean}){
  const sun=s.environment?.clock.site_sun_enu??null;// no sun direction recorded -> neutral light, no invented sun
  const sunPos:[number,number,number]|null=sun?[sun[0]*80,sun[2]*80,-sun[1]*80]:null;
  // Brightness follows the real solar elevation continuously (twilight before sunrise and after sunset), instead of a
@@ -120,7 +116,6 @@ function Scene({s,at,labels}:{s:State;at:(t:number)=>string;labels:boolean}){
  const ease=(a:number,b:number,x:number)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
  const k=elev==null?1:ease(-12,6,elev),direct=elev==null?0:ease(-1,6,elev);
  const mix=(n:string,d:string)=>'#'+new THREE.Color(n).lerp(new THREE.Color(d),k).getHexString();
- const flying=s.jobs.filter(sent);
  return <>
   <color attach="background" args={[mix('#140d0b','#d7a77f')]}/>{/* Mars daytime sky: butterscotch from suspended dust */}
   <ambientLight intensity={0.08+0.37*k}/><hemisphereLight args={['#f1c9a4','#3a2418',0.08+0.52*k]}/>
@@ -130,8 +125,7 @@ function Scene({s,at,labels}:{s:State;at:(t:number)=>string;labels:boolean}){
   <Site s={s}/>
   {s.assets.filter(a=>a.kind==='rover').map(a=><SurveyLine key={'line-'+a.id} a={a} s={s}/>)}
   {s.assets.map((a,i)=>a.kind==='rover'?<Rover key={a.id} a={a} s={s}/>:a.kind==='excavator'?<Excavator key={a.id} a={a} s={s} i={i}/>:a.kind==='rodwell'?<Drill key={a.id} a={a} s={s}/>:a.kind==='power'?<Power key={a.id} a={a} s={s}/>:null)}
-  {flying.map(j=>{const a=s.assets.find(x=>j.assigned.includes(x.id));return a?<Packet key={j.id} to={a.position} label={`${j.title.split(' ').slice(0,3).join(' ')} → arrives ${at(j.uplink!.arrival_tick!)}`}/>:null;})}
-  {labels&&<Tags s={s} at={at}/>}
+  {labels&&<Tags s={s}/>}
  </>;
 }
 
@@ -143,23 +137,21 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
  const load=(n:number)=>api<{revision:number;state:State}>(`missions/${mid}/revisions/${n}`).then(d=>setReplay({n:d.revision,state:d.state}));
  useEffect(()=>{if(!playing||!revs.length)return;const id=setInterval(()=>{setReplay(r=>{const cur=r?.n||revs[0].revision;const next=revs.find(x=>x.revision>cur);if(!next){setPlaying(false);return r;}load(next.revision);return r;});},700);return()=>clearInterval(id);},[playing,revs]);// eslint-disable-line react-hooks/exhaustive-deps
  const s=replay?.state||snap.state;
- const spt=snap.seconds_per_tick;
  // Clock time of a future step, from the server's next-step time and step length only; unknown if either is missing.
- const at=(tick:number)=>{if(replay)return `step ${tick}`;if(snap.next_tick_at==null||spt==null)return 'time unknown';const base=snap.next_tick_at+(tick-s.tick-1)*spt;return new Date(base*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});};
- const running=s.jobs.filter(j=>j.status==='running');const flying=s.jobs.filter(sent);const waiting=s.jobs.filter(held);
+ const running=s.jobs.filter(j=>j.status==='running');const reviewing=s.jobs.filter(inReview);const charging_=s.assets.filter(charging);
  const c=s.environment?.clock;
  // Opening view frames the outpost and the rover's current point on its survey line (camera only; set once per visit).
  const [view]=useState(()=>{const rover=s.assets.find(a=>a.kind==='rover');const rx=rover?rover.position[0]+surveyJobs(s).reduce((t,x)=>t+x.done,0):0;
   const xs=[...s.assets.map(a=>a.position[0]),rx];const lo=Math.min(...xs),hi=Math.max(...xs);const span=Math.max(30,hi-lo);const cx=(lo+hi)/2;
   return {target:[cx,0,8] as [number,number,number],position:[cx+span*.35,span*.42,8+span*.8] as [number,number,number]};});
  return <><LiveStrip snap={snap}/><section className="mission-scene">
-  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} at={at} labels={labels}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary></div>
+  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary></div>
   <div className="scene-hud">
    <div className="hud-block"><small>{replay?`REPLAY · revision ${replay.n}`:'LIVE · real Mars time'}</small><strong>{solOf(s.tick)} · step {s.tick}</strong>{c&&<span>Sun {c.site_solar_elevation_deg>0?`${fmt(c.site_solar_elevation_deg,0)}° up`:`${fmt(-c.site_solar_elevation_deg,0)}° below the horizon`} · {c.season}</span>}</div>
    <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>▶ {j.title} · {fmt(j.progress*100,0)}%</span>):<span>No robot is working.</span>}
-    {flying.map(j=><span key={j.id}>✉ {j.title}: in flight, arrives {at(j.uplink!.arrival_tick!)}{j.uplink?.via?.[0]?` (via ${j.uplink.via[0]})`:''}</span>)}
-    {waiting.map(j=><span key={j.id}>⏳ {j.title}: {heldText(j)}</span>)}
-    {!replay&&!running.length&&!flying.length&&!waiting.length&&<span>{s.planning_status}</span>}</div>
+    {reviewing.map(j=><span key={j.id}>⏳ {j.title}: authorized, awaiting onboard assurance</span>)}
+    {charging_.map(a=><span key={a.id}>⚡ {a.name.split(' (')[0]} charging · battery {pct(a)}%</span>)}
+    {!replay&&!running.length&&!reviewing.length&&!charging_.length&&<span>{s.planning_status}</span>}</div>
    <div className="hud-block replay"><small>REPLAY FROM GENESIS</small>
     <input type="range" min={revs[0]?.revision||1} max={revs.at(-1)?.revision||1} value={replay?.n||revs.at(-1)?.revision||1} onChange={e=>{setPlaying(false);load(Number(e.target.value));}} aria-label="Replay revision"/>
     <div><button onClick={()=>{if(!revs.length)return;if(!replay)load(revs[0].revision);setPlaying(p=>!p);}}>{playing?'Pause':'Play'}</button><button onClick={()=>{setPlaying(false);setReplay(null);}} disabled={!replay}>Stop · back to live</button></div></div>

@@ -1,7 +1,7 @@
 {
  "id": "arcadia-mars-v1",
  "environment": "mars",
- "status": "operator decisions D1-D17 approved",
+ "status": "operator decisions D1-D18 approved (D15 retired, D16 weather, D17 user start)",
  "sources": {
   "kleinhenz2017": {
    "title": "An ISRU Propellant Production System to Fully Fuel a Mars Ascent Vehicle",
@@ -145,12 +145,6 @@
    "venue": "CMU-RI-TR-05-38",
    "url": "https://publications.ri.cmu.edu/storage/publications/pub_files/pub4/stancliff_stephen_b_2005_3/stancliff_stephen_b_2005_3.pdf"
   },
-  "mro_aerobraking2008": {
-   "title": "Mars Reconnaissance Orbiter aerobraking daily operations and collision avoidance",
-   "authors": "NASA NTRS 20080012690",
-   "year": 2008,
-   "url": "https://ntrs.nasa.gov/api/citations/20080012690/downloads/20080012690.pdf"
-  },
   "dsn_now": {
    "title": "DSN Now live feed",
    "authors": "NASA JPL Deep Space Network",
@@ -162,6 +156,13 @@
    "authors": "USGS Astrogeology Science Center",
    "year": 2026,
    "url": "https://astrogeology.usgs.gov/pygeoapi/collections/mars/hirise-observation-footprints-equatorial"
+  },
+  "schuler2019": {
+   "title": "RASSOR, the reduced gravity excavator",
+   "authors": "Schuler, J. M.; Smith, J. D.; Mueller, R. P.; Nick, A. J.",
+   "year": 2019,
+   "venue": "Lunar ISRU 2019: Developing a New Space Economy (LPI contribution 5061)",
+   "url": "https://www.hou.usra.edu/meetings/lunarisru2019/pdf/5061.pdf"
   }
  },
  "parameters": {
@@ -221,34 +222,6 @@
    "quote": "A single RASSOR 2.0 can excavate a minimum of 2.7 metric tons of regolith per day",
    "retrieved": "2026-10-30",
    "note": "Day = 24 h period of 16 h mining and 8 h recharging (same paper, p.3). Engine uses the 24 h average."
-  },
-  "excavator.power_w_per_kg_h": {
-   "classification": "published",
-   "value": 4,
-   "unit": "W/(kg/h)",
-   "source": "rassor2016",
-   "locator": "abstract",
-   "quote": "power usage of 4 W per kg of regolith excavation rate",
-   "retrieved": "2026-10-30"
-  },
-  "excavator.rate_kg_h": {
-   "classification": "derived",
-   "unit": "kg/h",
-   "formula": "excavator.min_rate_kg_per_day/24",
-   "inputs": [
-    "excavator.min_rate_kg_per_day"
-   ],
-   "note": "Minimum daily rate spread over 24 h."
-  },
-  "excavator.power_kw": {
-   "classification": "derived",
-   "unit": "kW",
-   "formula": "excavator.power_w_per_kg_h*excavator.rate_kg_h/1000",
-   "inputs": [
-    "excavator.power_w_per_kg_h",
-    "excavator.rate_kg_h"
-   ],
-   "note": "Published specific power times derived rate."
   },
   "water.target_kg": {
    "classification": "published",
@@ -767,14 +740,62 @@
    ],
    "note": "Series system: the robot fails when any module fails (sum of module failure rates, Stancliff et al. eq. 7)."
   },
-  "relay.mro_ascending_node_lmst_h": {
+  "excavator.battery_wh": {
    "classification": "published",
-   "value": 15.05,
-   "unit": "h LMST",
-   "source": "mro_aerobraking2008",
-   "locator": "primary science orbit description",
-   "quote": "a 3:03 PM local mean solar time at the ascending node",
-   "retrieved": "2026-10-31"
+   "value": 1410,
+   "unit": "Wh",
+   "source": "schuler2019",
+   "locator": "Table 1",
+   "quote": "Battery capacity 1410 Whr",
+   "retrieved": "2026-11-02"
+  },
+  "excavator.energy_wh_per_kg": {
+   "classification": "published",
+   "value": 0.761,
+   "unit": "Wh/kg",
+   "source": "schuler2019",
+   "locator": "Table 1",
+   "quote": "Energy/Delivered Regolith 0.761 Whr/kg",
+   "retrieved": "2026-11-02"
+  },
+  "excavator.mining_h_per_day": {
+   "classification": "published",
+   "value": 16,
+   "unit": "h",
+   "source": "rassor2016",
+   "locator": "p.3",
+   "quote": "Each 24 hour period will consist of 16 hours of mining operations and eight hours of recharging.",
+   "retrieved": "2026-11-02"
+  },
+  "excavator.recharge_h_per_day": {
+   "classification": "published",
+   "value": 8,
+   "unit": "h",
+   "source": "rassor2016",
+   "locator": "p.3",
+   "quote": "Each 24 hour period will consist of 16 hours of mining operations and eight hours of recharging.",
+   "retrieved": "2026-11-02"
+  },
+  "excavator.mining_rate_kg_h": {
+   "classification": "derived",
+   "unit": "kg/h",
+   "formula": "excavator.min_rate_kg_per_day/excavator.mining_h_per_day",
+   "inputs": [
+    "excavator.min_rate_kg_per_day",
+    "excavator.mining_h_per_day"
+   ],
+   "note": "Daily excavation delivered during the 16 mining hours."
+  },
+  "excavator.charge_kw": {
+   "classification": "derived",
+   "unit": "kW",
+   "formula": "excavator.min_rate_kg_per_day*excavator.energy_wh_per_kg/excavator.recharge_h_per_day/1000",
+   "inputs": [
+    "excavator.min_rate_kg_per_day",
+    "excavator.energy_wh_per_kg",
+    "excavator.recharge_h_per_day"
+   ],
+   "note": "Average charging power that returns one day of excavation energy within the 8 recharge hours."
   }
  },
  "operator_decisions": {
@@ -828,10 +849,10 @@
    "approved_on": "2026-10-31"
   },
   "D10_earth_mars_communications": {
-   "choice": "The Meta agents run on Earth (every model request is made from Earth), so every agent work order is an uplink. It is held while Mars is within comms.conjunction_sun_sep_deg of the Sun as seen from Earth (ERFA geometry), and until DSN Now shows an active uplink to a spacecraft at Mars range (|range - Earth-Mars distance| < comms.mars_soi_km) since the previous tick. It arrives after the one-way light time (ERFA, IAU au and c), rounded up to whole ticks. If the DSN feed cannot be read, orders are not held by DSN and are flagged. The fixed-priority benchmark is an onboard scheduler and is not gated. Experiments keep the environment frozen at the fork point and apply no DSN data.",
-   "reason": "Owner instruction 2026-10-31: live Mars conditions must keep running while the mission is paused and change the scenario. Relay through Mars orbiters is assumed; outpost-to-orbiter pass timing is not modeled.",
+   "choice": "The Meta agents run onboard at the outpost and act on live conditions without waiting for Earth: their work orders execute on Mars as soon as onboard assurance approves them. The Earth link (live DSN Now, light time, solar conjunction) is context the agents are told about: it decides when Earth can hear from the outpost, never when work can start.",
+   "reason": "Owner instruction 2026-11-02: autonomous, not remote. The last remote-operations version is tagged remote-final.",
    "approved": true,
-   "approved_on": "2026-10-31"
+   "approved_on": "2026-11-02"
   },
   "D11_dust_and_season": {
    "choice": "Mars date, season (Ls) and local time come from the Mars24 algorithm at real UTC. A change of season triggers agent replanning. Dust and season apply no rate change: the outpost is fission-powered (NASA: constant power regardless of location, no dust-storm concern) and the package sources publish no dust or frost effect on excavation, drilling or driving rates.",
@@ -857,17 +878,17 @@
    "approved": true,
    "approved_on": "2026-10-31"
   },
-  "D15_relay_passes": {
-   "choice": "An uplinked work order reaches the outpost at the first Mars Reconnaissance Orbiter relay opportunity after the one-way light time: when the site local mean solar time reaches the orbit node times, 15:03 (ascending node, published) or 03:03 (descending node, 12 h later on a sun-synchronous orbit). Other relay orbiters are not modeled.",
-   "reason": "Owner instruction: model relay pass timing.",
-   "approved": true,
-   "approved_on": "2026-10-31"
-  },
   "D17_user_start": {
    "choice": "The mission starts only when a user presses Start (genesis); the API and worker never create it. Before Start only the live DSN reading runs. Start creates the public mission once; pressing again changes nothing.",
    "reason": "Owner instruction: the user is the launcher, not Docker.",
    "approved": true,
    "approved_on": "2026-11-01"
+  },
+  "D18_excavator_batteries": {
+   "choice": "Excavators run on their batteries (capacity and energy per kilogram from Schuler et al. 2019) and must be recharged from the fission grid; they start each mission fully charged. Work stops when a battery cannot supply the next step; recharging is decided by the agents (or automatically in the fixed-priority benchmark) and draws grid power. Driving between the work site and the charger is not modeled. The rover is not battery-modeled: it runs on its MMRTG and its published one-sol drive distance already reflects its energy limits; Rodwell and the reactor run on grid or own power.",
+   "reason": "Owner instruction 2026-11-02: agents keep themselves online by managing recharging.",
+   "approved": true,
+   "approved_on": "2026-11-02"
   }
  },
  "conflicts": {}

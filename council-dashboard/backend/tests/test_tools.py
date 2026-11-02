@@ -16,7 +16,7 @@ def test_estimate_then_submit():
     est = execute_tool(s, 'estimate_job', {'job_id': 'survey', 'asset_ids': ['rover-1']}, 'survey')
     assert est['validation_errors'] == [] and est['ticks_to_complete'] == 24
     out = execute_tool(s, 'submit_work_order', {'job_id': 'survey', 'asset_ids': ['rover-1'], 'summary': 'Survey', 'source_ids': ['autonav2021']}, 'survey')
-    assert out['accepted'] and job_by_id(s, 'survey')['status'] == 'running'
+    assert out['accepted'] and job_by_id(s, 'survey')['status'] == 'review'  # onboard assurance approves before it runs (D10)
 
 
 def test_other_department_cannot_submit():

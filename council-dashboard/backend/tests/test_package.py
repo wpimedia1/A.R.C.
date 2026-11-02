@@ -23,7 +23,7 @@ def test_every_parameter_resolves_with_provenance(approved_package):
 
 def test_derived_values_are_recomputed_from_inputs(approved_package):
     v = load()['values']
-    assert v['excavator.rate_kg_h'] == pytest.approx(v['excavator.min_rate_kg_per_day'] / 24)
+    assert v['excavator.mining_rate_kg_h'] == pytest.approx(v['excavator.min_rate_kg_per_day'] / v['excavator.mining_h_per_day'])
     assert v['water.rodwell_kwh_per_kg'] == pytest.approx(v['rodwell.power_kw'] * 24 / v['rodwell.water_kg_per_day'])
 
 
@@ -35,7 +35,7 @@ def test_missing_quote_is_rejected(approved_package):
 
 def test_unknown_formula_name_is_rejected(approved_package):
     def bad(p):
-        p['parameters']['excavator.rate_kg_h']['formula'] = 'excavator.min_rate_kg_per_day/hours'
+        p['parameters']['excavator.mining_rate_kg_h']['formula'] = 'excavator.min_rate_kg_per_day/hours'
     edit(approved_package, bad)
     with pytest.raises(PackageError):
         load()

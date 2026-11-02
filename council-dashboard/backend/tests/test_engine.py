@@ -37,18 +37,20 @@ def test_readiness_time_matches_published_rates():
     tick_h = v['mars.day_length_h'] / 24
     s = run(new_state('fixed-priority'), 24 * 200)
     assert s['milestones']['ready'] and s['status'] == 'complete'
-    trench_ticks = math.ceil(v['habitat.trench_mass_kg'] / (2 * v['excavator.rate_kg_h'] * tick_h))
+    # D18: excavators mine on battery and recharge; averaged over a day they deliver the published daily rate.
+    trench_ticks = math.ceil(v['habitat.trench_mass_kg'] / (2 * v['excavator.min_rate_kg_per_day'] / 24 * tick_h))
     survey_ticks = math.ceil(v['rover.max_drive_m_per_sol'] / (v['rover.max_drive_m_per_sol'] / v['mars.day_length_h'] * tick_h) - 1e-9)
     sv = job_by_id(s, 'survey')
     assert sv['completed_tick'] - sv['started_tick'] == survey_ticks
-    assert job_by_id(s, 'trench')['completed_tick'] - job_by_id(s, 'trench')['started_tick'] in (trench_ticks, trench_ticks + 1)
+    took = job_by_id(s, 'trench')['completed_tick'] - job_by_id(s, 'trench')['started_tick']
+    assert abs(took - trench_ticks) <= 0.02 * trench_ticks, (took, trench_ticks)  # whole-step charging cycles
 
 
 def test_resources_equal_physical_ledger_and_energy_matches_power():
     s = run(new_state('fixed-priority'), 24 * 30)
     for r, value in s['resources'].items():
         assert value == pytest.approx(sum(e['amount'] for e in s['physical_ledger'] if e['resource'] == r))
-    assert s['energy_used_kwh'] == pytest.approx(sum(e['energy_kwh'] for e in s['physical_ledger'] if e['energy_kwh'] is not None))
+    assert s['energy_used_kwh'] == pytest.approx(sum(e['energy_kwh'] for e in s['physical_ledger'] if e['energy_kwh'] is not None) + s.get('charging_energy_kwh', 0.0))
     assert any(e['energy_kwh'] is None for e in s['physical_ledger'] if e['job_id'] == 'drill')
     assert s['spent_usd'] == pytest.approx(sum(e['amount_usd'] for e in s['ledger'] if e['kind'] == 'operations'))
 
@@ -63,7 +65,7 @@ def test_dependencies_assets_and_power_are_enforced():
     assert any('fission power not yet commissioned' in r or 'Waiting for deploy' in r for r in reasons(s2, job_by_id(s2, 'trench'), ['excavator-1']))
     assert any('Waiting for deploy' in r for r in reasons(s2, job_by_id(s2, 'drill'), ['rodwell-1']))
     start(s2, 'power', ['fsp-1'], 'deploy', 'test', ['oleson2022'])
-    with pytest.raises(InvalidAction, match='running'):
+    with pytest.raises(InvalidAction, match='review'):
         start(s2, 'power', ['fsp-1'], 'again', 'test', ['oleson2022'])
 
 
@@ -73,6 +75,8 @@ def test_power_commissioning_enables_grid():
     with pytest.raises(InvalidAction, match='not commissioned'):
         modify(s, {'power_capacity_kw': 10})
     start(s, 'power', ['fsp-1'], 'deploy', 'test', ['oleson2022'])
+    from mission.engine import assurance_decision, open_conditions
+    assurance_decision(s, 'power', True, 'Checked.', 'test', [c['id'] for c in open_conditions(s, job_by_id(s, 'power'))])
     s = run(s, 24 * 8)
     assert s['power_commissioned'] and s['power_capacity_kw'] == v['power.fsp_output_kwe']
     assert job_by_id(s, 'power')['completed_tick'] == math.ceil(v['fsp.deploy_total_h'] / (v['mars.day_length_h'] / 24) - 1e-9)
@@ -148,3 +152,70 @@ def test_standby_pauses_work_and_resumes():
     assert job_by_id(s, 'survey')['done'] > done and any(a['title'].endswith('resumed') for a in s['activity'])
     with pytest.raises(InvalidAction):
         set_standby(s, ['rover-1'], 2, 'x', 'director', '')
+
+
+def _meta_trench_running():
+    # Meta mission with grid power and the trench running on both excavators (dependencies marked done for the test).
+    from mission.engine import assurance_decision, open_conditions
+    s = new_state('meta')
+    s.update(power_capacity_kw=s['spec']['assets'][4]['output_kw'], power_commissioned=True, planning_needed=False)
+    for jid in ('power', 'survey'):
+        job_by_id(s, jid).update(status='complete', done=job_by_id(s, jid)['target'], progress=1.0)
+    start(s, 'trench', ['excavator-1', 'excavator-2'], 'dig', 'construction / test', ['rassor2016'])
+    assurance_decision(s, 'trench', True, 'ok', 'assurance / test', [c['id'] for c in open_conditions(s, job_by_id(s, 'trench'))])
+    s['failures_enabled'] = False
+    return s
+
+
+def test_batteries_drain_while_working_and_low_battery_asks_agents_to_replan():
+    from mission.engine import asset_by_id, step_energy_wh
+    v = load()['values']
+    s = _meta_trench_running()
+    s = advance(s)
+    a = asset_by_id(s, 'excavator-1')
+    assert a['soc_wh'] == pytest.approx(v['excavator.battery_wh'] - step_energy_wh(s, a))
+    while asset_by_id(s, 'excavator-1')['soc_wh'] >= step_energy_wh(s, a):
+        s['planning_needed'] = False
+        s = advance(s)
+    done = job_by_id(s, 'trench')['done']
+    s = advance(s)
+    assert s['planning_needed'] and any(x['title'].startswith('Battery low') for x in s['activity'])
+    assert job_by_id(s, 'trench')['done'] == done and job_by_id(s, 'trench')['reason'].startswith('Paused')
+
+
+def test_agents_recharge_from_grid_and_work_resumes():
+    from mission.engine import asset_by_id, step_energy_wh, charge
+    s = _meta_trench_running()
+    while asset_by_id(s, 'excavator-1')['soc_wh'] >= step_energy_wh(s, asset_by_id(s, 'excavator-1')):
+        s = advance(s)
+    used = s['power_used_kw']
+    charge(s, ['excavator-1', 'excavator-2'], 'Battery below one step of work.', 'director / test')
+    assert s['power_used_kw'] == pytest.approx(used + 2 * asset_by_id(s, 'excavator-1')['charge_kw'])
+    with pytest.raises(InvalidAction, match='already charging'):
+        charge(s, ['excavator-1'], 'again', 'director / test')
+    while asset_by_id(s, 'excavator-1')['charging']:
+        s = advance(s)
+    assert asset_by_id(s, 'excavator-1')['soc_wh'] == asset_by_id(s, 'excavator-1')['battery_wh'] and s['power_used_kw'] == pytest.approx(used)
+    done = job_by_id(s, 'trench')['done']
+    s = advance(s)
+    assert job_by_id(s, 'trench')['done'] > done
+
+
+def test_charging_needs_commissioned_grid_power():
+    from mission.engine import charge
+    s = new_state('meta')
+    with pytest.raises(InvalidAction, match='not commissioned'):
+        charge(s, ['excavator-1'], 'x', 'director / test')
+    with pytest.raises(InvalidAction, match='no battery'):
+        s.update(power_capacity_kw=40, power_commissioned=True)
+        charge(s, ['rover-1'], 'x', 'director / test')
+
+
+def test_work_behind_plan_asks_agents_to_replan_once():
+    s = _meta_trench_running()
+    from mission.engine import asset_by_id
+    asset_by_id(s, 'excavator-2')['standby_until_tick'] = s['tick'] + 5  # half the crew idle: behind the authorized rate
+    asset_by_id(s, 'excavator-2')['standby'] = {'reason': 'test'}
+    for _ in range(4):
+        s = advance(s)
+    assert len([x for x in s['activity'] if x['title'].endswith('behind plan')]) == 1 and s['planning_needed']

@@ -258,8 +258,7 @@ class Store:
         values = self._values
         tick_s = values['mars.sol_s'] / 24
         env = snapshot(now, values['comms.mars_soi_km'], self.status('dsn'),
-                       values['comms.conjunction_sun_sep_deg'], tick_s, previous['clock']['unix'] if previous else None,
-                       values['relay.mro_ascending_node_lmst_h'])
+                       values['comms.conjunction_sun_sep_deg'], tick_s, previous['clock']['unix'] if previous else None)
         env['clock']['dusty_season'] = env['clock']['ls_deg'] >= values['mars.dusty_season_start_ls_deg']
         if previous and now - previous['clock']['unix'] > 1.5 * tick_s:
             env['resumed_after_s'] = now - previous['clock']['unix']

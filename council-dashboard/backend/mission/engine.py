@@ -55,31 +55,55 @@ def asset_by_id(s, aid):
 
 
 def busy_assets(s, exclude=None):
-    return {aid for j in s['jobs'] if j['status'] in ('running', 'uplink') and j['id'] != exclude for aid in j['assigned']}
+    return {aid for j in s['jobs'] if j['status'] in ('running', 'review') and j['id'] != exclude for aid in j['assigned']}
 
 
-def uplink_gated(s, actor):
-    """D10: agent work orders are made on Earth and must be uplinked; the onboard fixed-priority scheduler is not gated."""
-    return s['mode'] == 'meta' and actor != 'fixed-priority' and s.get('environment') is not None
+def reviewed_onboard(s, actor):
+    """D10: Meta agents run onboard; their work orders pass onboard assurance review, then execute at once (no Earth uplink).
+    The fixed-priority benchmark scheduler is not reviewed."""
+    return s['mode'] == 'meta' and actor != 'fixed-priority'
 
 
-def send_uplink(s, j):
-    """Send a held work order if the Earth-Mars link is open now. Arrival after the one-way light time, in whole ticks."""
-    if j['uplink'].get('assurance') == 'pending':
-        return False
-    link = s['environment']['link']
-    if not link['uplink_open']:
-        j['reason'] = ('Held: solar conjunction, Mars within ' + f"{link['conjunction_threshold_deg']:g}" + ' deg of the Sun'
-                       if link['conjunction'] else 'Held: no DSN uplink to a spacecraft at Mars since the last tick')
-        return False
-    via = sorted({f"{l['station']} {l['dish']} to {l['spacecraft']}" for l in link.get('links', []) if l['direction'] == 'up'})
-    j['uplink'].update(sent_tick=s['tick'], arrival_tick=s['tick'] + link.get('delivery_ticks', link['light_ticks']), via=via, dsn=link['dsn'],
-                       light_s=s['environment']['geometry']['one_way_light_s'])
-    j['reason'] = 'Uplinked; arrives at tick ' + str(j['uplink']['arrival_tick'])
-    event(s, j['title'] + ' work order uplinked',
-          (('Via ' + ', '.join(via) + '. ') if via else (('DSN ' + link['dsn'] + '; not held by DSN. ') if link['dsn'] != 'live' else ''))
-          + f"One-way light time {j['uplink']['light_s'] / s['spec']['seconds_per_minute']:.1f} min.", j['id'])
-    return True
+def battery(a):
+    """D18: battery-powered units carry a state of charge (Wh)."""
+    return a.get('battery_wh') is not None
+
+
+def step_energy_wh(s, a):
+    """Battery energy one step of excavation needs: rate x step length x energy per kg (schuler2019, D18)."""
+    return a['rate_per_h'] * s['spec']['tick_hours'] * a['energy_wh_per_kg']
+
+
+def charge(s, asset_ids, reason, actor):
+    """Start recharging units from the fission grid. They do no work while charging and stop charging when full."""
+    if not s['power_commissioned']:
+        raise InvalidAction('No grid power: fission power is not commissioned, so batteries cannot be charged')
+    if not isinstance(reason, str) or not reason.strip():
+        raise InvalidAction('Charging needs a public reason')
+    for aid in asset_ids:
+        a = asset_by_id(s, aid)
+        if not battery(a):
+            raise InvalidAction(f'{aid} has no battery to charge')
+        if not a['available']:
+            raise InvalidAction(f'{aid} is unavailable')
+        if a.get('charging'):
+            raise InvalidAction(f'{aid} is already charging')
+        if a['soc_wh'] >= a['battery_wh'] - 1e-9:
+            raise InvalidAction(f'{aid} battery is already full')
+        if s['power_used_kw'] + a['charge_kw'] > s['power_capacity_kw'] + 1e-9:
+            raise InvalidAction(f'Not enough grid power to charge {aid}: {s["power_used_kw"]:.3f} of {s["power_capacity_kw"]} kW in use')
+        a['charging'] = True
+        a['low_flagged'] = False
+        s['power_used_kw'] += a['charge_kw']
+        event(s, 'Charging: ' + a['name'], f"{a['soc_wh']:.0f} of {a['battery_wh']:.0f} Wh. {reason}")
+    s.setdefault('charge_log', []).append({'tick': s['tick'], 'assets': list(asset_ids), 'reason': reason, 'actor': actor})
+
+
+def stop_charging(s, a, why):
+    if a.get('charging'):
+        a['charging'] = False
+        s['power_used_kw'] = max(0.0, s['power_used_kw'] - a['charge_kw'])
+        event(s, 'Charging ended: ' + a['name'], why)
 
 
 def demand_kw(s, asset_ids, j=None):
@@ -145,14 +169,14 @@ def start(s, jid, asset_ids, rationale, actor, source_ids):
          'validation': 'accepted', 'outcome': None}
     s['decisions'].append(d)
     s['power_used_kw'] += demand_kw(s, asset_ids, j)
-    if uplink_gated(s, actor):
-        # Equipment and power are reserved from authorization; work begins when the order reaches Mars.
-        j.update(status='uplink', assigned=list(asset_ids), decision_id=d['id'], reason='Awaiting assurance review before uplink',
-                 uplink={'queued_tick': s['tick'], 'sent_tick': None, 'arrival_tick': None, 'assurance': 'pending'})
-        d['uplink'] = j['uplink']
-        event(s, j['title'] + ' authorized on Earth', rationale, jid)
+    if reviewed_onboard(s, actor):
+        # Equipment and power are reserved from authorization; work begins as soon as onboard assurance approves.
+        j.update(status='review', assigned=list(asset_ids), decision_id=d['id'], reason='Awaiting onboard assurance review',
+                 authorization={'queued_tick': s['tick'], 'assurance': 'pending'})
+        d['authorization'] = j['authorization']
+        event(s, j['title'] + ' authorized onboard', rationale, jid)
         return d['id']
-    j.update(status='running', assigned=list(asset_ids), reason='', decision_id=d['id'],
+    j.update(status='running', assigned=list(asset_ids), reason='', decision_id=d['id'], run_since_tick=s['tick'], done_at_run=j['done'], behind_flagged=False,
              started_tick=j['started_tick'] if j['started_tick'] is not None else s['tick'])
     event(s, j['title'] + ' started', rationale, jid)
     return d['id']
@@ -164,15 +188,12 @@ SITE_JOBS = ('survey', 'trench', 'shielding', 'drill', 'water')
 def open_conditions(s, j):
     """Facts the simulator knows are unresolved for this work order. Assurance must acknowledge each one to approve."""
     out = []
-    env = s.get('environment')
-    if env:
-        link = env['link']
-        if link['conjunction']:
-            out.append({'id': 'conjunction', 'text': 'Solar conjunction: uplinks are held'})
-        if link['dsn'] != 'live':
-            out.append({'id': 'dsn-' + link['dsn'].split()[0], 'text': 'DSN status: ' + link['dsn'] + ('; ' + link['dsn_error'] if link.get('dsn_error') else '')})
-        elif not link['uplink_open']:
-            out.append({'id': 'no-uplink-window', 'text': 'No DSN uplink to Mars since the last tick; the order will wait'})
+    units = [asset_by_id(s, a) for a in j['assigned']]
+    if any(battery(a) for a in units) and not s['power_commissioned']:
+        out.append({'id': 'no-grid-charging', 'text': 'Batteries cannot be recharged until fission power is commissioned'})
+    low = [a['id'] for a in units if battery(a) and a['soc_wh'] < step_energy_wh(s, a)]
+    if low:
+        out.append({'id': 'battery-low', 'text': 'Battery too low for one step of work: ' + ', '.join(low)})
     if j['id'] in SITE_JOBS:
         img = s.get('site_imagery')
         if not img:
@@ -187,7 +208,7 @@ def open_conditions(s, j):
 def assurance_decision(s, jid, approve, reason, actor, acknowledged=None):
     """Assurance review of an authorized, unsent work order. A hold releases equipment and power and escalates to the director."""
     j = job_by_id(s, jid)
-    if j['status'] != 'uplink' or j['uplink'].get('assurance') != 'pending':
+    if j['status'] != 'review' or j['authorization'].get('assurance') != 'pending':
         raise InvalidAction(f'{jid} has no work order awaiting assurance')
     if not isinstance(reason, str) or not reason.strip():
         raise InvalidAction('Assurance must give a reason')
@@ -200,13 +221,14 @@ def assurance_decision(s, jid, approve, reason, actor, acknowledged=None):
     d = next(x for x in s['decisions'] if x['id'] == j['decision_id'])
     d['assurance'] = review
     if approve:
-        j['uplink']['assurance'] = 'approved'
-        event(s, j['title'] + ' passed assurance', reason, jid)
-        send_uplink(s, j)
+        j['authorization']['assurance'] = 'approved'
+        j.update(status='running', reason='', run_since_tick=s['tick'], done_at_run=j['done'], behind_flagged=False,
+                 started_tick=j['started_tick'] if j['started_tick'] is not None else s['tick'])
+        event(s, j['title'] + ' passed onboard assurance and started', reason, jid)
     else:
         d['validation'] = 'held by assurance'
         release(s, j, 'blocked', 'Held by assurance: ' + reason)
-        j.pop('uplink', None)
+        j.pop('authorization', None)
         s.setdefault('department_conflicts', []).append({'role': 'assurance', 'tick': s['tick'], 'summary': f'{jid}: {reason}', 'status': 'unresolved'})
         event(s, j['title'] + ' held by assurance', reason, jid)
         s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
@@ -247,7 +269,7 @@ def apply_environment(s, env):
         replan = True
     if env['link']['conjunction'] != prev['link']['conjunction']:
         event(s, 'Solar conjunction ' + ('began' if env['link']['conjunction'] else 'ended'),
-              f"Sun-Mars separation {env['geometry']['sun_mars_separation_deg']:.2f} deg seen from Earth; uplinks " + ('held.' if env['link']['conjunction'] else 'resume.'))
+              f"Sun-Mars separation {env['geometry']['sun_mars_separation_deg']:.2f} deg seen from Earth; Earth contact " + ('interrupted; the outpost continues on its own.' if env['link']['conjunction'] else 'restored.'))
         replan = True
     if env['clock']['season'] != prev['clock']['season']:
         event(s, 'Season changed', f"{env['clock']['season'].capitalize()} began at Ls {env['clock']['ls_deg']:.1f} deg (Mars year {env['clock']['mars_year']}).")
@@ -304,6 +326,20 @@ def advance(state, env=None):
             release(s, j, 'blocked', 'Execution stopped: ' + ('equipment unavailable' if lost else 'power capacity below allocated demand'))
             event(s, j['title'] + ' stopped', j['reason'], j['id'])
             s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
+    # D18: charging units take grid power and refill; they stop on their own when full or if the unit fails.
+    charged_now = set()  # a unit that charged during this step does no work in it
+    for a in [a for a in s['assets'] if a.get('charging')]:
+        charged_now.add(a['id'])
+        if not a['available']:
+            stop_charging(s, a, 'Unit unavailable.')
+            continue
+        added = min(a['charge_kw'] * s['spec']['wh_per_kwh'] * hours, a['battery_wh'] - a['soc_wh'])
+        a['soc_wh'] += added
+        s['energy_used_kwh'] += added / s['spec']['wh_per_kwh']
+        s['charging_energy_kwh'] = s.get('charging_energy_kwh', 0.0) + added / s['spec']['wh_per_kwh']
+        if a['soc_wh'] >= a['battery_wh'] - 1e-9:
+            a['soc_wh'] = a['battery_wh']
+            stop_charging(s, a, 'Battery full.')
     for j in s['jobs']:
         if j['status'] != 'running':
             continue
@@ -314,7 +350,22 @@ def advance(state, env=None):
         if j['reason'].startswith('Standby'):
             j['reason'] = ''
             event(s, j['title'] + ' resumed', 'Standby ended.', j['id'])
-        amount = min(rate_per_tick(s, j['assigned'], j), j['target'] - j['done'])
+        units = [asset_by_id(s, a) for a in j['assigned']]
+        empty = [a for a in units if battery(a) and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]
+        for a in empty:
+            if not a.get('low_flagged'):
+                a['low_flagged'] = True
+                event(s, 'Battery low: ' + a['name'], f"{a['soc_wh']:.0f} Wh left; one step of work needs {step_energy_wh(s, a):.0f} Wh. Work paused until recharged.", j['id'])
+                s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
+        working = [a for a in units if not a.get('charging') and a['id'] not in charged_now and a not in empty]
+        if not working:
+            j['reason'] = 'Paused: ' + ('charging' if any(a.get('charging') for a in units) else 'batteries too low; recharge needed')
+            continue
+        if j['reason'].startswith('Paused'):
+            j['reason'] = ''
+        amount = min(rate_per_tick(s, [a['id'] for a in working], j), j['target'] - j['done'])
+        for a in [a for a in working if battery(a)]:
+            a['soc_wh'] = max(0.0, a['soc_wh'] - amount / len(working) * a['energy_wh_per_kg'])
         if j.get('power_per_asset_kw', 0.0) is None:
             energy = None
             s['energy_unestimated_hours'][j['id']] = s['energy_unestimated_hours'].get(j['id'], 0.0) + hours
@@ -345,6 +396,17 @@ def advance(state, env=None):
                     d['outcome'] = {'completed_tick': s['tick'], 'resources': deepcopy(s['resources'])}
             event(s, j['title'] + ' completed', f"{j['target']:.6g} {j['unit']} recorded by the simulator.", j['id'])
             s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
+    # Plan vs actual: more than one step of work behind the authorized rate (for any reason: standby, batteries,
+    # charging) asks the agents to replan, once per authorization.
+    for j in [j for j in s['jobs'] if j['status'] == 'running' and j.get('run_since_tick') is not None and not j.get('behind_flagged')]:
+        d = next((x for x in s['decisions'] if x['id'] == j.get('decision_id')), None)
+        if d:
+            expected = d['calculation']['rate_per_tick'] * (s['tick'] - j['run_since_tick'])
+            actual = j['done'] - j.get('done_at_run', 0.0)
+            if expected - actual > d['calculation']['rate_per_tick'] + 1e-9:
+                j['behind_flagged'] = True
+                event(s, j['title'] + ' behind plan', f"{actual:.6g} {j['unit']} done against {expected:.6g} expected at the authorized rate.", j['id'])
+                s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
     for o in s.get('orders', []):
         if o['status'] == 'in transit' and s['tick'] >= o['arrival_tick']:
             o['status'] = 'delivered'
@@ -352,25 +414,16 @@ def advance(state, env=None):
             s['faults'].append({'tick': s['tick'], 'kind': 'equipment', 'asset_id': o['asset_id'], 'available': True, 'order': o['id']})
             event(s, 'Replacement delivered: ' + o['asset_name'], f"Order {o['id']} arrived ({o['arrival_utc'].split('T')[0]}).")
             s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
-    # Held work orders: send when the link opens; start when the order has reached Mars.
-    for j in [j for j in s['jobs'] if j['status'] == 'uplink']:
-        if j['uplink']['sent_tick'] is None:
-            send_uplink(s, j)
-        elif s['tick'] >= j['uplink']['arrival_tick']:
-            lost = [a for a in j['assigned'] if not asset_by_id(s, a)['available']]
-            if lost:
-                release(s, j, 'blocked', 'Work order arrived but equipment is unavailable')
-                event(s, j['title'] + ' could not start', j['reason'], j['id'])
-                s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
-            else:
-                j.update(status='running', reason='', started_tick=j['started_tick'] if j['started_tick'] is not None else s['tick'])
-                event(s, j['title'] + ' started', 'Work order received on Mars at tick ' + str(s['tick']) + '.', j['id'])
     if all(s['milestones'][k] for k in s['spec']['readiness']['jobs']) and not s['milestones']['ready']:
         s['milestones']['ready'] = True
         s['readiness_tick'] = s['tick']
         s['status'] = 'complete'
         event(s, 'Readiness criteria met', s['spec']['readiness']['description'] + ' Simulation result, not engineering certification.')
     if s['mode'] == 'fixed-priority' and s['status'] == 'active':
+        # The benchmark charges any battery that cannot supply the next step, when grid power allows.
+        for a in [a for a in s['assets'] if battery(a) and a['available'] and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]:
+            try:charge(s, [a['id']], 'Battery below one step of work.', 'fixed-priority')
+            except InvalidAction:pass
         for jid in s['priority']:
             j = job_by_id(s, jid)
             if j['status'] in ('pending', 'blocked'):
