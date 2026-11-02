@@ -20,7 +20,8 @@ def forecast(state,horizon=24*400):
     s=deepcopy(state);s.update(mode='fixed-priority',status='active',planning_needed=False,failures_enabled=False)
     s.pop('planning_claim',None)
     for _ in range(horizon):
-        if s['status']!='active':break
+        # Operations continue after readiness; the projection stops once readiness is met and no work or charging remains.
+        if s['milestones']['ready'] and not any(j['status'] in ('running','review') for j in s['jobs']) and not any(a.get('charging') for a in s['assets']):break
         s=advance(s)
     rows=[]
     for original in state['jobs']:
@@ -43,8 +44,10 @@ def _with_spec(state, spec):
     """Current progress with targets and rates from an alternative specification."""
     s=deepcopy(state)
     by_id={j['id']:j for j in spec['jobs']};assets={a['id']:a for a in spec['assets']}
+    templates={t['template_id']:t for t in spec.get('templates',[])}
     for j in s['jobs']:
-        alt=by_id[j['id']]
+        # Work created from a template (create_job) takes its targets and rates from that template.
+        alt=templates[j['template_id']] if j.get('template_id') else by_id[j['id']]
         for k in ('target','rate_per_asset_h','power_per_asset_kw'):
             if k in alt:j[k]=alt[k]
         if j['done']>j['target']:j['done']=j['target']

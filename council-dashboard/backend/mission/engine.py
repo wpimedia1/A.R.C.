@@ -80,6 +80,10 @@ def charge(s, asset_ids, reason, actor):
         raise InvalidAction('No grid power: fission power is not commissioned, so batteries cannot be charged')
     if not isinstance(reason, str) or not reason.strip():
         raise InvalidAction('Charging needs a public reason')
+    if not isinstance(asset_ids, list) or not asset_ids or len(set(asset_ids)) != len(asset_ids):
+        raise InvalidAction('Charging needs a list of distinct units')
+    # The whole command is validated before anything changes: a rejected command leaves the state untouched.
+    units, needed = [], 0.0
     for aid in asset_ids:
         a = asset_by_id(s, aid)
         if not battery(a):
@@ -90,8 +94,12 @@ def charge(s, asset_ids, reason, actor):
             raise InvalidAction(f'{aid} is already charging')
         if a['soc_wh'] >= a['battery_wh'] - 1e-9:
             raise InvalidAction(f'{aid} battery is already full')
-        if s['power_used_kw'] + a['charge_kw'] > s['power_capacity_kw'] + 1e-9:
-            raise InvalidAction(f'Not enough grid power to charge {aid}: {s["power_used_kw"]:.3f} of {s["power_capacity_kw"]} kW in use')
+        needed += a['charge_kw']
+        units.append(a)
+    if s['power_used_kw'] + needed > s['power_capacity_kw'] + 1e-9:
+        raise InvalidAction(f'Not enough grid power to charge {", ".join(asset_ids)}: needs {needed:.3f} kW; '
+                            f'{s["power_used_kw"]:.3f} of {s["power_capacity_kw"]} kW in use')
+    for a in units:
         a['charging'] = True
         a['low_flagged'] = False
         s['power_used_kw'] += a['charge_kw']
@@ -106,11 +114,21 @@ def stop_charging(s, a, why):
         event(s, 'Charging ended: ' + a['name'], why)
 
 
+def power_known(j):
+    """False when the job's power draw is not published (power_per_asset_kw is None)."""
+    return j is None or j.get('power_per_asset_kw', 0.0) is not None
+
+
 def demand_kw(s, asset_ids, j=None):
-    """Grid power for these assets on this job. A job may override per-asset power; None means unpublished (counted as 0, flagged)."""
+    """Grid power for these assets on this job, or None when the job's power draw is not published (unknown, not zero)."""
     if j is not None and 'power_per_asset_kw' in j:
-        return (j['power_per_asset_kw'] or 0.0) * len(asset_ids)
+        return None if j['power_per_asset_kw'] is None else j['power_per_asset_kw'] * len(asset_ids)
     return sum(asset_by_id(s, a)['grid_power_kw'] for a in asset_ids)
+
+
+def reserved_kw(s, asset_ids, j=None):
+    """Power booked on the grid ledger. An unpublished draw books nothing and is reported as unvalidated, never as 0 kW."""
+    return demand_kw(s, asset_ids, j) or 0.0
 
 
 def reasons(s, j, asset_ids=None):
@@ -138,7 +156,15 @@ def reasons(s, j, asset_ids=None):
             out.append(f"{a['name']} is assigned to other work")
     if len(set(asset_ids)) != len(asset_ids):
         out.append('Duplicate equipment assignment')
-    if not out and s['power_used_kw'] + demand_kw(s, asset_ids, j) > s['power_capacity_kw'] + 1e-9:
+    if j['id'] == 'survey' and j.get('route_blocked'):
+        out.append('No hazard-free route across the analysed site image: ' + j['route_blocked']['status'] + ' (D13)')
+    if not out and not power_known(j):
+        # Unknown draw: the job cannot be checked against capacity. It may run only on a commissioned grid with spare
+        # capacity, and its decision is recorded as not physically validated for power.
+        if not s['power_commissioned'] or s['power_capacity_kw'] - s['power_used_kw'] <= 1e-9:
+            out.append('Power draw is not published and no grid capacity is unallocated'
+                       + ('' if s['power_commissioned'] else ' (fission power not yet commissioned)'))
+    elif not out and s['power_used_kw'] + demand_kw(s, asset_ids, j) > s['power_capacity_kw'] + 1e-9:
         out.append(f"Needs {demand_kw(s, asset_ids, j):.3g} kW; {s['power_capacity_kw'] - s['power_used_kw']:.3g} kW unallocated"
                    + ('' if s['power_commissioned'] else ' (fission power not yet commissioned)'))
     return out
@@ -165,10 +191,11 @@ def start(s, jid, asset_ids, rationale, actor, source_ids):
          'input_snapshot': {'resources': deepcopy(s['resources']), 'power_used_kw': s['power_used_kw'],
                             'power_capacity_kw': s['power_capacity_kw']},
          'calculation': {'target': j['target'], 'unit': j['unit'], 'rate_per_tick': rate_per_tick(s, asset_ids, j),
-                         'power_kw': demand_kw(s, asset_ids, j), 'power_published': j.get('power_per_asset_kw', 0.0) is not None},
-         'validation': 'accepted', 'outcome': None}
+                         'power_kw': demand_kw(s, asset_ids, j), 'power_published': power_known(j)},
+         'validation': 'accepted' if power_known(j) else 'accepted; power not physically validated (draw not published)',
+         'outcome': None}
     s['decisions'].append(d)
-    s['power_used_kw'] += demand_kw(s, asset_ids, j)
+    s['power_used_kw'] += reserved_kw(s, asset_ids, j)
     if reviewed_onboard(s, actor):
         # Equipment and power are reserved from authorization; work begins as soon as onboard assurance approves.
         j.update(status='review', assigned=list(asset_ids), decision_id=d['id'], reason='Awaiting onboard assurance review',
@@ -200,8 +227,8 @@ def open_conditions(s, j):
             out.append({'id': 'no-site-imagery', 'text': 'No orbital hazard imagery of the mission site has been analysed'})
         elif not img['applies_to_site']:
             out.append({'id': 'proxy-site-imagery', 'text': 'Orbital detections are from a proxy image (' + img['site_relation'] + '), not the mission site'})
-    if j.get('power_per_asset_kw', 0.0) is None:
-        out.append({'id': 'energy-not-estimated', 'text': 'Energy use for this job is not published and is not estimated'})
+    if not power_known(j):
+        out.append({'id': 'energy-not-estimated', 'text': 'Power draw for this job is not published: it is not checked against grid capacity and its energy use is not estimated'})
     return out
 
 
@@ -288,7 +315,7 @@ def rate_per_tick(s, asset_ids, j=None):
 
 
 def release(s, j, status, reason=''):
-    s['power_used_kw'] = max(0.0, s['power_used_kw'] - demand_kw(s, j['assigned'], j))
+    s['power_used_kw'] = max(0.0, s['power_used_kw'] - reserved_kw(s, j['assigned'], j))
     j.update(status=status, reason=reason, assigned=[])
 
 
@@ -319,20 +346,28 @@ def advance(state, env=None):
                 a['available'] = False
                 s['faults'].append({'tick': s['tick'], 'kind': 'failure', 'asset_id': aid, 'available': False, 'basis': 'D14 failure rate'})
                 event(s, a['name'] + ' failed', f"Random failure while working on {j['title'].lower()} (D14: rate {rate:.3g}/h, source stancliff2005).", j['id'])
-    # Power loss or equipment failure holds work; nothing proceeds on an overloaded grid.
-    for j in sorted([j for j in s['jobs'] if j['status'] == 'running'], key=lambda j: s['priority'].index(j['id'])):
+    # Power loss or equipment failure holds work. Jobs (running or awaiting assurance) and chargers book power on the same
+    # ledger (power_used_kw); while booked power exceeds supply, reservations are released until it fits.
+    for a in [a for a in s['assets'] if a.get('charging') and not a['available']]:
+        stop_charging(s, a, 'Unit unavailable.')
+    for j in sorted([j for j in s['jobs'] if j['status'] in ('running', 'review')], key=lambda j: s['priority'].index(j['id'])):
         lost = [a for a in j['assigned'] if not asset_by_id(s, a)['available']]
         if lost or s['power_used_kw'] > s['power_capacity_kw'] + 1e-9:
+            if j['status'] == 'review':
+                j.pop('authorization', None)
+                d = next((x for x in s['decisions'] if x['id'] == j['decision_id']), None)
+                if d: d['validation'] = 'withdrawn before assurance review: ' + ('equipment unavailable' if lost else 'power supply below booked demand')
             release(s, j, 'blocked', 'Execution stopped: ' + ('equipment unavailable' if lost else 'power capacity below allocated demand'))
             event(s, j['title'] + ' stopped', j['reason'], j['id'])
             s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
-    # D18: charging units take grid power and refill; they stop on their own when full or if the unit fails.
+    for a in [a for a in s['assets'] if a.get('charging')]:
+        if s['power_used_kw'] > s['power_capacity_kw'] + 1e-9:
+            stop_charging(s, a, f"Grid supply {s['power_capacity_kw']} kW is below booked demand; charging interrupted.")
+            s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
+    # D18: charging units take booked grid power and refill; they stop on their own when full.
     charged_now = set()  # a unit that charged during this step does no work in it
     for a in [a for a in s['assets'] if a.get('charging')]:
         charged_now.add(a['id'])
-        if not a['available']:
-            stop_charging(s, a, 'Unit unavailable.')
-            continue
         added = min(a['charge_kw'] * s['spec']['wh_per_kwh'] * hours, a['battery_wh'] - a['soc_wh'])
         a['soc_wh'] += added
         s['energy_used_kwh'] += added / s['spec']['wh_per_kwh']
@@ -366,7 +401,7 @@ def advance(state, env=None):
         amount = min(rate_per_tick(s, [a['id'] for a in working], j), j['target'] - j['done'])
         for a in [a for a in working if battery(a)]:
             a['soc_wh'] = max(0.0, a['soc_wh'] - amount / len(working) * a['energy_wh_per_kg'])
-        if j.get('power_per_asset_kw', 0.0) is None:
+        if not power_known(j):
             energy = None
             s['energy_unestimated_hours'][j['id']] = s['energy_unestimated_hours'].get(j['id'], 0.0) + hours
         else:
@@ -417,8 +452,8 @@ def advance(state, env=None):
     if all(s['milestones'][k] for k in s['spec']['readiness']['jobs']) and not s['milestones']['ready']:
         s['milestones']['ready'] = True
         s['readiness_tick'] = s['tick']
-        s['status'] = 'complete'
-        event(s, 'Readiness criteria met', s['spec']['readiness']['description'] + ' Simulation result, not engineering certification.')
+        # Readiness is a milestone, not the end of operations: added work, charging and failures continue afterwards.
+        event(s, 'Readiness criteria met', s['spec']['readiness']['description'] + ' Operations continue. Simulation result, not engineering certification.')
     if s['mode'] == 'fixed-priority' and s['status'] == 'active':
         # The benchmark charges any battery that cannot supply the next step, when grid power allows.
         for a in [a for a in s['assets'] if battery(a) and a['available'] and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]:
@@ -439,7 +474,7 @@ def advance(state, env=None):
             if j['status'] in ('pending', 'blocked'):
                 j['reason'] = '; '.join(reasons(s, j)) or 'Awaiting an agent work order'
     assert all(v >= -1e-9 for v in s['resources'].values())
-    assert s['power_used_kw'] <= s['power_capacity_kw'] + 1e-9 or not any(j['status'] == 'running' for j in s['jobs'])
+    assert s['power_used_kw'] <= s['power_capacity_kw'] + 1e-9
     return s
 
 
@@ -515,15 +550,27 @@ def instantiate_job(s, template_id, actor, summary):
     return jid
 
 
+BASIS_KINDS = ('weather-obs', 'weather-estimate', 'weather-check')
+BASIS_KEYS = {'observation_id', 'kind', 'station', 'variable', 'value', 'record_hash', 'interpretation'}
+
+
 def set_standby(s, asset_ids, ticks, reason, actor, basis):
     """Agent-ordered protective standby: the units do no work for `ticks` ticks. Jobs keep their authorization and resume
-    automatically. `basis` must cite the measurement or estimate the decision rests on (measured/estimated/checked records)."""
+    automatically. `basis` is a list of observation references already resolved against stored records
+    (nowcast.resolve_basis): observation id, kind, station, variable, the stored value, record hash and the agent's
+    interpretation. The whole command is validated before anything changes."""
     if not isinstance(ticks, int) or ticks < 1 or ticks > s['spec']['standby_max_ticks']:
         raise InvalidAction('Standby must be between 1 and ' + str(s['spec']['standby_max_ticks']) + ' ticks')
-    if not isinstance(reason, str) or not reason.strip() or not basis:
-        raise InvalidAction('Standby needs a public reason and the measurement or estimate it is based on')
-    for aid in asset_ids:
-        a = asset_by_id(s, aid)
+    if not isinstance(reason, str) or not reason.strip():
+        raise InvalidAction('Standby needs a public reason')
+    if not isinstance(basis, list) or not basis or any(not isinstance(b, dict) or set(b) != BASIS_KEYS or b['kind'] not in BASIS_KINDS
+                                                       or not isinstance(b['interpretation'], str) or not b['interpretation'].strip() for b in basis):
+        raise InvalidAction('Standby needs resolved observation references (stored measurement, estimate or check) with an interpretation')
+    if not isinstance(asset_ids, list) or not asset_ids or len(set(asset_ids)) != len(asset_ids):
+        raise InvalidAction('Standby needs a list of distinct units')
+    units = [asset_by_id(s, aid) for aid in asset_ids]
+    for a in units:
+        aid = a['id']
         a['standby_until_tick'] = s['tick'] + ticks
         a['standby'] = {'from_tick': s['tick'], 'until_tick': s['tick'] + ticks, 'reason': reason, 'actor': actor, 'basis': basis}
     s.setdefault('standby_log', []).append({'tick': s['tick'], 'assets': list(asset_ids), 'ticks': ticks, 'reason': reason, 'actor': actor, 'basis': basis})

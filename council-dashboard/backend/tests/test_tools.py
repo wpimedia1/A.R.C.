@@ -41,7 +41,14 @@ def test_observation_withholds_priority_and_conflicts():
 def test_assessment_validation():
     s = new_state('meta')
     s['source_pins'] = {'arcadia-mars-v1': 'x'}
-    ok = validate_assessment(s, 'survey', {'summary': 'go', 'recommended_jobs': ['survey'], 'missing_information': [], 'source_ids': ['arcadia-mars-v1']})
+    judge = [{'job_id': j['id'], 'judgement': 'proceed' if j['id'] == 'survey' else 'hold'} for j in s['jobs']]
+    base = {'summary': 'go', 'recommended_jobs': ['survey'], 'job_judgements': judge, 'missing_information': [], 'source_ids': ['arcadia-mars-v1']}
+    ok = validate_assessment(s, 'survey', base)
     assert ok['recommended_jobs'] == ['survey']
-    with pytest.raises(InvalidAction):
-        validate_assessment(s, 'survey', {'summary': 'go', 'recommended_jobs': ['water'], 'missing_information': [], 'source_ids': ['arcadia-mars-v1']})
+    for bad in ({**base, 'recommended_jobs': ['water']},           # another department's job
+                {**base, 'job_judgements': judge[:-1]},           # every open job must be judged
+                {**base, 'job_judgements': judge + judge[:1]},    # exactly once
+                {**base, 'job_judgements': [{**judge[0], 'judgement': 'maybe'}] + judge[1:]},
+                {k: v for k, v in base.items() if k != 'job_judgements'}):
+        with pytest.raises(InvalidAction):
+            validate_assessment(s, 'survey', bad)

@@ -1,8 +1,8 @@
 # Production override for any Docker host (cloud VM, Docker-enabled cloud service).
 #   cp deploy/env.example .env      # fill in values; .env is git-ignored
 #   docker compose -f compose.yaml -f compose.prod.yaml up -d --build
-# Genesis happens on the first start against an empty database volume. To start over from a new genesis:
-#   docker compose -f compose.yaml -f compose.prod.yaml down -v   (deletes the mission record permanently)
+# Genesis happens when the operator presses Start (operator token). After an upgrade that changes the package or engine,
+# the earlier mission is archived with its full history and Start begins a new genesis beside it; nothing is deleted.
 services:
   database:
     environment:
@@ -13,6 +13,7 @@ services:
       DATABASE_URL: postgresql+psycopg://mission:${POSTGRES_PASSWORD}@database/mission
       COOKIE_SECURE: "true"
       PUBLIC_ORIGIN: https://${DOMAIN:?Set DOMAIN in .env}
+      MISSION_OPERATOR_TOKEN: ${MISSION_OPERATOR_TOKEN:?Set MISSION_OPERATOR_TOKEN in .env}
       MISSION_VISITOR_DAILY_LIMIT_USD: ${MISSION_VISITOR_DAILY_LIMIT_USD:-0}
       MISSION_VISITOR_MONTHLY_LIMIT_USD: ${MISSION_VISITOR_MONTHLY_LIMIT_USD:-0}
     healthcheck:

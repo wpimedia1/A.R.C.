@@ -51,8 +51,8 @@ function SurveyLine({a,s}:{a:Asset;s:State}){
  const jobs=surveyJobs(s);if(!jobs.length)return null;
  const planned=jobs.reduce((t,x)=>t+x.target,0),driven=jobs.reduce((t,x)=>t+x.done,0);const main=jobs.find(x=>x.id==='survey');
  const y=.08,x0=a.position[0],z=a.position[2];
- const route=(main as unknown as {route?:{detour_factor:number;base_target:number}}|undefined)?.route;
- const label=`Survey drive ${fmt(driven,1)} / ${fmt(planned,2)} m`+(route?` · hazard detour ×${route.detour_factor} applied (SAM, D13)`:' · no hazard detour applied');
+ const survey=main as unknown as {route?:{detour_factor:number;base_target:number};route_blocked?:{status:string}}|undefined;const route=survey?.route;
+ const label=`Survey drive ${fmt(driven,1)} / ${fmt(planned,2)} m`+(survey?.route_blocked?` · blocked: ${survey.route_blocked.status} (SAM, D13)`:route?` · hazard detour ×${route.detour_factor} applied (SAM, D13)`:' · no hazard detour applied');
  return <><Line points={[[x0,y,z],[x0+planned,y,z]]} color="#f4e3c8" lineWidth={1.5} dashed dashSize={1.2} gapSize={.8}/>
   {driven>0&&<Line points={[[x0,y+.01,z],[x0+driven,y+.01,z]]} color="#ffd27a" lineWidth={3}/>}
   <Html position={[x0+planned,1.2,z]} center><span className="scene-chip">{label}</span></Html></>;

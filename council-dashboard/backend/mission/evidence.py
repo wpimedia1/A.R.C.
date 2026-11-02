@@ -46,21 +46,23 @@ def refresh(store, transport=None):
 
 def adopt_latest(store, mid='public'):
     """Explicit evidence adoption; forks keep their original source versions."""
-    from copy import deepcopy
     with store.transaction() as db:
-        m=store.row(db,mid); state=deepcopy(m.state); changed=[]
+        latest_pins={}
         for source in SOURCES:
             versions=db.scalars(select(SourceVersion).where(SourceVersion.source_id==source['id'])).all()
             valid=[v for v in versions if v.record.get('retrieved_at')]
             if not valid: continue
             scientific=[v for v in valid if v.record.get('passages') or v.record.get('observations') or v.record.get('image_url')]
             if scientific:valid=scientific
-            latest=max(valid,key=lambda v:v.record['retrieved_at'])
-            if state['source_pins'][source['id']]!=latest.id:
-                state['source_pins'][source['id']]=latest.id; changed.append(source['id'])
-        if changed:
+            latest_pins[source['id']]=max(valid,key=lambda v:v.record['retrieved_at']).id
+        current=store.row(db,mid).state['source_pins']
+        changed=[k for k,v in latest_pins.items() if current.get(k)!=v]
+    if changed:
+        def adopt(state):
+            state['source_pins'].update({k:latest_pins[k] for k in changed})
             state['planning_needed']=state['mode']=='meta'
-            store.save(db,m,state,{'kind':'adopt-evidence','sources':changed,'note':'Catalog context only; no physical parameter changed'})
+        # Applied only between planning cycles: a plan in progress is never overwritten.
+        store.commit_unclaimed(mid,adopt,{'kind':'adopt-evidence','sources':changed,'note':'Catalog context only; no physical parameter changed'})
     return changed
 
 if __name__=='__main__':

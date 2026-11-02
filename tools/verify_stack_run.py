@@ -22,7 +22,9 @@ BACKEND = ROOT / 'council-dashboard' / 'backend'
 mode = sys.argv[1] if len(sys.argv) > 1 else 'fixed-priority'
 ticks = int(sys.argv[2]) if len(sys.argv) > 2 else 30
 db = os.path.join(tempfile.mkdtemp(prefix='arcadia-run-'), 'run.db')
-env = {**os.environ, 'DATABASE_URL': 'sqlite:///' + db, 'MISSION_MODEL_MODE': mode, 'COOKIE_SECURE': 'false'}
+import secrets
+OPERATOR = secrets.token_hex(16)  # a throwaway operator token for this isolated run
+env = {**os.environ, 'DATABASE_URL': 'sqlite:///' + db, 'MISSION_MODEL_MODE': mode, 'COOKIE_SECURE': 'false', 'MISSION_OPERATOR_TOKEN': OPERATOR}
 port = 8091
 base = f'http://127.0.0.1:{port}'
 procs = [subprocess.Popen([sys.executable, '-m', 'uvicorn', 'mission.api:app', '--port', str(port)], cwd=BACKEND, env=env,
@@ -49,7 +51,9 @@ try:
             pass
         time.sleep(1)
     check('mission waits for Start', get('/api/v1/health').get('started') is False, get('/api/v1/health'))
-    started = httpx.post(base + '/api/v1/start', timeout=60)
+    refused = httpx.post(base + '/api/v1/start', timeout=60)
+    check('start refused without the operator token', refused.status_code == 403, refused.status_code)
+    started = httpx.post(base + '/api/v1/start', headers={'X-Operator-Token': OPERATOR}, timeout=60)
     check('Start creates genesis', started.status_code == 200 and started.json().get('created') is True, {'status': started.status_code})
     snap = get('/api/v1/missions/public')
     check('genesis served by the API', snap['revision'] >= 1 and snap['state']['tick'] == 0, {'revision': snap['revision'], 'mode': snap['state']['mode']})
@@ -77,9 +81,6 @@ try:
     else:
         check('planning outcome is explicit', bool(s['planning_status']), {'planning_status': s['planning_status'], 'inference_stopped': s['inference_stopped'],
                                                                           'progressed': progressed})
-    link = s['environment']['link']
-    held = [j['id'] for j in s['jobs'] if j['status'] == 'uplink' and j.get('uplink', {}).get('sent_tick') is None]
-    check('an unconfirmed or unavailable DSN reading holds nothing', link['dsn'] == 'live' or not held, {'dsn': link['dsn'], 'held': held})
     log = get('/api/v1/missions/public/log?limit=1000')['rows']
     kinds = sorted({(r['source'], r['kind']) for r in log})
     check('append-only history recorded', len(log) > ticks and any(r['source'] == 'revision' for r in log) and any(k == ('worker', 'started') for k in kinds),

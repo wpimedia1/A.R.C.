@@ -143,6 +143,22 @@ class Store:
         db.add(Revision(id=str(uuid.uuid4()), mission_id=m.id, revision=m.revision,
                         operation=operation, state=deepcopy(state), hash=digest(state), created=time.time()))
 
+    def commit_unclaimed(self, mid, mutate, operation, wait_s=900, poll_s=5):
+        """Apply a background update (new evidence) only while no planning claim is open, so a plan in progress is never
+        overwritten and never silently made stale. Waits for the claim to close (claims are recovered after 600 s)."""
+        deadline = time.time() + wait_s
+        while True:
+            with self.transaction() as db:
+                m = self.row(db, mid)
+                if not m.state.get('planning_claim'):
+                    s = deepcopy(m.state)
+                    mutate(s)
+                    self.save(db, m, s, operation)
+                    return m.revision
+            if time.time() > deadline:
+                raise InvalidAction(f"Planning stayed open for {wait_s} s; {operation['kind']} not applied")
+            time.sleep(poll_s)
+
     def initialize(self):
         """Check, then create the public mission if absent. Used by tests and operator tools; the API and worker
         never call this: they only check(), and genesis waits for a user to press Start (genesis())."""
@@ -154,22 +170,42 @@ class Store:
             return db.get(Mission, 'public') is not None
 
     def check(self):
-        """Validate the database against the current package. Returns True if the public mission exists, False if it
-        has not been started. Raises if a mission recorded under another package or engine version is present."""
-        with Session(self.engine) as db:
-            existing = db.get(Mission, 'public')
-            if existing:
-                from .spec import specification
-                current = specification()['package_hash']
-                stored = existing.state.get('spec', {}).get('package_hash')
-                if stored != current or 'tick_seconds' not in existing.state.get('spec', {}):
-                    # Fail loud: a mission recorded under another package or engine version cannot be continued.
-                    raise InvalidAction(f'The mission database was created with an older package or engine (package {str(stored)[:12]}, current {current[:12]}). '
-                                        'Genesis needs a fresh database: docker compose down -v (Docker) or delete backend/mission.db (local).')
-                return True
+        """Validate the database against the current package and engine. Returns True if the public mission exists, False
+        if it has not been started. A public mission recorded under another package or engine version is archived (kept,
+        read-only, with its full revision history) and the check returns False so Start begins a new genesis beside it."""
         from .spec import specification
-        specification()  # the package must load and every operator decision must be approved before Start is offered
+        spec = specification()  # the package must load and every operator decision must be approved before Start is offered
+        with self.transaction() as db:
+            existing = db.scalar(select(Mission).where(Mission.id == 'public').with_for_update())
+            if not existing:
+                return False
+            stored = existing.state.get('spec', {})
+            if stored.get('package_hash') == spec['package_hash'] and stored.get('version') == spec['version']:
+                return True
+            # Different package or engine: this engine must not advance it. Archive it under a new id; nothing is deleted.
+            aid = f"archive-{int(time.time())}-{str(stored.get('package_hash'))[:8]}"
+            state = deepcopy(existing.state)
+            state.pop('planning_claim', None)
+            state['status'] = 'archived'
+            state['archived'] = {'at': time.time(), 'package_hash': stored.get('package_hash'), 'engine_version': stored.get('version'),
+                                 'replaced_by_package': spec['package_hash'], 'replaced_by_engine': spec['version']}
+            archived = Mission(id=aid, owner=None, state=state, revision=existing.revision, pending_ticks=0, used_ticks=existing.used_ticks,
+                               next_tick=existing.next_tick, expires=None, parent=existing.parent)
+            db.add(archived)
+            for r in db.scalars(select(Revision).where(Revision.mission_id == 'public')).all():
+                r.mission_id = aid
+            for r in db.scalars(select(InferenceReceipt).where(InferenceReceipt.mission_id == 'public')).all():
+                r.mission_id = aid
+            db.flush()
+            self.save(db, archived, state, {'kind': 'archive', 'reason': 'package or engine version changed', **state['archived']})
+            db.delete(existing)
+            db.merge(ServiceStatus(id='archive', record={'mission_id': aid, **state['archived']}))
         return False
+
+    def archives(self):
+        with Session(self.engine) as db:
+            return [{'id': m.id, 'revision': m.revision, 'tick': m.state['tick'], **m.state.get('archived', {})}
+                    for m in db.scalars(select(Mission).where(Mission.id.like('archive-%'))).all()]
 
     def genesis(self):
         """Start the public mission (genesis). Called when a user presses Start; does nothing if it already exists."""
@@ -284,7 +320,7 @@ class Store:
                 db.execute(insert(Owner).values(id=owner).on_conflict_do_nothing())
             db.scalar(select(Owner).where(Owner.id==owner).with_for_update())
             owned = db.scalars(select(Mission).where(Mission.owner==owner, Mission.expires>time.time())).all()
-            active = next((m for m in owned if m.state['status']!='complete'),None)
+            active = owned[0] if owned else None
             if active: raise InvalidAction('One experiment per visitor; use your existing experiment '+active.id)
             original = db.scalar(select(Revision).where(Revision.mission_id=='public', Revision.revision==revision))
             if not original: raise InvalidAction('Unknown public revision')
@@ -295,7 +331,7 @@ class Store:
                 link = state['environment']['link']
                 link.update(dsn='not applied in experiments', uplink_window=None, links=[], mars_spacecraft=[])
                 link['uplink_open'] = not link['conjunction']
-            state['status'] = 'paused' if state['status'] != 'complete' else 'complete'
+            state['status'] = 'paused'
             mid = str(uuid.uuid4())
             state['reliability_seed'] = mid  # D14: an experiment draws its own failures
             m = Mission(id=mid, owner=owner, state=state, revision=0, pending_ticks=0, used_ticks=0,
@@ -327,27 +363,36 @@ class Store:
             if s.get('planning_claim'): raise InvalidAction('Planning is in progress; retry after its receipt is recorded')
             if action=='configure':
                 s = modify(s,changes or {})
-                if s['mode']=='fixed-priority' and s.get('environment'):
-                    # D12: the benchmark's logistics are automatic.
-                    from .engine import failed_without_order, place_order, sim_unix
-                    from .logistics import replacement_order
-                    if not hasattr(self,'_values'):
-                        from .package import load
-                        self._values=load()['values']
-                    for aid in failed_without_order(s):
-                        place_order(s, replacement_order(s, aid, sim_unix(s), self._values, 'fixed-priority', 'Automatic replacement (benchmark).', ['nssdc_mars']))
+                self.benchmark_logistics(s)
             elif action=='run':
                 if not 1<=ticks<=72-m.used_ticks-m.pending_ticks: raise InvalidAction('Experiment limit is three sols (72 ticks) in total')
-                if s['status']=='complete': raise InvalidAction('Mission already complete')
                 m.pending_ticks += ticks; s['status']='active'
             elif action=='pause': s['status']='paused'
             elif action=='resume':
-                if s['status']=='complete': raise InvalidAction('Mission already complete')
                 s['status']='active'
             else: raise InvalidAction('Unknown control')
             m.expires=time.time()+7*86400
             self.save(db,m,s,{'kind':action,'changes':changes,'ticks':ticks})
             return self.payload(m)
+
+    def step(self, s, env=None):
+        """One tick of the execution harness shared by the public mission, experiments and the comparison baseline:
+        the engine step, then the benchmark's automatic logistics (D12) when the fixed-priority planner is in charge."""
+        s = advance(s, env)
+        self.benchmark_logistics(s)
+        return s
+
+    def benchmark_logistics(self, s):
+        """D12: under the fixed-priority planner, replacements for failed robots are ordered automatically."""
+        if s['mode'] != 'fixed-priority' or not s.get('environment'):
+            return
+        from .engine import failed_without_order, place_order, sim_unix
+        from .logistics import replacement_order
+        if not hasattr(self, '_values'):
+            from .package import load
+            self._values = load()['values']
+        for aid in failed_without_order(s):
+            place_order(s, replacement_order(s, aid, sim_unix(s), self._values, 'fixed-priority', 'Automatic replacement (benchmark).', ['nssdc_mars']))
 
     def tick(self):
         now=time.time()
@@ -371,21 +416,11 @@ class Store:
                 if m.state.get('planning_claim'): continue
                 if m.owner and m.pending_ticks<=0: continue
                 if not m.owner and m.next_tick>now: continue
-                if m.owner: s=advance(m.state)
+                if m.owner: s=self.step(m.state)
                 elif public_env is None: continue
-                else: s=advance(m.state, public_env)
-                if s['mode']=='fixed-priority' and s.get('environment'):
-                    # D12: the benchmark's logistics are automatic, including after D14 failures.
-                    from .engine import failed_without_order, place_order, sim_unix
-                    from .logistics import replacement_order
-                    if not hasattr(self,'_values'):
-                        from .package import load
-                        self._values=load()['values']
-                    for aid in failed_without_order(s):
-                        place_order(s, replacement_order(s, aid, sim_unix(s), self._values, 'fixed-priority', 'Automatic replacement (benchmark).', ['nssdc_mars']))
+                else: s=self.step(m.state, public_env)
                 if m.owner:
                     m.pending_ticks-=1; m.used_ticks+=1
-                    if s['status']=='complete': m.pending_ticks=0
                     if m.pending_ticks==0 and s['status']=='active': s['status']='paused'
                 else: m.next_tick=max(m.next_tick,now)+s['spec']['tick_seconds']
                 self.save(db,m,s,{'kind':'tick'})

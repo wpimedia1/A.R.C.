@@ -22,8 +22,8 @@ def benchmark(max_ticks=24 * 400):
         if change:
             s = modify(s, change)
         for _ in range(max_ticks):
-            if s['status'] != 'active':
-                break
+            if s['milestones']['ready']:
+                break  # the benchmark measures time to readiness; operations would continue after it
             s = advance(s)
         results.append({'scenario': name, 'changes': change, 'ready': s['milestones']['ready'], 'readiness_tick': s['readiness_tick'],
                         'readiness_sol': None if s['readiness_tick'] is None else s['readiness_tick'] / 24,

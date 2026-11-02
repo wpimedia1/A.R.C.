@@ -21,8 +21,8 @@ def observe(state, role, shared):
 
 
 def validate_assessment(state, role, args):
-    if set(args) != {'summary', 'recommended_jobs', 'missing_information', 'source_ids'}:
-        raise InvalidAction('Assessment requires summary, recommended jobs, information gaps and sources')
+    if set(args) != {'summary', 'recommended_jobs', 'job_judgements', 'missing_information', 'source_ids'}:
+        raise InvalidAction('Assessment requires summary, recommended jobs, job judgements, information gaps and sources')
     if not isinstance(args['summary'], str) or not 1 <= len(args['summary']) <= 600:
         raise InvalidAction('Assessment needs a bounded public summary')
     allowed = {j['id'] for j in state['jobs'] if j['status'] not in ('complete', 'dormant')
@@ -30,6 +30,12 @@ def validate_assessment(state, role, args):
     jobs = args['recommended_jobs']
     if not isinstance(jobs, list) or any(not isinstance(j, str) or j not in allowed for j in jobs) or len(set(jobs)) != len(jobs):
         raise InvalidAction('Assessment recommended unknown or another department work')
+    # Shared propositions: every agent judges every active job (proceed or hold), so agreement between agents is measurable.
+    active = {j['id'] for j in state['jobs'] if j['status'] not in ('complete', 'dormant')}
+    judged = args['job_judgements']
+    if (not isinstance(judged, list) or any(not isinstance(x, dict) or set(x) != {'job_id', 'judgement'} or x['judgement'] not in ('proceed', 'hold') for x in judged)
+            or sorted(x['job_id'] for x in judged) != sorted(active)):
+        raise InvalidAction('Assessment must judge every active job exactly once (proceed or hold)')
     gaps = args['missing_information']
     if not isinstance(gaps, list) or len(gaps) > 8 or any(not isinstance(g, str) or not 1 <= len(g) <= 400 for g in gaps):
         raise InvalidAction('Information gaps must be bounded public descriptions')
@@ -58,6 +64,7 @@ def remember(state, cycle, receipts):
     state.setdefault('cycle_log', []).append({
         'cycle_id': cycle['id'], 'tick': state['tick'],
         'assessments': {a['role']: {'recommended_jobs': a['assessment'].get('recommended_jobs', []),
+                                    'job_judgements': {x['job_id']: x['judgement'] for x in a['assessment'].get('job_judgements', [])},
                                     'missing_information': a['assessment'].get('missing_information', [])} for a in cycle.get('assessments', [])},
         'director_priority': (cycle.get('director') or {}).get('priority'),
         'authorized': sorted({d['job_id'] for d in state['decisions'] if d['tick'] == state['tick']})})

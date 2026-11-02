@@ -440,32 +440,44 @@ def analyze_site(store, mid='public', transport=None):
               'segmentations': results, 'transformation_version': 'sam-3.1-hirise-fullres-crop-1' if window else 'sam-3.1-hirise-browse-1',
               'summary': {r['prompt']: r['summary'] for r in results}}
     from .route import plan
-    record['route'] = plan(width, height, m_per_px, results)
+    from .package import load
+    clearance_m = load()['values']['rover.width_m'] / 2  # rover centre keeps half its width from any hazard
+    record['route'] = plan(width, height, m_per_px, results, clearance_m)
     vid = pin(store, img['source_id'], record, raw)
-    with store.transaction() as db:
-        m = store.row(db, mid)
-        s = deepcopy(m.state)
-        s['source_pins'][img['source_id']] = vid
-        s['site_imagery'] = {'source_id': img['source_id'], 'product': img['product'], 'applies_to_site': img['applies_to_site'], 'site_relation': img['site_relation']}
-        s['planning_needed'] = s['mode'] == 'meta' and not s.get('inference_stopped')
-        from .engine import event
-        route = record['route']
-        survey = next(j for j in s['jobs'] if j['id'] == 'survey')
-        if not img['applies_to_site']:
-            event(s, 'Hazard route not applied', f"SAM ran on a proxy image ({img['site_relation']}); the survey is unchanged (D13).", 'survey')
-        elif route.get('detour_factor') and survey['status'] in ('pending', 'blocked', 'review') and not survey.get('route'):
-            # D13: hazard avoidance lengthens the survey drive.
-            survey['route'] = {k: route[k] for k in ('detour_factor', 'route_m', 'straight_m', 'blocked_fraction')} | {'base_target': survey['target'], 'source_version': vid}
-            survey['target'] = survey['target'] * route['detour_factor']
-            survey['basis'] += f" Hazard-avoiding route: x{route['detour_factor']} (D13)."
-            event(s, 'Survey route planned around hazards', f"A* route {route['route_m']} m vs {route['straight_m']} m straight across HiRISE {img['product']}; "
-                  f"survey drive target now {survey['target']:.0f} m.", 'survey')
-        elif not route.get('detour_factor'):
-            event(s, 'Hazard route not found', route['status'] + '. Survey target unchanged; agents informed.', 'survey')
-        event(s, 'Orbital imagery segmented', ', '.join(f"{r['summary']['count']} {r['prompt']}" for r in results)
-              + f" detected by SAM 3.1 in HiRISE {img['product']} ({round(m_per_px, 2)} m/pixel; {img['site_relation']}).")
-        store.save(db, m, s, {'kind': 'site-segmentation', 'version': vid})
+
+    # New evidence is applied only between planning cycles (a plan in progress is never overwritten).
+    store.commit_unclaimed(mid, lambda s: apply_site_analysis(s, img, record, vid), {'kind': 'site-segmentation', 'version': vid})
     return vid
+
+
+def apply_site_analysis(s, img, record, vid):
+    """Adopt a segmented site image into a mission: pin it, and apply its hazard route to the survey (D13)."""
+    s['source_pins'][img['source_id']] = vid
+    s['site_imagery'] = {'source_id': img['source_id'], 'product': img['product'], 'applies_to_site': img['applies_to_site'], 'site_relation': img['site_relation']}
+    s['planning_needed'] = s['mode'] == 'meta' and not s.get('inference_stopped')
+    from .engine import event, release
+    route = record['route']
+    results, m_per_px = record['segmentations'], record['segmented_m_per_px']
+    survey = next(j for j in s['jobs'] if j['id'] == 'survey')
+    if not img['applies_to_site']:
+        event(s, 'Hazard route not applied', f"SAM ran on a proxy image ({img['site_relation']}); the survey is unchanged (D13).", 'survey')
+    elif not route.get('detour_factor'):
+        # D13: no traversable route across the analysed site image. The survey may not run until new evidence clears it.
+        survey['route_blocked'] = {'status': route['status'], 'source_version': vid}
+        if survey['status'] in ('running', 'review'):
+            survey.pop('authorization', None)
+            release(s, survey, 'blocked', 'No hazard-free route: ' + route['status'])
+        event(s, 'Survey blocked: no hazard-free route', route['status'] + f" in HiRISE {img['product']} (D13). The survey cannot start.", 'survey')
+    elif survey['status'] in ('pending', 'blocked', 'review') and not survey.get('route'):
+        # D13: hazard avoidance lengthens the survey drive.
+        survey.pop('route_blocked', None)
+        survey['route'] = {k: route[k] for k in ('detour_factor', 'route_m', 'straight_m', 'blocked_fraction', 'clearance_m')} | {'base_target': survey['target'], 'source_version': vid}
+        survey['target'] = survey['target'] * route['detour_factor']
+        survey['basis'] += f" Hazard-avoiding route: x{route['detour_factor']} (D13)."
+        event(s, 'Survey route planned around hazards', f"A* route {route['route_m']} m vs {route['straight_m']} m straight across HiRISE {img['product']}, "
+              f"keeping {route['clearance_m']} m (half the rover width) from detected hazards; survey drive target now {survey['target']:.0f} m.", 'survey')
+    event(s, 'Orbital imagery segmented', ', '.join(f"{r['summary']['count']} {r['prompt']}" for r in results)
+          + f" detected by SAM 3.1 in HiRISE {img['product']} ({round(m_per_px, 2)} m/pixel; {img['site_relation']}).")
 
 
 def site_analysis_due(store, mid='public'):

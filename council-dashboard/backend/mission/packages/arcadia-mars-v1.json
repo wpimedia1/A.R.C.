@@ -242,6 +242,15 @@
    "quote": "Mass: About 2,260 pounds (1,025 kilograms)",
    "retrieved": "2026-10-30"
   },
+  "rover.width_m": {
+   "classification": "published",
+   "value": 2.7,
+   "unit": "m",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "about 3 meters long, 2.7 meters wide and 2.2 meters tall",
+   "retrieved": "2026-11-02"
+  },
   "rover.power_w": {
    "classification": "published",
    "value": 110,
@@ -843,10 +852,10 @@
    "approved_on": "2026-10-31"
   },
   "D9_rodwell_establishment": {
-   "choice": "Rodwell establishment modeled as a drilling job through 20 m of overburden at the lowest tested rate of penetration (0.35 mm/s, Stolov et al. 2026) = 15.9 h before water production. Drilling energy and well start-up melt time are not published and are recorded as not estimated.",
-   "reason": "Stolov 2026 gives rate of penetration but not drilling power.",
+   "choice": "Rodwell establishment modeled as a drilling job through 20 m of overburden at the lowest tested rate of penetration (0.35 mm/s, Stolov et al. 2026) = 15.9 h before water production. Drilling power, drilling energy and well start-up melt time are not published. The power draw is recorded as unknown, never as zero: drilling may start only on a commissioned grid with unallocated capacity, its decision is recorded as not physically validated for power, and its energy is recorded as not estimated.",
+   "reason": "Stolov 2026 gives rate of penetration but not drilling power. Review 2026-11-02: an unpublished draw had been counted as 0 kW.",
    "approved": true,
-   "approved_on": "2026-10-31"
+   "approved_on": "2026-11-02"
   },
   "D10_earth_mars_communications": {
    "choice": "The Meta agents run onboard at the outpost and act on live conditions without waiting for Earth: their work orders execute on Mars as soon as onboard assurance approves them. The Earth link (live DSN Now, light time, solar conjunction) is context the agents are told about: it decides when Earth can hear from the outpost, never when work can start.",
@@ -867,10 +876,10 @@
    "approved_on": "2026-10-31"
   },
   "D13_orbital_hazard_routing": {
-   "choice": "At genesis the worker searches the USGS HiRISE footprint index for a HiRISE RED product whose footprint contains the mission site and runs SAM 3.1 on it. Only detections in an image that contains the mission site route the survey: boulder and crater boxes become an obstacle grid, an 8-connected A* route crosses the scene, and the survey drive target is multiplied by route length / straight length. If no footprint contains the site, SAM runs on the nearest listed product or the reference image, the result is labelled a proxy with its distance from the site, and the survey is not changed.",
-   "reason": "Audit 2026-10-31: detections from an image 600 km from the site were used to approve and lengthen the survey. Evidence must describe the ground it is applied to.",
+   "choice": "At genesis the worker searches the USGS HiRISE footprint index for a HiRISE RED product whose footprint contains the mission site and runs SAM 3.1 on it. Only detections in an image that contains the mission site route the survey: boulder and crater boxes, grown by half the rover width (rover.width_m) so the rover centre keeps that clearance, become an obstacle grid; an 8-connected A* route without corner cutting crosses the scene, and the survey drive target is multiplied by route length / straight length. If no hazard-free route exists, the survey is blocked and cannot start. No safety margin beyond the rover footprint is applied (none is published). The route crosses the analysed image; it does not join equipment positions to work sites (no surveyed layout coordinates exist). If no footprint contains the site, SAM runs on the nearest listed product or the reference image, the result is labelled a proxy with its distance from the site, and the survey is not changed.",
+   "reason": "Audit 2026-10-31: detections from an image 600 km from the site were used to approve and lengthen the survey. Evidence must describe the ground it is applied to. Review 2026-11-02: the route cut corners between touching hazards, ignored the rover footprint, and a missing route did not stop the survey.",
    "approved": true,
-   "approved_on": "2026-10-31"
+   "approved_on": "2026-11-02"
   },
   "D14_random_failures": {
    "choice": "The rover and the excavators can fail while working. Each working tick, a unit fails with probability 1 - exp(-reliability.mobile_robot_failures_per_h x tick hours), from the module failure rates of a JPL-referenced planetary rover reliability model (Stancliff et al. 2005, Table 2). Draws are deterministic per mission, tick and unit (SHA-256), so a run can be reproduced. The fission unit is designed for 10 years without maintenance and does not fail; the Rodwell drill has no published failure rate and does not fail (gap). A failed unit stops its job and is replaced under D12.",
@@ -879,10 +888,10 @@
    "approved_on": "2026-10-31"
   },
   "D17_user_start": {
-   "choice": "The mission starts only when a user presses Start (genesis); the API and worker never create it. Before Start only the live DSN reading runs. Start creates the public mission once; pressing again changes nothing.",
-   "reason": "Owner instruction: the user is the launcher, not Docker.",
+   "choice": "The mission starts only when the operator presses Start (genesis); the API and worker never create it. Start requires the operator token (MISSION_OPERATOR_TOKEN); visitors can only follow the mission and run private experiments. Before Start only the live DSN reading runs. Start creates the public mission once; pressing again changes nothing. A public mission recorded under another package or engine version is archived with its full revision history (read-only, exportable) and Start begins a new genesis beside it; the database is never deleted to upgrade.",
+   "reason": "Owner instruction: the user is the launcher, not Docker. Review 2026-11-02: Start lacked operator authentication, and upgrades advised deleting mission history.",
    "approved": true,
-   "approved_on": "2026-11-01"
+   "approved_on": "2026-11-02"
   },
   "D18_excavator_batteries": {
    "choice": "Excavators run on their batteries (capacity and energy per kilogram from Schuler et al. 2019) and must be recharged from the fission grid; they start each mission fully charged. Work stops when a battery cannot supply the next step; recharging is decided by the agents (or automatically in the fixed-priority benchmark) and draws grid power. Driving between the work site and the charger is not modeled. The rover is not battery-modeled: it runs on its MMRTG and its published one-sol drive distance already reflects its energy limits; Rodwell and the reactor run on grid or own power.",

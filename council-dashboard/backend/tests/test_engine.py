@@ -2,6 +2,7 @@ import math
 import re
 from pathlib import Path
 import pytest
+from copy import deepcopy
 from mission.engine import new_state, advance, start, modify, reasons, job_by_id, InvalidAction
 from mission.package import load
 
@@ -9,7 +10,7 @@ from mission.package import load
 def run(s, n, failures=False):
     s['failures_enabled'] = failures  # nominal-rate checks; D14 failures are tested separately
     for _ in range(n):
-        if s['status'] != 'active':
+        if s['milestones']['ready']:
             break
         s = advance(s)
     return s
@@ -36,7 +37,7 @@ def test_readiness_time_matches_published_rates():
     v = load()['values']
     tick_h = v['mars.day_length_h'] / 24
     s = run(new_state('fixed-priority'), 24 * 200)
-    assert s['milestones']['ready'] and s['status'] == 'complete'
+    assert s['milestones']['ready'] and s['status'] == 'active'  # readiness is a milestone; operations continue
     # D18: excavators mine on battery and recharge; averaged over a day they deliver the published daily rate.
     trench_ticks = math.ceil(v['habitat.trench_mass_kg'] / (2 * v['excavator.min_rate_kg_per_day'] / 24 * tick_h))
     survey_ticks = math.ceil(v['rover.max_drive_m_per_sol'] / (v['rover.max_drive_m_per_sol'] / v['mars.day_length_h'] * tick_h) - 1e-9)
@@ -130,12 +131,19 @@ def test_correlated_error_evaluation_flags_consensus_that_went_wrong():
     from mission.evaluation import evaluate
     s = new_state('meta')
     s['cycle_log'] = [{'cycle_id': 'c1', 'tick': 0, 'director_priority': None, 'authorized': [],
-                       'assessments': {'survey': {'recommended_jobs': ['survey'], 'missing_information': ['Local boulder density']},
-                                       'construction': {'recommended_jobs': ['survey'], 'missing_information': ['local boulder density']},
-                                       'assurance': {'recommended_jobs': [], 'missing_information': []}}}]
+                       'assessments': {'survey': {'recommended_jobs': ['survey'], 'job_judgements': {'survey': 'proceed', 'trench': 'hold'}, 'missing_information': ['Local boulder density']},
+                                       'construction': {'recommended_jobs': [], 'job_judgements': {'survey': 'proceed', 'trench': 'hold'}, 'missing_information': ['local boulder density']},
+                                       'assurance': {'recommended_jobs': [], 'job_judgements': {'survey': 'proceed', 'trench': 'proceed'}, 'missing_information': []}}}]
     s['activity'].append({'id': 99, 'tick': 3, 'title': 'Survey rover (Perseverance-class) failed', 'detail': '', 'job_id': 'survey'})
     c = evaluate(s)['cycles'][0]
-    assert c['mean_pairwise_agreement'] == 1.0 and c['possible_correlated_error'] and c['shared_missing_information'][0]['roles'] == ['construction', 'survey']
+    # Pairs agree on 2/2, 1/2 and 1/2 jobs; the unanimous "proceed" on survey was followed by a failure.
+    assert c['mean_pairwise_agreement'] == pytest.approx((1 + 0.5 + 0.5) / 3, abs=1e-3)
+    assert c['consensus_jobs'] == {'survey': {'judgement': 'proceed', 'outcome': 'stopped (failure or blocker)'}}
+    assert c['possible_correlated_error'] and c['consensus_with_bad_outcome'] == ['survey']
+    assert c['shared_missing_information'][0]['roles'] == ['construction', 'survey']
+    # Department leads may recommend only their own jobs, yet they share every proposition, so consensus is reachable.
+    s['activity'].pop()
+    assert not evaluate(s)['cycles'][0]['possible_correlated_error']
 
 
 def test_standby_pauses_work_and_resumes():
@@ -144,14 +152,21 @@ def test_standby_pauses_work_and_resumes():
     s = advance(s)
     assert job_by_id(s, 'survey')['status'] == 'running'
     done = job_by_id(s, 'survey')['done']
-    set_standby(s, ['rover-1'], 3, 'Estimated night minimum below recent range', 'director', 'msl air_min_c sol 5001 est -82 [-88..-76]')
+    basis = [{'observation_id': 'msl:air_min_c:5001:after5000', 'kind': 'weather-estimate', 'station': 'msl', 'variable': 'air_min_c',
+              'value': -82, 'record_hash': 'h', 'interpretation': 'Estimated night minimum below the recent range'}]
+    set_standby(s, ['rover-1'], 3, 'Estimated night minimum below recent range', 'director', basis)
     for _ in range(2):  # standby covers ticks t+1 and t+2
         s = advance(s)
         assert job_by_id(s, 'survey')['done'] == done and job_by_id(s, 'survey')['reason'].startswith('Standby')
     s = advance(s)
     assert job_by_id(s, 'survey')['done'] > done and any(a['title'].endswith('resumed') for a in s['activity'])
+    for bad in ('', 'msl air_min_c sol 5001', [{'observation_id': 'x'}], [{**basis[0], 'kind': 'rumour'}], [{**basis[0], 'interpretation': ' '}]):
+        with pytest.raises(InvalidAction):
+            set_standby(s, ['rover-1'], 2, 'x', 'director', bad)
+    before = deepcopy(s)
     with pytest.raises(InvalidAction):
-        set_standby(s, ['rover-1'], 2, 'x', 'director', '')
+        set_standby(s, ['rover-1', 'no-such-unit'], 2, 'x', 'director', basis)
+    assert s == before  # a rejected command changes nothing
 
 
 def _meta_trench_running():
@@ -219,3 +234,86 @@ def test_work_behind_plan_asks_agents_to_replan_once():
     for _ in range(4):
         s = advance(s)
     assert len([x for x in s['activity'] if x['title'].endswith('behind plan')]) == 1 and s['planning_needed']
+
+
+def test_charging_stops_when_grid_supply_disappears():
+    # Review finding 1: chargers and jobs book power on one ledger; when supply is gone, charging adds no energy.
+    from mission.engine import asset_by_id, charge
+    s = _meta_trench_running()
+    for _ in range(3):
+        s = advance(s)
+    charge(s, ['excavator-1'], 'top up', 'director / test')
+    soc = asset_by_id(s, 'excavator-1')['soc_wh']
+    s = modify(s, {'power_capacity_kw': 0})
+    s = advance(s)
+    a = asset_by_id(s, 'excavator-1')
+    assert not a['charging'] and a['soc_wh'] == soc and s['power_used_kw'] == 0
+    assert any(x['title'] == 'Charging ended: ' + a['name'] for x in s['activity'])
+
+
+def test_rejected_charge_command_changes_nothing():
+    # Review finding 2: one valid unit followed by an invalid one: the whole command is rejected, nothing is reserved.
+    from mission.engine import charge
+    s = _meta_trench_running()
+    s = advance(s)
+    before = deepcopy(s)
+    for ids in (['excavator-1', 'rover-1'], ['excavator-1', 'no-such-unit'], ['excavator-1', 'excavator-1']):
+        with pytest.raises(InvalidAction):
+            charge(s, ids, 'x', 'director / test')
+        assert s == before
+
+
+def test_planner_tools_commit_only_when_accepted():
+    # Review finding 2 at the planner: each tool runs against a copy and is committed only on success.
+    from mission.planner import atomic
+    s = new_state('meta')
+    before = deepcopy(s)
+    def partial(t):
+        t['jobs'][0]['status'] = 'running'
+        raise InvalidAction('rejected after a partial change')
+    with pytest.raises(InvalidAction):
+        atomic(s, partial)
+    assert s == before
+
+
+def test_unknown_drilling_power_is_not_zero():
+    # Review finding 3: an unpublished power draw is unknown; with no capacity it cannot start, and an accepted decision
+    # says it was not physically validated for power.
+    s = new_state('fixed-priority')
+    s.update(power_capacity_kw=0.0, power_commissioned=True)
+    for jid in ('power', 'survey'):
+        job_by_id(s, jid).update(status='complete', done=job_by_id(s, jid)['target'], progress=1.0)
+    errors = reasons(s, job_by_id(s, 'drill'), ['rodwell-1'])
+    assert errors and 'not published' in errors[0]
+    s['power_capacity_kw'] = 40.0
+    assert reasons(s, job_by_id(s, 'drill'), ['rodwell-1']) == []
+    did = start(s, 'drill', ['rodwell-1'], 'drill', 'fixed-priority', [s['spec']['package_id']])
+    d = next(x for x in s['decisions'] if x['id'] == did)
+    assert d['calculation']['power_kw'] is None and not d['calculation']['power_published'] and 'not physically validated' in d['validation']
+
+
+def test_operations_continue_after_readiness():
+    # Review finding 6: readiness is a milestone; added work (a water batch) still runs to completion afterwards.
+    from mission.engine import instantiate_job
+    s = run(new_state('fixed-priority'), 24 * 200)
+    assert s['milestones']['ready'] and s['status'] == 'active'
+    jid = instantiate_job(s, 'water-batch', 'test', 'More water')
+    for _ in range(24 * 200):
+        if job_by_id(s, jid)['status'] == 'complete':
+            break
+        s = advance(s)
+    assert job_by_id(s, jid)['status'] == 'complete' and s['status'] == 'active'
+
+
+def test_forecast_and_uncertainty_handle_created_work():
+    # Review finding 8: work created from a template resolves through its template in the forecast.
+    from mission.engine import instantiate_job
+    from mission.schedule import forecast, uncertainty
+    s = new_state('fixed-priority'); s['failures_enabled'] = False
+    s = advance(s)
+    for template in ('water-batch', 'survey-extension'):
+        jid = instantiate_job(s, template, 'test', 'More work')
+        f = forecast(s, 24 * 200)
+        assert f['forecast_readiness_tick'] is not None and any(r['job_id'] == jid for r in f['jobs'])
+    u = uncertainty(s, 24 * 200)
+    assert u['parameters'] and u['readiness_tick_range'] is not None

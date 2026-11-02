@@ -41,20 +41,28 @@ def test_same_host_origin_allowed_and_foreign_origin_rejected(tmp_path, monkeypa
     asyncio.run(exercise())
 
 
-def test_mission_waits_for_start(tmp_path, request):
-    # The API and worker never create the mission; genesis happens when a user presses Start, once.
+def test_mission_waits_for_start(tmp_path, monkeypatch, request):
+    # The API and worker never create the mission; genesis happens when the operator presses Start, once.
+    import mission.provider as provider
+    monkeypatch.setattr(provider,'ENV_FILE',tmp_path/'absent.env');monkeypatch.delenv('MISSION_OPERATOR_TOKEN',raising=False)
     store=make_store(tmp_path,request);app=create_app(store)
     async def exercise():
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
             h=(await client.get('/api/v1/health')).json()
             assert h['status']=='ok' and h['started'] is False
             assert (await client.get('/api/v1/missions/public')).status_code==404
-            first=await client.post('/api/v1/start')
+            assert (await client.post('/api/v1/start')).status_code==503  # no operator token configured: nobody can start
+            monkeypatch.setenv('MISSION_OPERATOR_TOKEN','operator-test-token')
+            assert (await client.post('/api/v1/start')).status_code==403  # visitor without the token
+            assert (await client.post('/api/v1/start',headers={'X-Operator-Token':'wrong'})).status_code==403
+            assert (await client.get('/api/v1/missions/public')).status_code==404
+            op={'X-Operator-Token':'operator-test-token'}
+            first=await client.post('/api/v1/start',headers=op)
             assert first.status_code==200 and first.json()['created'] is True
-            again=await client.post('/api/v1/start')
+            again=await client.post('/api/v1/start',headers=op)
             assert again.status_code==200 and again.json()['created'] is False
             assert again.json()['mission']['revision']==first.json()['mission']['revision']
-            assert (await client.post('/api/v1/start',headers={'Origin':'https://attacker.example'})).status_code==403
+            assert (await client.post('/api/v1/start',headers={'Origin':'https://attacker.example',**op})).status_code==403
             return (await client.get('/api/v1/missions/public/revisions')).json()['revisions']
     revs=asyncio.run(exercise())
     assert revs[0]['kind']=='initialize'

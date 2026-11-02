@@ -96,3 +96,19 @@ def test_site_crop_decodes_a_full_resolution_window_centred_on_the_site(tmp_path
         assert im.size == (128, 128)
         px = np.asarray(im)
     assert px[64, 64] > 240 and 120 < px[10, 10] < 135  # 1021 -> 255 at the site; 512 -> about 128 elsewhere
+
+
+def test_no_hazard_free_route_blocks_the_survey():
+    # Review finding 5: an unusable route is an execution blocker, not only an event.
+    from mission.engine import new_state, job_by_id, reasons, start
+    from mission.media import apply_site_analysis
+    img = {'source_id': 'hirise-site', 'product': 'ESP_056974_2205', 'applies_to_site': True, 'site_relation': 'contains the site'}
+    record = {'route': {'status': 'no hazard-free route across the scene', 'detour_factor': None, 'clearance_m': 1.35},
+              'segmentations': [{'prompt': 'boulder', 'summary': {'count': 3}}], 'segmented_m_per_px': 0.5}
+    s = new_state('meta'); s['source_pins'] = {}
+    start(s, 'survey', ['rover-1'], 'survey', 'survey / test', [s['spec']['package_id']])
+    assert job_by_id(s, 'survey')['status'] == 'review'
+    apply_site_analysis(s, img, record, 'hirise-site:v1')
+    sv = job_by_id(s, 'survey')
+    assert sv['status'] == 'blocked' and sv['route_blocked']['source_version'] == 'hirise-site:v1' and s['power_used_kw'] == 0
+    assert any('No hazard-free route' in r for r in reasons(s, sv, ['rover-1']))

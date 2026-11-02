@@ -17,6 +17,16 @@ def deepcopy_or_none(value):
     import copy
     return copy.deepcopy(value) if value is not None else None
 
+def operator_token():
+    """The operator's start token: the process environment (Docker), else backend/.env (local launcher)."""
+    token=(os.getenv('MISSION_OPERATOR_TOKEN') or '').strip()
+    if token:return token
+    from .provider import ENV_FILE
+    if ENV_FILE.exists():
+        from dotenv import dotenv_values
+        return (dotenv_values(ENV_FILE).get('MISSION_OPERATOR_TOKEN') or '').strip()
+    return ''
+
 def create_app(store=None):
     store=store or Store()
     from .package import PackageError
@@ -62,7 +72,8 @@ def create_app(store=None):
             return Response(json.dumps({'status':'not initialized','error':app.state.init_error}),503,media_type='application/json')
         heartbeat=store.status('worker')
         if not store.started():
-            return {'status':'ok','started':False,'worker':heartbeat,'worker_stale':not heartbeat or time.time()-heartbeat['heartbeat_at']>600}
+            return {'status':'ok','started':False,'worker':heartbeat,'worker_stale':not heartbeat or time.time()-heartbeat['heartbeat_at']>600,
+                    'archived_missions':store.archives(),'operator_token_configured':bool(operator_token())}
         s=store.snapshot('public')['state']
         return {'status':'ok','started':True,'planner':s['mode'],'model_calls_enabled':s['mode']=='meta','planning_status':s['planning_status'],
                 'worker':heartbeat,'worker_stale':not heartbeat or time.time()-heartbeat['heartbeat_at']>600,'sources':store.status('source-refresh')}
@@ -231,9 +242,14 @@ def create_app(store=None):
     def records(mid:str,request:Request): return store.export(mid,owner(request))
 
     @app.post('/api/v1/start')
-    def start():
-        # Genesis: the user presses Start. The public mission is created once; pressing again changes nothing.
+    def start(request:Request):
+        # Genesis: the operator presses Start. The public mission is created once; pressing again changes nothing.
+        # Only the operator may start it: the request must carry MISSION_OPERATOR_TOKEN (visitors only fork experiments).
         if app.state.init_error: return Response('Mission cannot start: '+app.state.init_error,503)
+        expected=operator_token()
+        if not expected: return Response('Mission cannot start: MISSION_OPERATOR_TOKEN is not set on the server',503)
+        given=request.headers.get('x-operator-token','')
+        if not secrets.compare_digest(given.encode(),expected.encode()): return Response('Only the operator can start the public mission (operator token missing or wrong)',403)
         created=store.genesis()
         return {'started':True,'created':created,'mission':store.snapshot('public')}
 

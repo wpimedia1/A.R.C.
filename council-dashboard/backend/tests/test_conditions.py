@@ -136,12 +136,27 @@ def test_fixed_priority_is_onboard_and_not_gated():
 
 
 def test_hazard_route_detours_around_detections():
-    from mission.route import plan
+    from mission.route import plan, astar
     wall = {'prompt': 'boulder', 'objects': [{'left': 480, 'right': 520, 'top': 0, 'bottom': 700, 'object_id': 1}]}
-    r = plan(1000, 1000, 0.5, [wall])
+    r = plan(1000, 1000, 0.5, [wall], 0.0)
     assert r['status'] == 'route found' and r['detour_factor'] > 1.0 and r['straight_m'] == pytest.approx(999 * 0.5, rel=0.01)
     blocked = {'prompt': 'crater', 'objects': [{'left': 480, 'right': 520, 'top': 0, 'bottom': 1000, 'object_id': 2}]}
-    assert plan(1000, 1000, 0.5, [blocked])['detour_factor'] is None
+    assert plan(1000, 1000, 0.5, [blocked], 0.0)['detour_factor'] is None
+    # Clearance: the rover centre keeps half the rover width from detections, so a gap narrower than the rover is closed.
+    # A 2 m gap (4 pixels at 0.5 m/pixel) between two boulders: open for a point, closed for a 2.7 m wide rover.
+    gap = {'prompt': 'boulder', 'objects': [{'left': 190, 'right': 210, 'top': 0, 'bottom': 198, 'object_id': 3},
+                                            {'left': 190, 'right': 210, 'top': 202, 'bottom': 400, 'object_id': 4}]}
+    assert plan(400, 400, 0.5, [gap], 0.0)['status'] == 'route found'
+    assert plan(400, 400, 0.5, [gap], V['rover.width_m'] / 2)['detour_factor'] is None
+    with_clearance = plan(1000, 1000, 0.5, [wall], V['rover.width_m'] / 2)
+    assert with_clearance['clearance_m'] == V['rover.width_m'] / 2 and with_clearance['route_m'] > r['route_m']
+
+
+def test_route_never_cuts_corners_between_touching_hazards():
+    from mission.route import astar
+    # Two blocked cells touching at a corner: the diagonal between them is closed.
+    blocked = [[False, True], [True, False]]
+    assert astar(blocked, (0, 0), (1, 1)) == (None, None)
 
 
 def test_uncertainty_override_must_stay_in_recorded_range():
@@ -151,18 +166,29 @@ def test_uncertainty_override_must_stay_in_recorded_range():
         load(overrides={'regolith.density_g_cm3': 5.0})
 
 
-def test_database_from_older_package_fails_loud(tmp_path):
-    from mission.store import Store, Mission
-    from mission.engine import InvalidAction
+def test_mission_from_older_package_or_engine_is_archived_not_destroyed(tmp_path):
+    from mission.store import Store, Mission, Revision
+    from sqlalchemy import select
     st = Store('sqlite:///' + str(tmp_path / 'old.db'))
     st.initialize()
-    with st.transaction() as db:
-        m = db.get(Mission, 'public')
-        state = deepcopy(m.state)
-        state['spec'].pop('tick_seconds')
-        m.state = state
-    with pytest.raises(InvalidAction, match='fresh database'):
-        st.initialize()
+    for field, old in (('package_hash', 'an-older-package'), ('version', 'arcadia-mars-v1/engine-0')):
+        with st.transaction() as db:
+            m = db.get(Mission, 'public')
+            state = deepcopy(m.state)
+            state['spec'][field] = old
+            m.state = state
+            revisions = m.revision
+        assert st.check() is False  # not started: Start begins a new genesis beside the archive
+        archives = st.archives()
+        archived = next(a for a in archives if (a['package_hash'] if field == 'package_hash' else a['engine_version']) == old)
+        snap = st.snapshot(archived['id'])
+        assert snap['state']['status'] == 'archived' and snap['revision'] == revisions + 1
+        with st.transaction() as db:
+            kept = db.scalars(select(Revision).where(Revision.mission_id == archived['id'])).all()
+            assert len(kept) == revisions + 1 and kept[-1].operation['kind'] == 'archive'
+        st.initialize()  # new genesis beside the archive
+        assert st.check() is True
+    assert len(st.archives()) == 2
 
 
 def test_assurance_cannot_approve_without_acknowledging_open_conditions():

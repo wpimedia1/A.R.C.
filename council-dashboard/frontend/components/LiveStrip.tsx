@@ -23,8 +23,9 @@ export function useNow(){const [now,setNow]=useState(()=>Date.now()/1000);useEff
 export default function LiveStrip({snap}:{snap:Snapshot}){
  const {live,err}=useLive();const now=useNow();const s=snap.state;
  const hb=live?.dsn?.checked_at??null;const age=hb==null?null:now-hb;const workerOk=age!=null&&age<STALE_S;
- const state=s.status==='complete'?'COMPLETE':s.status!=='active'?s.status.toUpperCase():workerOk?'RUNNING':'NOT ADVANCING';
- const cls=state==='RUNNING'?'run':state==='COMPLETE'?'done':'stop';
+ // Readiness is a milestone; operations continue after it, so the strip shows it beside the running state.
+ const state=s.status!=='active'?s.status.toUpperCase():workerOk?(s.milestones.ready?'READY · OPERATING':'RUNNING'):'NOT ADVANCING';
+ const cls=state==='RUNNING'||state==='READY · OPERATING'?'run':'stop';
  // Site local solar time advances one Mars hour per tick_seconds (sol / 24), counted from the server's reading.
  const c=live?.now?.clock;const mh=snap.seconds_per_tick||null;
  const ltst=c&&mh?((c.site_ltst_h+(now-c.unix)/mh)%24+24)%24:null;

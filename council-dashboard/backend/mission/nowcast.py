@@ -111,7 +111,7 @@ def history(store, station):
                                                                EnvironmentObservation.id.like(f'{station}:%')).order_by(EnvironmentObservation.observed_at)).all()
     by_sol = {}
     for r in rows:
-        by_sol[r.record['sol']] = r.record
+        by_sol[r.record['sol']] = {'id': r.id, **r.record}
     return [by_sol[s] for s in sorted(by_sol)]
 
 
@@ -216,9 +216,9 @@ def summary(store, sol_s, now=None):
     now = now or time.time()
     out = {}
     with Session(store.engine) as db:
-        est = [r.record for r in db.scalars(select(EnvironmentObservation).where(EnvironmentObservation.kind == 'weather-estimate')
+        est = [{'id': r.id, **r.record} for r in db.scalars(select(EnvironmentObservation).where(EnvironmentObservation.kind == 'weather-estimate')
                                             .order_by(EnvironmentObservation.observed_at)).all()]
-        chk = [r.record for r in db.scalars(select(EnvironmentObservation).where(EnvironmentObservation.kind == 'weather-check')).all()]
+        chk = [{'id': r.id, **r.record} for r in db.scalars(select(EnvironmentObservation).where(EnvironmentObservation.kind == 'weather-check')).all()]
     for station in STATIONS:
         obs = history(store, station)
         if not obs:
@@ -236,7 +236,7 @@ def summary(store, sol_s, now=None):
             c = [x for x in chk if x['station'] == station and x['variable'] == name]
             st['variables'][name] = {
                 'unit': unit,
-                'measured': None if not measured else {'value': measured['values'][name], 'sol': measured['sol'], 'date': measured['terrestrial_date'], 'classification': 'measured'},
+                'measured': None if not measured else {'id': measured['id'], 'value': measured['values'][name], 'sol': measured['sol'], 'date': measured['terrestrial_date'], 'classification': 'measured'},
                 'estimate_today': latest.get(now_sol),
                 'forecast': [latest[s] for s in sorted(latest) if s > now_sol][:HORIZON_SOLS],
                 'calibration': {'checked': len(c), 'confirmed': sum(1 for x in c if x['status'] == 'confirmed'),
@@ -260,8 +260,42 @@ def brief(summary_out):
                            'measured': [v['measured']['value'], v['measured']['sol'], v['measured']['date']],
                            'estimate_today': None if not t else [t['value'], t['low95'], t['high95'], t['basis']['lead_sols']],
                            'estimate_next_sol': None if not f else [f['value'], f['low95'], f['high95']],
-                           'track_record': [c['confirmed'], c['checked'], c['mean_abs_error']]}
+                           'track_record': [c['confirmed'], c['checked'], c['mean_abs_error']],
+                           'ids': {'measured': v['measured']['id'], 'estimate_today': t['id'] if t else None, 'estimate_next_sol': f['id'] if f else None}}
         out[station] = {'station': st['station'], 'location': st['location'], 'data_delay_sols': st['data_delay_sols'],
                         'station_sol_now': st['station_sol_now'], 'variables': vars_}
-    return {'format': 'measured=[value, sol, date]; estimate_today=[value, low95, high95, lead_sols]; estimate_next_sol=[value, low95, high95]; track_record=[confirmed, checked, mean_abs_error]',
+    return {'format': 'measured=[value, sol, date]; estimate_today=[value, low95, high95, lead_sols]; estimate_next_sol=[value, low95, high95]; track_record=[confirmed, checked, mean_abs_error]; ids=stored observation ids to cite',
             'stations': out}
+
+
+def resolve_basis(store, refs):
+    """Resolve an agent's evidence references against stored records. Each reference must name an existing measurement,
+    estimate or check and a variable that record actually carries; the stored value and record hash are attached."""
+    from .store import EnvironmentObservation
+    from .engine import InvalidAction, BASIS_KINDS
+    from .spec import digest
+    from sqlalchemy.orm import Session
+    if not isinstance(refs, list) or not refs:
+        raise InvalidAction('Standby needs at least one observation reference')
+    out = []
+    with Session(store.engine) as db:
+        for ref in refs:
+            if not isinstance(ref, dict) or set(ref) != {'observation_id', 'variable', 'interpretation'}:
+                raise InvalidAction('Each reference needs observation_id, variable and interpretation')
+            row = db.get(EnvironmentObservation, str(ref['observation_id']))
+            if row is None or row.kind not in BASIS_KINDS:
+                raise InvalidAction(f"Unknown observation {str(ref['observation_id'])[:80]}: not a stored measurement, estimate or check")
+            rec, var = row.record, ref['variable']
+            if row.kind == 'weather-obs':
+                value = (rec.get('values') or {}).get(var)
+                if value is None:
+                    raise InvalidAction(f'Observation {row.id} has no measured {var}')
+            else:
+                if rec.get('variable') != var:
+                    raise InvalidAction(f"Record {row.id} is about {rec.get('variable')}, not {var}")
+                value = rec.get('measured') if row.kind == 'weather-check' else rec.get('value')
+            if not isinstance(ref['interpretation'], str) or not ref['interpretation'].strip():
+                raise InvalidAction('Each reference needs an interpretation')
+            out.append({'observation_id': row.id, 'kind': row.kind, 'station': rec.get('station') or row.id.split(':')[0], 'variable': var,
+                        'value': value, 'record_hash': digest(rec), 'interpretation': ref['interpretation'][:400]})
+    return out
