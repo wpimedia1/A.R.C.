@@ -90,8 +90,8 @@ def test_assurance_gets_one_correction_turn(monkeypatch):
     s = new_state('meta'); s['source_pins'] = {}
     start(s, 'survey', ['rover-1'], 'survey', 'survey / test', [s['spec']['package_id']])
     seen = []
-    def fake_call(store, mid, operation, model, instructions, data, tools, transport=None, previous_response_id=None):
-        seen.append((operation, previous_response_id, data))
+    def fake_call(store, mid, operation, model, instructions, data, tools, transport=None):
+        seen.append((operation, data))
         if operation.endswith(':correction'):
             return [{'name': 'review_work_orders', 'call_id': 'c2', 'arguments': {'approved': [
                 {'job_id': 'survey', 'reason': 'ok', 'acknowledged_conditions': ['no-site-imagery']}], 'held': []}}], 'r2'
@@ -101,22 +101,21 @@ def test_assurance_gets_one_correction_turn(monkeypatch):
     receipts = []
     planner.review_orders(None, 'public', 'c', s, {'assessments': []}, receipts)
     assert job_by_id(s, 'survey')['status'] == 'running'
-    assert seen[1][0] == 'c:assurance-review:correction' and seen[1][1] == 'r1' and 'missing acknowledged_conditions' in seen[1][2][0]['output']
+    assert seen[1][0] == 'c:assurance-review:correction' and 'missing acknowledged_conditions' in seen[1][1]['rejection'] and seen[1][1]['orders']
     assert [r['validation'][:8] for r in receipts] == ['rejected', 'accepted']
 
 
-def test_full_planning_cycle_survives_a_lost_provider_conversation(tmp_path, request, monkeypatch):
-    # Live run 2026-11-02: a follow-up turn got HTTP 400 "referenced response not found or expired" and planning
-    # stopped. The specialist now restates the conversation once as a fresh request. Whole cycle with a scripted
-    # provider: assessments -> director -> specialists -> assurance -> recorded work orders.
-    import httpx
+def test_full_planning_cycle_with_self_contained_turns(tmp_path, request, monkeypatch):
+    # Live runs 2026-11-02: follow-up turns failed on the provider's stored conversations (HTTP 400 "referenced response
+    # not found or expired", HTTP 503 "persistence service error"). Every turn is now self-contained. Whole cycle with a
+    # scripted provider: assessments -> director -> specialists -> assurance -> recorded work orders.
     import mission.planner as planner
     from mission.engine import job_by_id
     monkeypatch.setenv('MISSION_MODEL_MODE', 'meta')
     store = make_store(tmp_path, request); store.initialize()
     pkg = store.snapshot('public')['state']['spec']['package_id']
     calls = []
-    def fake(store_, mid, operation, model, instructions, data, tools, transport=None, previous_response_id=None):
+    def fake(store_, mid, operation, model, instructions, data, tools, transport=None):
         calls.append(operation)
         tail = operation.split(':', 1)[1]
         if tail.startswith('assessment:'):
@@ -129,10 +128,7 @@ def test_full_planning_cycle_survives_a_lost_provider_conversation(tmp_path, req
         if tail == 'power:0':
             return [{'name': 'estimate_job', 'call_id': 'p0', 'arguments': {'job_id': 'power', 'asset_ids': ['fsp-1']}}], 'rp0'
         if tail == 'power:1':
-            raise httpx.HTTPStatusError('400', request=httpx.Request('POST', 'https://api.meta.ai/v1/responses'),
-                                        response=httpx.Response(400, json={'error': {'message': 'referenced response not found or expired'}}))
-        if tail == 'power:1:restated':
-            assert previous_response_id is None and 'tool_results_so_far' in data[0]['content']
+            assert '"tool":"estimate_job"' in data[0]['content'] and '"validation_errors":[]' in data[0]['content']  # earlier results restated
             return [{'name': 'submit_work_order', 'call_id': 'p1', 'arguments': {'job_id': 'power', 'asset_ids': ['fsp-1'], 'summary': 'deploy', 'source_ids': [pkg]}}], 'rp1'
         if tail == 'survey:0':
             return [{'name': 'submit_work_order', 'call_id': 's0', 'arguments': {'job_id': 'survey', 'asset_ids': ['rover-1'], 'summary': 'survey', 'source_ids': [pkg]}}], 'rs0'
@@ -145,4 +141,4 @@ def test_full_planning_cycle_survives_a_lost_provider_conversation(tmp_path, req
     s = store.snapshot('public')['state']
     assert not s['inference_stopped'], s['planning_status']
     assert job_by_id(s, 'power')['status'] == 'running' and job_by_id(s, 'survey')['status'] == 'running'
-    assert any(c.endswith('power:1:restated') for c in calls)
+    assert [c.split(':', 1)[1] for c in calls if ':power:' in c] == ['power:0', 'power:1']

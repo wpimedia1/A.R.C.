@@ -2,7 +2,8 @@
 
 Documented at https://dev.meta.ai/docs/quickstart and https://dev.meta.ai/docs/tool-calling:
   POST https://api.meta.ai/v1/responses, Authorization: Bearer $MODEL_API_KEY,
-  flat function tools, tool_choice "auto" only, follow-up turns via previous_response_id.
+  flat function tools, tool_choice "auto" only. Follow-up turns are self-contained (state plus tool results so far);
+  previous_response_id is not used because the provider's stored conversations failed in live runs (HTTP 400, 503).
 Prices from https://dev.meta.ai/docs/pricing-rate-limits (USD per 1M tokens, standard mode).
 """
 import hashlib
