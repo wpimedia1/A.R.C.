@@ -50,3 +50,30 @@ def test_fit_context_trims_evidence_inside_agent_observations():
     assert len(canonical(out).encode()) <= CONTEXT_LIMIT and note
     assert out['world']['jobs'] == data['world']['jobs'] and out['own_memory'] == ['m']
     assert all(e['supports'] == 'kept' for e in out['world']['evidence'])
+
+
+def test_malformed_assurance_answer_applies_no_decision():
+    # Live run 2026-11-02: assurance omitted `approve` for one order; the cycle stopped with a bare KeyError after
+    # applying the other decision. The whole answer is now checked first and the reason is stated.
+    import pytest
+    from mission.planner import validate_review
+    from mission.engine import InvalidAction
+    ok = {'job_id': 'power', 'approve': True, 'reason': 'ok', 'acknowledged_conditions': []}
+    assert validate_review({'decisions': [ok]}, ['power']) == [ok]
+    with pytest.raises(InvalidAction, match='survey is missing approve; no decision applied'):
+        validate_review({'decisions': [ok, {'job_id': 'survey', 'reason': 'x', 'acknowledged_conditions': []}]}, ['power', 'survey'])
+    with pytest.raises(InvalidAction, match='not awaiting review'):
+        validate_review({'decisions': [{**ok, 'job_id': 'water'}]}, ['power'])
+
+
+def test_new_evidence_does_not_restart_a_planning_stop(tmp_path, request, monkeypatch):
+    # Live run 2026-11-02: evidence adoption set planning_needed on a stopped mission and planning resumed by itself.
+    monkeypatch.setenv('MISSION_MODEL_MODE', 'meta')
+    monkeypatch.delenv('MODEL_API_KEY', raising=False)
+    monkeypatch.setattr(provider, 'ENV_FILE', tmp_path / 'absent.env')
+    store = make_store(tmp_path, request)
+    store.initialize()
+    plan_once(store, mission_id='public')
+    assert store.snapshot('public')['state']['inference_stopped']
+    store.commit_unclaimed('public', lambda s: s.__setitem__('planning_needed', True), {'kind': 'test-forced-flag'})
+    assert not plan_once(store, mission_id='public')  # a stop is cleared only by the owner (mission.cli replan)

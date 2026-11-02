@@ -53,6 +53,19 @@ ASSESS=tool('record_assessment','Record an independent public assessment; no exe
     'missing_information':{'type':'array','items':{'type':'string','minLength':1,'maxLength':400},'maxItems':8},
     'source_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':6}})
 
+def validate_review(arguments,pending_ids):
+    """The whole assurance answer is checked before any decision is applied: a malformed decision applies none of them."""
+    decisions=arguments.get('decisions') if isinstance(arguments,dict) else None
+    if not isinstance(decisions,list) or not decisions:raise InvalidAction('Assurance returned no decisions')
+    need={'job_id','approve','reason','acknowledged_conditions'}
+    for d in decisions:
+        missing=sorted(need-set(d)) if isinstance(d,dict) else sorted(need)
+        if missing:raise InvalidAction(f"Assurance decision for {d.get('job_id','an unnamed order') if isinstance(d,dict) else 'an order'} is missing {', '.join(missing)}; no decision applied")
+        if not isinstance(d['approve'],bool) or not isinstance(d['acknowledged_conditions'],list):
+            raise InvalidAction(f"Assurance decision for {d['job_id']} is malformed; no decision applied")
+        if d['job_id'] not in pending_ids:raise InvalidAction(f"Assurance decided {d['job_id']}, which is not awaiting review; no decision applied")
+    return decisions
+
 def atomic(s,fn,*args):
     """Run one tool against a copy and commit it only if it succeeds: a rejected command never changes the mission."""
     trial=deepcopy(s);result=fn(trial,*args)
@@ -263,7 +276,7 @@ def plan_once(store,transport=None,mission_id=None):
     claim=str(uuid.uuid4())
     with store.transaction() as db:
         missions=db.scalars(select(Mission).with_for_update(skip_locked=True)).all()
-        m=next((m for m in missions if (mission_id is None or m.id==mission_id) and m.state['status']=='active' and m.state['mode']=='meta' and m.state.get('planning_needed') and not m.state.get('planning_claim') and (not m.owner or m.pending_ticks>0)),None)
+        m=next((m for m in missions if (mission_id is None or m.id==mission_id) and m.state['status']=='active' and m.state['mode']=='meta' and m.state.get('planning_needed') and not m.state.get('inference_stopped') and not m.state.get('planning_claim') and (not m.owner or m.pending_ticks>0)),None)
         if not m:return False
         mid=m.id;s=deepcopy(m.state);s['planning_claim']={'id':claim,'time':time.time()};s['planning_needed']=False;s['planning_status']='Mission planning in progress'
         store.save(db,m,s,{'kind':'planning-claim','claim':claim})
@@ -372,8 +385,9 @@ def plan_once(store,transport=None,mission_id=None):
                 'Your own earlier assessment is included: if you now approve something it advised against, state what changed. Public reasons only.',
                 {'state':context(s),'orders':orders,'your_earlier_assessment':own},[REVIEW],transport)
             if len(proposals)!=1 or proposals[0]['name']!='review_work_orders':raise InvalidAction('Assurance must return one review_work_orders call')
+            decisions=validate_review(proposals[0]['arguments'],[j['id'] for j in pending])
             decided=set()
-            for d in proposals[0]['arguments']['decisions']:
+            for d in decisions:
                 atomic(s,assurance_decision,d['job_id'],d['approve'],d['reason'],'assurance / '+SPECIALIST_MODEL,d['acknowledged_conditions']);decided.add(d['job_id'])
             missing=[j['id'] for j in pending if j['id'] not in decided]
             if missing:raise InvalidAction('Assurance left work orders undecided: '+', '.join(missing))
@@ -413,7 +427,7 @@ def plan_once(store,transport=None,mission_id=None):
         s['planning_status']='Validated agent work orders recorded'
     except Exception as exc:
         s['inference_stopped']=True
-        failure=str(exc) if isinstance(exc,InvalidAction) else ('Provider HTTP '+str(exc.response.status_code) if isinstance(exc,httpx.HTTPStatusError) else type(exc).__name__)
+        failure=str(exc) if isinstance(exc,InvalidAction) else ('Provider HTTP '+str(exc.response.status_code) if isinstance(exc,httpx.HTTPStatusError) else f'{type(exc).__name__}: {str(exc)[:200]}')
         s['planning_status']='Planning stopped: '+failure.rstrip('.')+'. Owner intervention required.'
         event(s,'Planning needs attention',s['planning_status'])
     finally:

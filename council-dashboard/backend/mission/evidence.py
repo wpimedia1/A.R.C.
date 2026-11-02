@@ -60,7 +60,8 @@ def adopt_latest(store, mid='public'):
     if changed:
         def adopt(state):
             state['source_pins'].update({k:latest_pins[k] for k in changed})
-            state['planning_needed']=state['mode']=='meta'
+            # A planning stop needs the owner (mission.cli replan); new evidence never restarts it.
+            state['planning_needed']=state['mode']=='meta' and not state.get('inference_stopped')
         # Applied only between planning cycles: a plan in progress is never overwritten.
         store.commit_unclaimed(mid,adopt,{'kind':'adopt-evidence','sources':changed,'note':'Catalog context only; no physical parameter changed'})
     return changed
