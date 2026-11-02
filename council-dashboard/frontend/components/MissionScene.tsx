@@ -27,6 +27,19 @@ const inReview=(j:Job)=>j.status==='review';
 const pct=(a:Asset)=>{const b=a as unknown as {battery_wh?:number|null;soc_wh?:number};return b.battery_wh?Math.round(100*(b.soc_wh??0)/b.battery_wh):null;};
 const charging=(a:Asset)=>Boolean((a as unknown as {charging?:boolean}).charging);
 const standby=(s:State,a:Asset)=>((a as unknown as {standby_until_tick?:number}).standby_until_tick||0)>s.tick;
+// D18: a battery unit cannot work a step its charge cannot supply (rate x step length x energy per kg, as the engine).
+const lowBattery=(s:State,a:Asset)=>{const b=a as unknown as {battery_wh?:number|null;soc_wh?:number;energy_wh_per_kg?:number};return Boolean(b.battery_wh)&&(b.soc_wh??0)<(a.rate_per_h||0)*s.spec.tick_hours*(b.energy_wh_per_kg||0)-1e-9;};
+// A job that is running but not progressing right now says why in its reason (engine): paused, standby or night.
+export const pausedJob=(j:Job)=>j.status==='running'&&/^(Paused|Standby|Night)/.test(j.reason||'');
+// HUD line for a running job: ▶ only when at least one of its units is working now; otherwise ⏸ and why.
+function hudLine(s:State,j:Job,night:boolean){
+ const units=j.assigned.map(id=>s.assets.find(a=>a.id===id)).filter((a):a is Asset=>Boolean(a));const pc=`${j.title} · ${fmt(j.progress*100,0)}%`;
+ if(units.some(a=>working(s,a,night)))return `▶ ${pc}`;
+ const why=night&&units.some(a=>a.kind==='rover')?'waiting for daylight (D19)':units.some(a=>standby(s,a))?'standby':units.every(a=>charging(a))?'charging':units.some(a=>lowBattery(s,a))?'batteries too low; recharge needed':units.some(a=>!a.available)?'equipment unavailable':(j.reason||'not progressing');
+ return `⏸ ${pc} · ${why}`;
+}
+// Whether this unit is actually working at this moment, by the same rules the engine applies to the step.
+const working=(s:State,a:Asset,night=false)=>{const j=jobOf(s,a);return Boolean(a.available&&j&&j.status==='running'&&!standby(s,a)&&!charging(a)&&!lowBattery(s,a)&&!(night&&a.kind==='rover'));};
 
 export function Ground(){
  const tex=useLoader(THREE.TextureLoader,'/api/v1/site/ground.jpg');
@@ -51,7 +64,7 @@ function inStep(s:State,a:Asset,clock:StepClock|null){
  return Math.min(rate*f,j.target-j.done);
 }
 function Rover({a,s,clock,labels,night}:{a:Asset;s:State;clock:StepClock|null;labels:boolean;night:boolean}){
- const ref=useRef<THREE.Group>(null);const j=jobOf(s,a);const moving=a.available&&j?.status==='running'&&j.kind==='survey'&&!standby(s,a)&&!night;// D19: no driving at night
+ const ref=useRef<THREE.Group>(null);const j=jobOf(s,a);const moving=j?.kind==='survey'&&working(s,a,night);// D19: no driving at night
  const driven=surveyJobs(s).reduce((t,x)=>t+x.done,0);const at=useMemo(()=>new THREE.Vector3(),[]);
  useFrame((_,dt)=>{if(!ref.current)return;at.set(a.position[0]+driven+inStep(s,a,clock),0,a.position[2]);ref.current.position.lerp(at,1-Math.exp(-dt*2));});
  return <group ref={ref} position={a.position}><group rotation={[0,Math.PI/2,0]}><Suspense fallback={null}><Model file={FILE.rover[0]} size={FILE.rover[1]} tint={a.available?null:'#7a2c12'}/></Suspense>{moving&&<Dust/>}</group>
@@ -76,7 +89,7 @@ const P=(s:State,name:string)=>s.spec.parameters[name].value;
 const trenchAt=(s:State)=>{const t=s.jobs.find(j=>j.id==='trench')!;return new THREE.Vector3(...t.position);};
 const SPOIL=new THREE.Vector3(11,0,16);// spoil pile: illustrative placement
 function Excavator({a,s,i}:{a:Asset;s:State;i:number}){
- const ref=useRef<THREE.Group>(null);const j=jobOf(s,a);const moving=a.available&&j?.status==='running'&&!standby(s,a);
+ const ref=useRef<THREE.Group>(null);const j=jobOf(s,a);const moving=working(s,a);
  const hab=s.assets.find(x=>x.kind==='habitat');const TRENCH=trenchAt(s);
  const target=j?.id==='shielding'&&hab?new THREE.Vector3(...hab.position):SPOIL;const home=new THREE.Vector3(...a.position);
  useFrame(({clock})=>{if(!ref.current)return;if(moving){const f=(Math.sin(clock.elapsedTime*0.6+i*1.7)+1)/2;const p=TRENCH.clone().add(new THREE.Vector3(i*2-1,0,0)).lerp(target,f);ref.current.position.lerp(p,0.1);ref.current.rotation.y=Math.atan2(target.x-TRENCH.x,target.z-TRENCH.z)+(Math.cos(clock.elapsedTime*0.6+i*1.7)>0?0:Math.PI);}else ref.current.position.lerp(home,0.05);});
@@ -84,7 +97,7 @@ function Excavator({a,s,i}:{a:Asset;s:State;i:number}){
 }
 function Drill({a,s}:{a:Asset;s:State}){
  const ref=useRef<THREE.Group>(null);const d=s.jobs.find(j=>j.id==='drill');const w=s.jobs.find(j=>j.id==='water');
- const spinning=a.available&&(d?.status==='running'||w?.status==='running')&&!standby(s,a);
+ const spinning=working(s,a)&&(d?.status==='running'||w?.status==='running');
  useFrame((_,dt)=>{if(ref.current&&spinning)ref.current.rotation.y+=dt*1.6;});
  const level=w?w.progress:0;
  return <group position={a.position}><group ref={ref}><Suspense fallback={null}><Model file={FILE.rodwell[0]} size={FILE.rodwell[1]} tint={a.available?null:'#7a2c12'}/></Suspense></group>
@@ -111,8 +124,8 @@ function Site({s}:{s:State}){
 function Tag({s,a,night=false}:{s:State;a:Asset;night?:boolean}){
  const j=jobOf(s,a);const sb=standby(s,a);const dark=night&&a.kind==='rover'&&j?.status==='running'&&j.kind==='survey';
  const p=pct(a);const bat=p===null?'':` · battery ${p}%`;
- const txt=!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:dark?`${j.title} · ${fmt(j.progress*100,0)}% · waiting for daylight (D19)`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
- const cls=!a.available?'failed':charging(a)?'waiting':sb?'standby':dark?'waiting':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
+ const txt=!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:dark?`${j.title} · ${fmt(j.progress*100,0)}% · waiting for daylight (D19)`:j?.status==='running'&&lowBattery(s,a)?`Battery too low for a step · ${p}% · recharge needed`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
+ const cls=!a.available?'failed':charging(a)?'waiting':sb?'standby':dark?'waiting':j?.status==='running'&&lowBattery(s,a)?'waiting':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
  return <span className={'scene-tag '+cls}><b>{a.name.split(' (')[0]}</b>{txt}</span>;
 }
 // The rover carries its own tag so it follows the rover; the other units stay put.
@@ -167,7 +180,7 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
   <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels} clock={clock} sun={c?.site_sun_enu??null}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary></div>
   <div className="scene-hud">
    <div className="hud-block"><small>{replay?`REPLAY · revision ${replay.n}`:'LIVE · real Mars time'}</small><strong>{solOf(s.tick)} · step {s.tick}</strong>{c&&<span>Sun {c.site_solar_elevation_deg>0?`${fmt(c.site_solar_elevation_deg,0)}° up`:`${fmt(-c.site_solar_elevation_deg,0)}° below the horizon`} · {c.season}</span>}</div>
-   <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>{j.kind==='survey'&&c&&c.site_solar_elevation_deg<=0?`⏸ ${j.title} · ${fmt(j.progress*100,0)}% · waiting for daylight (D19)`:`▶ ${j.title} · ${fmt(j.progress*100,0)}%`}</span>):<span>No robot is working.</span>}
+   <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>{hudLine(s,j,Boolean(c&&c.site_solar_elevation_deg<=0))}</span>):<span>No robot is working.</span>}
     {reviewing.map(j=><span key={j.id}>⏳ {j.title}: authorized, awaiting onboard assurance</span>)}
     {charging_.map(a=><span key={a.id}>⚡ {a.name.split(' (')[0]} charging · battery {pct(a)}%</span>)}
     {!replay&&!running.length&&!reviewing.length&&!charging_.length&&<span>{s.planning_status}</span>}</div>
