@@ -54,7 +54,6 @@ docker compose -f compose.yaml -f compose.prod.yaml up -d --build
 - Missing `DOMAIN`, `POSTGRES_PASSWORD`, `MODEL_API_KEY` or `MISSION_OPERATOR_TOKEN` stops the start with a message naming it. The API port is not exposed; only the HTTPS proxy is.
 - **Spending:** visitor experiments are limited to $0 of model calls by default (`MISSION_VISITOR_*_LIMIT_USD`); cap the public mission with `MISSION_PUBLIC_DAILY_LIMIT_USD` / `MISSION_PUBLIC_MONTHLY_LIMIT_USD`.
 - **Prebuilt image:** every push to `master`/`main` runs the test suite in Docker and publishes `ghcr.io/<owner>/<repo>:latest` (GitHub Actions, `.github/workflows/ci.yml`) for platforms that run images (API: default command; worker: `python -m mission.worker`; both need `DATABASE_URL` to PostgreSQL, worker needs `MODEL_API_KEY`).
-- `render.yaml` is a Render Blueprint draft for the same two services plus PostgreSQL.
 
 ## Versions
 
