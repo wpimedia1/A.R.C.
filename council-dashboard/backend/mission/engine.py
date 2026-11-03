@@ -64,6 +64,12 @@ def reviewed_onboard(s, actor):
     return s['mode'] == 'meta' and actor != 'fixed-priority'
 
 
+def rover_drive_net_wh(s, a):
+    """Battery energy one driving step takes from the rover: the published slow-driving draw bound minus the MMRTG output,
+    over the step. An upper bound: the bound is "less than" the published value."""
+    return max(0.0, a['drive_w'] - a['rtg_w']) * s['spec']['tick_hours']
+
+
 def battery(a):
     """D18: battery-powered units carry a state of charge (Wh)."""
     return a.get('battery_wh') is not None
@@ -439,6 +445,14 @@ def advance(state, env=None):
                 event(s, 'Battery low: ' + a['name'], f"{a['soc_wh']:.0f} Wh left; one step of work needs {step_energy_wh(s, a):.0f} Wh. Work paused until recharged.", j['id'])
                 s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
         working = [a for a in units if not a.get('charging') and a['id'] not in charged_now and a not in empty]
+        # Rover battery: driving draws at most the published slow-driving bound; the MMRTG supplies part of it. A step the
+        # battery cannot cover waits while the MMRTG recharges it.
+        flat = [a for a in working if a.get('rtg_battery_wh') and a['rtg_soc_wh'] < rover_drive_net_wh(s, a) - 1e-9]
+        for a in flat:
+            j['reason'] = f"Rover battery {a['rtg_soc_wh']:.0f} Wh: below one driving step ({rover_drive_net_wh(s, a):.0f} Wh); MMRTG recharging"
+        working = [a for a in working if a not in flat]
+        if not working and flat:
+            continue
         if not working:
             j['reason'] = 'Paused: ' + ('charging' if any(a.get('charging') for a in units) else 'batteries too low; recharge needed')
             continue
@@ -453,6 +467,9 @@ def advance(state, env=None):
         amount = min(rate, j['target'] - j['done'])
         for a in [a for a in working if battery(a)]:
             a['soc_wh'] = max(0.0, a['soc_wh'] - amount / len(working) * a['energy_wh_per_kg'])
+        for a in [a for a in working if a.get('rtg_battery_wh')]:
+            if amount > 0:
+                a['rtg_soc_wh'] = max(0.0, a['rtg_soc_wh'] - rover_drive_net_wh(s, a)); a['drove_tick'] = s['tick']
         if not power_known(j):
             energy = None
             s['energy_unestimated_hours'][j['id']] = s['energy_unestimated_hours'].get(j['id'], 0.0) + hours
@@ -507,6 +524,10 @@ def advance(state, env=None):
         s['readiness_tick'] = s['tick']
         # Readiness is a milestone, not the end of operations: added work, charging and failures continue afterwards.
         event(s, 'Readiness criteria met', s['spec']['readiness']['description'] + ' Operations continue. Simulation result, not engineering certification.')
+    for a in s['assets']:
+        if a.get('rtg_battery_wh') and a.get('drove_tick') != s['tick']:
+            # Not driving this step: the MMRTG's full output recharges the rover battery.
+            a['rtg_soc_wh'] = min(a['rtg_battery_wh'], a['rtg_soc_wh'] + a['rtg_w'] * hours)
     if s['mode'] == 'fixed-priority' and s['status'] == 'active':
         # The benchmark charges any battery that cannot supply the next step, when grid power allows.
         for a in [a for a in s['assets'] if battery(a) and a['available'] and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]:

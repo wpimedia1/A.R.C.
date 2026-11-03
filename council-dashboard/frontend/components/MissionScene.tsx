@@ -23,8 +23,8 @@ export const FILE:Record<string,[string,number]>={rover:['/models/perseverance.g
 const jobOf=(s:State,a:Asset)=>s.jobs.find(j=>j.assigned.includes(a.id));
 // D10: agents run onboard; an authorized order waits only for onboard assurance, then runs.
 const inReview=(j:Job)=>j.status==='review';
-// D18: battery state of charge as a percentage, for battery-powered units only.
-const pct=(a:Asset)=>{const b=a as unknown as {battery_wh?:number|null;soc_wh?:number};return b.battery_wh?Math.round(100*(b.soc_wh??0)/b.battery_wh):null;};
+// D18: battery state of charge as a percentage (excavators: grid-charged; rover: its own batteries, MMRTG-charged).
+const pct=(a:Asset)=>{const b=a as unknown as {battery_wh?:number|null;soc_wh?:number;rtg_battery_wh?:number;rtg_soc_wh?:number};return b.battery_wh?Math.round(100*(b.soc_wh??0)/b.battery_wh):b.rtg_battery_wh?Math.round(100*(b.rtg_soc_wh??0)/b.rtg_battery_wh):null;};
 const charging=(a:Asset)=>Boolean((a as unknown as {charging?:boolean}).charging);
 const standby=(s:State,a:Asset)=>((a as unknown as {standby_until_tick?:number}).standby_until_tick||0)>s.tick;
 // D18: a battery unit cannot work a step its charge cannot supply (rate x step length x energy per kg, as the engine).

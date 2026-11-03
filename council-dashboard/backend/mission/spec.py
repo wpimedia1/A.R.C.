@@ -48,8 +48,9 @@ def specification(package_id=PACKAGE_ID, overrides=None):
     assets = [
         {'id': 'rover-1', 'kind': 'rover', 'name': 'Survey rover (Perseverance-class)', 'mass_kg': v['rover.mass_kg'],
          'grid_power_kw': 0.0, 'rate_per_h': v['rover.max_drive_m_per_sol'] / v['mars.day_length_h'], 'rate_unit': 'm',
-         'parameters': ref('rover.mass_kg', 'rover.power_w', 'rover.max_drive_m_per_sol', 'mars.day_length_h'),
-         'note': 'Self-powered by MMRTG (110 W); draws nothing from the grid.'},
+         'rtg_battery_wh': v['rover.battery_wh'], 'rtg_soc_wh': v['rover.battery_wh'], 'drive_w': v['rover.drive_power_max_w'], 'rtg_w': v['rover.power_w'],
+         'parameters': ref('rover.mass_kg', 'rover.power_w', 'rover.max_drive_m_per_sol', 'mars.day_length_h', 'rover.battery_wh', 'rover.drive_power_max_w'),
+         'note': 'Self-powered: MMRTG (about 110 W) and its own batteries (2,408 Wh); draws nothing from the grid. Driving draws under 200 W (NASA); the batteries cover the difference and the MMRTG recharges them.'},
         *[{'id': f'excavator-{i}', 'kind': 'excavator', 'name': f'Excavator {i} (RASSOR 2.0-class)', 'mass_kg': v['excavator.mass_kg'],
            'grid_power_kw': 0.0, 'rate_per_h': v['excavator.mining_rate_kg_h'], 'rate_unit': 'kg',
            # D18: works on its battery; recharges from the fission grid. Starts the mission fully charged.

@@ -169,6 +169,18 @@
    "authors": "Newman, C. (NASA Science Editorial Team)",
    "year": 2022,
    "url": "https://science.nasa.gov/blogs/things-that-go-bump-in-the-night-on-mars"
+  },
+  "m2020battery": {
+   "title": "Battery System Design, Testing, and Operation for the Mars Perseverance Rover and Ingenuity Helicopter",
+   "authors": "NASA/JPL",
+   "year": 2024,
+   "url": "https://www.nasa.gov/wp-content/uploads/2024/01/battery-system-design-testing-and-operation-for-the-mars-perseverance-rover-and-ingenuity-helicopter.pdf"
+  },
+  "m2020components": {
+   "title": "Perseverance Rover Components",
+   "authors": "NASA Science",
+   "year": 2024,
+   "url": "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/"
   }
  },
  "parameters": {
@@ -811,6 +823,26 @@
     "excavator.recharge_h_per_day"
    ],
    "note": "Average charging power that returns one day of excavation energy within the 8 recharge hours."
+  },
+  "rover.battery_wh": {
+   "classification": "published",
+   "value": 2408,
+   "unit": "Wh",
+   "source": "m2020battery",
+   "locator": "Slide 5, battery requirements",
+   "quote": "Energy of 2408 Watt-hours at 20°C",
+   "retrieved": "2026-11-03",
+   "note": "Requirement at 20 °C; charging and discharging are permitted between −20 °C and +30 °C (same slide)."
+  },
+  "rover.drive_power_max_w": {
+   "classification": "published",
+   "value": 200,
+   "unit": "W",
+   "source": "m2020components",
+   "locator": "Rover Speed",
+   "quote": "The energy-efficient slow pace consumes less than 200 watts",
+   "retrieved": "2026-11-03",
+   "note": "Published upper bound for slow driving, used as the drive draw (conservative); not a measured constant across terrain."
   }
  },
  "operator_decisions": {

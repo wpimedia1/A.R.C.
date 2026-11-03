@@ -140,6 +140,13 @@ def create_app(store=None):
         from .inspection import inspect
         return inspect(store,mid,owner(request))
 
+    @app.get('/api/v1/missions/{mid}/robustness')
+    def robustness_runs(mid:str,request:Request,seeds:int=10,ticks:int=24*30):
+        # D14: the experiment replayed under several failure seeds (benchmark planner, no model calls).
+        from .inspection import robustness
+        try:return robustness(store,mid,owner(request),seeds,ticks)
+        except InvalidAction as exc:raise HTTPException(400,str(exc))
+
     @app.get('/api/v1/missions/{mid}/schedule')
     def schedule(mid:str,request:Request):
         from .schedule import forecast

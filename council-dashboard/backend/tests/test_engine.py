@@ -328,3 +328,22 @@ def test_forecast_and_uncertainty_handle_created_work():
         assert f['forecast_readiness_tick'] is not None and any(r['job_id'] == jid for r in f['jobs'])
     u = uncertainty(s, 24 * 200)
     assert u['parameters'] and u['readiness_tick_range'] is not None
+
+
+def test_rover_battery_drains_while_driving_and_the_mmrtg_recharges_it():
+    # Register 39: NASA's published 2,408 Wh battery and <200 W slow-driving bound; the 110 W MMRTG covers part of the draw.
+    from mission.engine import asset_by_id, rover_drive_net_wh
+    s = new_state('fixed-priority'); s['failures_enabled'] = False
+    rover = asset_by_id(s, 'rover-1')
+    net = rover_drive_net_wh(s, rover)
+    assert rover['rtg_battery_wh'] == 2408 and net == pytest.approx((200 - 110) * s['spec']['tick_hours'])
+    start(s, 'survey', ['rover-1'], 'Survey.', 'fixed-priority', [s['spec']['package_id']])
+    s = advance(s); rover = asset_by_id(s, 'rover-1')
+    assert job_by_id(s, 'survey')['done'] > 0 and rover['rtg_soc_wh'] == pytest.approx(2408 - net)
+    rover['rtg_soc_wh'] = net / 2  # below one driving step
+    done = job_by_id(s, 'survey')['done']
+    s = advance(s); rover = asset_by_id(s, 'rover-1')
+    assert job_by_id(s, 'survey')['done'] == done and 'Rover battery' in job_by_id(s, 'survey')['reason']
+    assert rover['rtg_soc_wh'] == pytest.approx(net / 2 + 110 * s['spec']['tick_hours'])  # MMRTG recharge while waiting
+    s = advance(s)
+    assert job_by_id(s, 'survey')['done'] > done

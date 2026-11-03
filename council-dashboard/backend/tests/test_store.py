@@ -97,3 +97,23 @@ def test_one_refresh_adopts_catalog_and_products_in_one_revision(tmp_path, reque
     assert s['source_pins']['swim'] == 'swim:new-product' and s['source_pins'][source] == source + ':new'
     assert 'local_sensors' in s
     assert adopt_latest(store, products={'swim': 'swim:new-product'}) == [] and store.snapshot('public')['revision'] == before + 1
+
+
+def test_robustness_runs_the_experiment_under_several_failure_seeds(tmp_path, request, monkeypatch):
+    # Register 51: the experiment's fork snapshot and changes replayed under N failure seeds; every run is reported.
+    monkeypatch.setenv('COOKIE_SECURE', 'false')
+    from mission.inspection import robustness, replay_baseline
+    from mission.store import Revision
+    from sqlalchemy import select
+    store = make_store(tmp_path, request); store.initialize()
+    fork = store.fork(store.snapshot('public')['revision'], 'owner-a')
+    with pytest.raises(InvalidAction, match='experiments'):
+        robustness(store, 'public', None, 3, 48)
+    r = robustness(store, fork['id'], 'owner-a', 3, 24 * 20)
+    assert r['seeds'] == 3 and len(r['runs']) == 3 and len({x['seed'] for x in r['runs']}) == 3
+    assert all(x['failures'] >= 0 for x in r['runs']) and set(r['resources']) == set(r['runs'][0]['resources'])
+    # Same seed, same harness: a run is reproducible.
+    with store.transaction() as db:
+        history = db.scalars(select(Revision).where(Revision.mission_id == fork['id']).order_by(Revision.revision)).all()
+        a, _ = replay_baseline(store, history, history[0].state['tick'] + 24 * 20, r['runs'][0]['seed'])
+    assert a['resources'] == r['runs'][0]['resources']
