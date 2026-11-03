@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 import httpx
 from sqlalchemy import select
 from .store import Mission, Budget, InferenceReceipt, SourceVersion
-from .engine import set_standby, charge, battery, step_energy_wh, instantiate_job, open_conditions, start, reasons, job_by_id, InvalidAction, event, rate_per_tick, demand_kw, power_known, compatible_free, assurance_decision, place_order, failed_without_order, sim_unix
+from .engine import set_standby, charge, swap_battery, battery, step_energy_wh, instantiate_job, open_conditions, start, reasons, job_by_id, InvalidAction, event, rate_per_tick, demand_kw, power_known, compatible_free, assurance_decision, place_order, failed_without_order, sim_unix
 from .spec import canonical, digest
 
 from .provider import ENDPOINT,PRICE_SOURCE,DIRECTOR_MODEL,SPECIALIST_MODEL,ProviderConfigError,credential,fingerprint,cost_usd,max_cost_usd,send
@@ -47,6 +47,8 @@ STANDBY=tool('set_standby','Put units in protective standby for 1-72 ticks (no w
      'basis':{'type':'array','minItems':1,'maxItems':6,'items':{'type':'object','properties':{'observation_id':{'type':'string'},'variable':{'type':'string'},
       'interpretation':{'type':'string','minLength':1,'maxLength':400}},'required':['observation_id','variable','interpretation'],'additionalProperties':False}}})
 CHARGE=tool('charge_batteries','Recharge battery-powered units from the fission grid (decision D18). They do no work while charging and stop when full; charging draws grid power. Use before a battery cannot supply the next step of work.',
+    {'asset_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':8},'reason':{'type':'string','minLength':1,'maxLength':600}})
+SWAP=tool('swap_batteries','Swap a unit\'s depleted battery for its charged spare pack (decision D21). The swap completes within the step, so the unit keeps working; the depleted pack then charges on the grid. Prefer it over charging when the spare is full (batteries.spare_wh).',
     {'asset_ids':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':8},'reason':{'type':'string','minLength':1,'maxLength':600}})
 PLAN=tool('set_mission_plan','Prioritize all jobs; this does not authorize execution.',{'priority':{'type':'array','items':{'type':'string'},'minItems':1,'maxItems':32},'summary':{'type':'string','maxLength':600}})
 LESSONS=tool('record_lessons','Replace your long-term lessons: keep, merge or add lessons from your finished sols. Each lesson is one public sentence citing the recorded cycle, decision or event ids (E<number>) it rests on.',
@@ -106,7 +108,7 @@ def context(s):
             'weather':s.get('weather_brief'),
             'work_orders_awaiting_assurance':[{'job_id':j['id'],**j.get('authorization',{})} for j in s['jobs'] if j['status']=='review'],
             'batteries':[{'asset_id':a['id'],'charge_wh':round(a['soc_wh'],1),'capacity_wh':a['battery_wh'],'charging':bool(a.get('charging')),
-                'one_step_of_work_wh':round(step_energy_wh(s,a),1),'charge_kw':a['charge_kw']} for a in s['assets'] if battery(a)]}
+                'one_step_of_work_wh':round(step_energy_wh(s,a),1),'charge_kw':a['charge_kw'],'spare_wh':round(a.get('spare_soc_wh') or 0,1),'spare_charging':bool(a.get('spare_charging'))} for a in s['assets'] if battery(a)]}
 
 def reserve(store,mid,operation,model,payload):
     size=len(canonical(payload).encode())
@@ -382,7 +384,7 @@ def plan_once(store,transport=None,mission_id=None):
                 'assessment':assessment,'request_id':claim+':assessment:'+role})
         cycle['status']='reconciling'
         director_context=context(s)|{'independent_assessments':cycle['assessments']}
-        proposals,_=call(store,mid,claim+':director',DIRECTOR_MODEL,'Direct the configured robotic outpost simulator. Reconcile the independent assessments and explicitly explain unresolved evidence gaps or disagreements. Return exactly one set_mission_plan tool call. Prioritize feasible work, dependencies and constraints. Package parameters carry their sources and limits; operator decisions are assumptions. You cannot manufacture missing observations or override validation. Give a short public summary, never private reasoning. You may also call create_job to add work from the listed templates. Weather: measured values, statistical estimates with 95% intervals and their track record are in weather; if conditions warrant protecting units, call set_standby with basis entries naming the stored observation ids (weather ids) of the measurement or estimate and your interpretation, and state its uncertainty. Never present an estimate as a measurement. You run onboard and act without waiting for Earth. Batteries: if an excavator battery cannot supply the next step of work (batteries.one_step_of_work_wh), call charge_batteries; charging needs commissioned grid power and spare capacity.',director_context|{'job_templates':[{k:t[k] for k in ('template_id','title','owner','basis','dependencies')} for t in s['spec'].get('templates',[])]},[PLAN,CREATE,STANDBY,CHARGE],transport)
+        proposals,_=call(store,mid,claim+':director',DIRECTOR_MODEL,'Direct the configured robotic outpost simulator. Reconcile the independent assessments and explicitly explain unresolved evidence gaps or disagreements. Return exactly one set_mission_plan tool call. Prioritize feasible work, dependencies and constraints. Package parameters carry their sources and limits; operator decisions are assumptions. You cannot manufacture missing observations or override validation. Give a short public summary, never private reasoning. You may also call create_job to add work from the listed templates. Weather: measured values, statistical estimates with 95% intervals and their track record are in weather; if conditions warrant protecting units, call set_standby with basis entries naming the stored observation ids (weather ids) of the measurement or estimate and your interpretation, and state its uncertainty. Never present an estimate as a measurement. You run onboard and act without waiting for Earth. Batteries: if an excavator battery cannot supply the next step of work (batteries.one_step_of_work_wh), call swap_batteries if its spare pack is charged (D21; the unit keeps working), otherwise charge_batteries; charging needs commissioned grid power and spare capacity.',director_context|{'job_templates':[{k:t[k] for k in ('template_id','title','owner','basis','dependencies')} for t in s['spec'].get('templates',[])]},[PLAN,CREATE,STANDBY,CHARGE,SWAP],transport)
         for c in [x for x in proposals if x['name']=='set_standby']:
             a=c['arguments']
             try:
@@ -396,6 +398,11 @@ def plan_once(store,transport=None,mission_id=None):
             try:atomic(s,charge,list(a['asset_ids']),str(a['reason'])[:600],'director / '+DIRECTOR_MODEL);receipts.append({'role':'director','proposal':c,'validation':'accepted'})
             except (InvalidAction,KeyError,TypeError,ValueError) as exc:receipts.append({'role':'director','proposal':c,'validation':'rejected: '+str(exc)})
         proposals=[x for x in proposals if x['name']!='charge_batteries']
+        for c in [x for x in proposals if x['name']=='swap_batteries']:
+            a=c['arguments']
+            try:atomic(s,swap_battery,list(a['asset_ids']),str(a['reason'])[:600],'director / '+DIRECTOR_MODEL);receipts.append({'role':'director','proposal':c,'validation':'accepted'})
+            except (InvalidAction,KeyError,TypeError,ValueError) as exc:receipts.append({'role':'director','proposal':c,'validation':'rejected: '+str(exc)})
+        proposals=[x for x in proposals if x['name']!='swap_batteries']
         created=[]
         for c in [x for x in proposals if x['name']=='create_job']:
             try:created.append(atomic(s,instantiate_job,c['arguments']['template_id'],'director / '+DIRECTOR_MODEL,str(c['arguments']['summary'])[:600]))

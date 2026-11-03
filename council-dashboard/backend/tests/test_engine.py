@@ -38,13 +38,14 @@ def test_readiness_time_matches_published_rates():
     tick_h = v['mars.day_length_h'] / 24
     s = run(new_state('fixed-priority'), 24 * 200)
     assert s['milestones']['ready'] and s['status'] == 'active'  # readiness is a milestone; operations continue
-    # D18: excavators mine on battery and recharge; averaged over a day they deliver the published daily rate.
-    trench_ticks = math.ceil(v['habitat.trench_mass_kg'] / (2 * v['excavator.min_rate_kg_per_day'] / 24 * tick_h))
+    # D18 + D21: excavators mine on battery; a charged spare is swapped in when a pack runs low while the depleted pack
+    # charges, so mining continues at the published mining rate instead of stopping for recharge.
+    trench_ticks = math.ceil(v['habitat.trench_mass_kg'] / (2 * v['excavator.mining_rate_kg_h'] * tick_h))
     survey_ticks = math.ceil(v['rover.max_drive_m_per_sol'] / (v['rover.max_drive_m_per_sol'] / v['mars.day_length_h'] * tick_h) - 1e-9)
     sv = job_by_id(s, 'survey')
     assert sv['completed_tick'] - sv['started_tick'] == survey_ticks
     took = job_by_id(s, 'trench')['completed_tick'] - job_by_id(s, 'trench')['started_tick']
-    assert abs(took - trench_ticks) <= 0.02 * trench_ticks, (took, trench_ticks)  # whole-step charging cycles
+    assert abs(took - trench_ticks) <= 0.02 * trench_ticks, (took, trench_ticks)  # whole-step swap timing
 
 
 def test_resources_equal_physical_ledger_and_energy_matches_power():
@@ -347,3 +348,26 @@ def test_rover_battery_drains_while_driving_and_the_mmrtg_recharges_it():
     assert rover['rtg_soc_wh'] == pytest.approx(net / 2 + 110 * s['spec']['tick_hours'])  # MMRTG recharge while waiting
     s = advance(s)
     assert job_by_id(s, 'survey')['done'] > done
+
+
+def test_battery_swap_keeps_the_excavator_working_and_charges_the_spare():
+    # Register 40 / D21: a charged spare is swapped in within the step; the depleted pack charges on the grid as the spare.
+    from mission.engine import asset_by_id, swap_battery, step_energy_wh
+    s = new_state('fixed-priority'); s['failures_enabled'] = False
+    s.update(power_capacity_kw=40.0, power_commissioned=True)
+    a = asset_by_id(s, 'excavator-1')
+    full = a['battery_wh']
+    with pytest.raises(InvalidAction, match='already full'):
+        swap_battery(s, ['excavator-1'], 'test', 'test')
+    a['soc_wh'] = step_energy_wh(s, a) / 2
+    swap_battery(s, ['excavator-1'], 'Battery below one step.', 'test')
+    assert a['soc_wh'] == full and a['spare_soc_wh'] < full and a['spare_charging'] and s['power_used_kw'] == a['charge_kw']
+    with pytest.raises(InvalidAction, match='spare pack is not charged'):
+        a['soc_wh'] = 0.0; swap_battery(s, ['excavator-1'], 'again', 'test')
+    a['soc_wh'] = full
+    for _ in range(48):
+        s = advance(s)
+        a = asset_by_id(s, 'excavator-1')
+        if not a['spare_charging']:
+            break
+    assert a['spare_soc_wh'] == full and s['power_used_kw'] == 0.0

@@ -123,7 +123,7 @@ function Site({s}:{s:State}){
 }
 function Tag({s,a,night=false}:{s:State;a:Asset;night?:boolean}){
  const j=jobOf(s,a);const sb=standby(s,a);const dark=night&&a.kind==='rover'&&j?.status==='running'&&j.kind==='survey';
- const p=pct(a);const bat=p===null?'':` · battery ${p}%`;
+ const p=pct(a);const sp=(a as unknown as {spare_soc_wh?:number;battery_wh?:number});const spare=sp.spare_soc_wh!=null&&sp.battery_wh?` · spare ${Math.round(100*sp.spare_soc_wh/sp.battery_wh)}%`:'';const bat=p===null?'':` · battery ${p}%${spare}`;
  const txt=!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:dark?`${j.title} · ${fmt(j.progress*100,0)}% · waiting for daylight (D19)`:j?.status==='running'&&lowBattery(s,a)?`Battery too low for a step · ${p}% · recharge needed`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
  const cls=!a.available?'failed':charging(a)?'waiting':sb?'standby':dark?'waiting':j?.status==='running'&&lowBattery(s,a)?'waiting':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
  return <span className={'scene-tag '+cls}><b>{a.name.split(' (')[0]}</b>{txt}</span>;

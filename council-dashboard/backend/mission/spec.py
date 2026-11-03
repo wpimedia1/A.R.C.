@@ -42,6 +42,8 @@ def specification(package_id=PACKAGE_ID, overrides=None):
     v = pkg['values']
     tick_h = v['mars.day_length_h'] / 24  # D7: one tick = 1/24 sol
     from .package import PackageError
+    if v['battery_swap.time_s'] > tick_h * 3600:
+        raise PackageError('A battery swap (D21) must complete within one step')
     if v['ice.ice_below_overburden_m'] <= 0:
         # The drill target (the overburden) must end inside the regional ice layer (Bramson et al. 2015), or the Rodwell
         # has no ice to melt.
@@ -61,8 +63,8 @@ def specification(package_id=PACKAGE_ID, overrides=None):
            'grid_power_kw': 0.0, 'rate_per_h': v['excavator.mining_rate_kg_h'], 'rate_unit': 'kg',
            # D18: works on its battery; recharges from the fission grid. Starts the mission fully charged.
            'battery_wh': v['excavator.battery_wh'], 'soc_wh': v['excavator.battery_wh'], 'energy_wh_per_kg': v['excavator.energy_wh_per_kg'],
-           'charge_kw': v['excavator.charge_kw'], 'charging': False,
-           'parameters': ref('excavator.mass_kg', 'excavator.mining_rate_kg_h', 'excavator.battery_wh', 'excavator.energy_wh_per_kg', 'excavator.charge_kw'),
+           'charge_kw': v['excavator.charge_kw'], 'charging': False, 'spare_soc_wh': v['excavator.battery_wh'], 'spare_charging': False,
+           'parameters': ref('excavator.mass_kg', 'excavator.mining_rate_kg_h', 'excavator.battery_wh', 'excavator.energy_wh_per_kg', 'excavator.charge_kw', 'battery_swap.time_s'),
            'note': 'Works on its battery (1,410 Wh, 0.761 Wh per kg excavated) and recharges from the fission grid (D18).'} for i in (1, 2)],
         {'id': 'rodwell-1', 'kind': 'rodwell', 'name': 'Rodwell ice-melt water well', 'mass_kg': None,
          'grid_power_kw': v['rodwell.power_kw'], 'rate_per_h': v['rodwell.water_kg_per_day'] / 24, 'rate_unit': 'kg',

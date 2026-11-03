@@ -113,6 +113,53 @@ def charge(s, asset_ids, reason, actor):
     s.setdefault('charge_log', []).append({'tick': s['tick'], 'assets': list(asset_ids), 'reason': reason, 'actor': actor})
 
 
+def swap_battery(s, asset_ids, reason, actor):
+    """D21: swap a unit's battery for its charged spare pack at the charging station. A robotic swap takes under a minute
+    (published automated swap), so the unit works in the same step; the depleted pack then charges on the grid as the
+    spare when capacity allows."""
+    if not isinstance(reason, str) or not reason.strip():
+        raise InvalidAction('A battery swap needs a public reason')
+    if not isinstance(asset_ids, list) or not asset_ids or len(set(asset_ids)) != len(asset_ids):
+        raise InvalidAction('A battery swap needs a list of distinct units')
+    units = []
+    for aid in asset_ids:
+        a = asset_by_id(s, aid)
+        if not battery(a) or a.get('spare_soc_wh') is None:
+            raise InvalidAction(f'{aid} has no swappable battery')
+        if not a['available']:
+            raise InvalidAction(f'{aid} is unavailable')
+        if a.get('charging'):
+            raise InvalidAction(f'{aid} is charging; stop charging before swapping')
+        if a.get('spare_charging') or a['spare_soc_wh'] < a['battery_wh'] - 1e-9:
+            raise InvalidAction(f"{aid} spare pack is not charged ({a['spare_soc_wh']:.0f} of {a['battery_wh']:.0f} Wh)")
+        if a['soc_wh'] >= a['battery_wh'] - 1e-9:
+            raise InvalidAction(f'{aid} battery is already full')
+        units.append(a)
+    for a in units:
+        a['soc_wh'], a['spare_soc_wh'] = a['spare_soc_wh'], a['soc_wh']
+        a['low_flagged'] = False
+        event(s, 'Battery swapped: ' + a['name'], f"Charged spare in; depleted pack ({a['spare_soc_wh']:.0f} Wh) out for charging (D21). {reason}")
+        start_spare_charging(s, a)
+    s.setdefault('charge_log', []).append({'tick': s['tick'], 'assets': list(asset_ids), 'reason': reason, 'actor': actor, 'kind': 'swap'})
+
+
+def start_spare_charging(s, a):
+    """The spare pack charges on the grid at the unit's charge rate when fission power is commissioned and capacity is free."""
+    if a.get('spare_charging') or a['spare_soc_wh'] >= a['battery_wh'] - 1e-9:
+        return False
+    if not s['power_commissioned'] or s['power_used_kw'] + a['charge_kw'] > s['power_capacity_kw'] + 1e-9:
+        return False
+    a['spare_charging'] = True
+    s['power_used_kw'] += a['charge_kw']
+    return True
+
+
+def stop_spare_charging(s, a):
+    if a.get('spare_charging'):
+        a['spare_charging'] = False
+        s['power_used_kw'] = max(0.0, s['power_used_kw'] - a['charge_kw'])
+
+
 def stop_charging(s, a, why):
     if a.get('charging'):
         a['charging'] = False
@@ -399,10 +446,25 @@ def advance(state, env=None):
             release(s, j, 'blocked', 'Execution stopped: ' + ('equipment unavailable' if lost else 'power capacity below allocated demand'))
             event(s, j['title'] + ' stopped', j['reason'], j['id'])
             s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
+    for a in [a for a in s['assets'] if a.get('spare_charging')]:
+        if s['power_used_kw'] > s['power_capacity_kw'] + 1e-9:
+            stop_spare_charging(s, a)
     for a in [a for a in s['assets'] if a.get('charging')]:
         if s['power_used_kw'] > s['power_capacity_kw'] + 1e-9:
             stop_charging(s, a, f"Grid supply {s['power_capacity_kw']} kW is below booked demand; charging interrupted.")
             s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
+    for a in [a for a in s['assets'] if a.get('spare_soc_wh') is not None]:
+        # Spare packs charge off the unit (at the station): they take grid power but never stop the unit working.
+        if a.get('spare_charging'):
+            added = min(a['charge_kw'] * s['spec']['wh_per_kwh'] * hours, a['battery_wh'] - a['spare_soc_wh'])
+            a['spare_soc_wh'] += added
+            s['energy_used_kwh'] += added / s['spec']['wh_per_kwh']
+            s['charging_energy_kwh'] = s.get('charging_energy_kwh', 0.0) + added / s['spec']['wh_per_kwh']
+            if a['spare_soc_wh'] >= a['battery_wh'] - 1e-9:
+                a['spare_soc_wh'] = a['battery_wh']; stop_spare_charging(s, a)
+                event(s, 'Spare pack charged: ' + a['name'], 'Ready for the next swap (D21).')
+        else:
+            start_spare_charging(s, a)
     # D18: charging units take booked grid power and refill; they stop on their own when full.
     charged_now = set()  # a unit that charged during this step does no work in it
     for a in [a for a in s['assets'] if a.get('charging')]:
@@ -536,10 +598,12 @@ def advance(state, env=None):
             # Not driving this step: the MMRTG's full output recharges the rover battery.
             a['rtg_soc_wh'] = min(a['rtg_battery_wh'], a['rtg_soc_wh'] + a['rtg_w'] * hours)
     if s['mode'] == 'fixed-priority' and s['status'] == 'active':
-        # The benchmark charges any battery that cannot supply the next step, when grid power allows.
+        # The benchmark swaps in a charged spare (D21), else charges, any battery that cannot supply the next step.
         for a in [a for a in s['assets'] if battery(a) and a['available'] and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]:
-            try:charge(s, [a['id']], 'Battery below one step of work.', 'fixed-priority')
-            except InvalidAction:pass
+            try:swap_battery(s, [a['id']], 'Battery below one step of work.', 'fixed-priority')
+            except InvalidAction:
+                try:charge(s, [a['id']], 'Battery below one step of work.', 'fixed-priority')
+                except InvalidAction:pass
         for jid in s['priority']:
             j = job_by_id(s, jid)
             if j['status'] in ('pending', 'blocked'):

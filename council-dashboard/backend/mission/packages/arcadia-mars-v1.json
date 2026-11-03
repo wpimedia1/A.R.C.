@@ -1,7 +1,7 @@
 {
  "id": "arcadia-mars-v1",
  "environment": "mars",
- "status": "operator decisions D1-D20 approved (D15 retired)",
+ "status": "operator decisions D1-D21 approved (D15 retired)",
  "sources": {
   "kleinhenz2017": {
    "title": "An ISRU Propellant Production System to Fully Fuel a Mars Ascent Vehicle",
@@ -200,6 +200,12 @@
    "authors": "Guo, J. et al.",
    "year": 2015,
    "url": "https://arxiv.org/pdf/1507.03473"
+  },
+  "ocado_swap": {
+   "title": "Battery swap (technical specifications)",
+   "authors": "Ocado Intelligent Automation",
+   "year": 2025,
+   "url": "https://ocadointelligentautomation.com/systems/battery-swap"
   }
  },
  "parameters": {
@@ -922,6 +928,16 @@
     "mars.surface_dose_ugy_per_day"
    ],
    "note": "Days of surface exposure to reach the rated total dose (1 krad = 10 Gy)."
+  },
+  "battery_swap.time_s": {
+   "classification": "published",
+   "value": 60,
+   "unit": "s",
+   "source": "ocado_swap",
+   "locator": "Technical Specifications",
+   "quote": "Battery swap time: sub-60 seconds",
+   "retrieved": "2026-11-03",
+   "note": "Terrestrial automated swap; upper bound used. Shows a robotic swap completes well within one simulation step."
   }
  },
  "operator_decisions": {
@@ -1027,6 +1043,12 @@
    "reason": "Owner instruction 2026-11-02: long-running autonomy needs bounded memory without losing what was learned (semantic consolidation), and without drift of the core rules.",
    "approved": true,
    "approved_on": "2026-11-02"
+  },
+  "D21_battery_swap": {
+   "choice": "Each excavator carries one spare battery pack of the same capacity at the charging station. When a battery cannot supply the next step, the director (or the benchmark) swaps in the charged spare; the swap completes within the step (published robotic swap under 60 s), and the depleted pack charges on the grid at the excavator charge rate as the new spare. Spare count and Mars swap hardware are not published for RASSOR-class machines; one spare per unit is the recorded assumption.",
+   "reason": "Owner instruction: autonomous agents must recharge and change batteries to stay online. Swap timing: Ocado Intelligent Automation, sub-60 s.",
+   "approved": true,
+   "approved_on": "2026-11-03"
   }
  },
  "conflicts": {}
