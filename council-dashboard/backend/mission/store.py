@@ -213,6 +213,10 @@ class Store:
             m = Mission(id='public', state=state, revision=0, next_tick=now + state['spec']['tick_seconds'], pending_ticks=0, used_ticks=0)
             db.add(m)
             self.save(db, m, state, {'kind':'initialize', 'trigger':'start pressed'})
+            # D13: SAM characterizes the site at each genesis. A site analysis recorded for an earlier mission does not
+            # belong to this one, so its status is cleared and the worker runs SAM for the new mission.
+            old = db.get(ServiceStatus, 'site-analysis')
+            if old: db.delete(old)
         # Evidence already downloaded by earlier source refreshes is attached at once (no download), so a new mission
         # starts with its regional products instead of waiting for the next daily refresh.
         from .evidence import attach_stored

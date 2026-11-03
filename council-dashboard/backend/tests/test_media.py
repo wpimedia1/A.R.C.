@@ -95,3 +95,13 @@ def test_start_attaches_already_downloaded_evidence(tmp_path, request):
     store.initialize()
     pins = store.snapshot('public')['state']['source_pins']
     assert pins['mola-arcadia'] == 'mola-arcadia:new' and 'hirise-site' not in pins
+
+
+def test_each_genesis_gets_its_own_sam_site_analysis(tmp_path, request, monkeypatch):
+    # A site analysis recorded for an earlier (discarded) mission must not stop SAM from running for a new genesis.
+    monkeypatch.setenv('MISSION_MODEL_MODE', 'meta')
+    from mission.media import site_analysis_due
+    store = make_store(tmp_path, request)
+    store.status('site-analysis', {'finished_at': 1.0, 'status': 'pinned', 'version': 'hirise-site:earlier-mission'})
+    assert store.genesis()
+    assert store.status('site-analysis') is None and site_analysis_due(store)
