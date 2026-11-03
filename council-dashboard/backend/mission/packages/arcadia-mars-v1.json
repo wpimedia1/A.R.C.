@@ -181,6 +181,25 @@
    "authors": "NASA Science",
    "year": 2024,
    "url": "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/"
+  },
+  "bramson2015": {
+   "title": "Widespread excess ice in Arcadia Planitia, Mars",
+   "authors": "Bramson, A. M.; Byrne, S.; Putzig, N. E.; Sutton, S.; Plaut, J. J.; Brothers, T. C.; Holt, J. W.",
+   "year": 2015,
+   "venue": "Geophysical Research Letters 42",
+   "url": "https://arxiv.org/pdf/1509.03210"
+  },
+  "bae_rad750": {
+   "title": "RAD750 Component datasheet",
+   "authors": "BAE Systems",
+   "year": 2025,
+   "url": "https://www.baesystems.com/en-us/dam/jcr:c297f318-c618-4015-9399-adf76ac5cf55/16-f78-RAD750-Component-datasheet-2025-web.2025-06-25-21-57-42.pdf"
+  },
+  "rad_dose2015": {
+   "title": "Modeling the variations of dose rate measured by RAD during the first MSL Martian year: 2012-2014",
+   "authors": "Guo, J. et al.",
+   "year": 2015,
+   "url": "https://arxiv.org/pdf/1507.03473"
   }
  },
  "parameters": {
@@ -843,6 +862,66 @@
    "quote": "The energy-efficient slow pace consumes less than 200 watts",
    "retrieved": "2026-11-03",
    "note": "Published upper bound for slow driving, used as the drive draw (conservative); not a measured constant across terrain."
+  },
+  "ice.excess_fraction_max": {
+   "classification": "published",
+   "value": 0.75,
+   "unit": "volume fraction",
+   "source": "bramson2015",
+   "locator": "p.8",
+   "quote": "the material in the upper decameters of the surface is excess ice of up to 75% volumetric fraction ice.",
+   "retrieved": "2026-11-03",
+   "note": "Regional (Arcadia Planitia) radar and crater result; no site-scale ice map is published."
+  },
+  "ice.layer_base_mode_m": {
+   "classification": "published",
+   "value": 42,
+   "unit": "m",
+   "source": "bramson2015",
+   "locator": "p.9",
+   "quote": "Our work constrains depths to the presumed base of the ice layer (mode depth = 42 m",
+   "retrieved": "2026-11-03",
+   "note": "Regional mode; mean 51 m."
+  },
+  "ice.ice_below_overburden_m": {
+   "classification": "derived",
+   "unit": "m",
+   "formula": "ice.layer_base_mode_m-ice.overburden_max_m",
+   "inputs": [
+    "ice.layer_base_mode_m",
+    "ice.overburden_max_m"
+   ],
+   "note": "Ice thickness left below the deepest reported overburden at the regional mode base depth; the drill target (overburden) lies within the ice layer when positive."
+  },
+  "rover.computer_tid_krad_si": {
+   "classification": "published",
+   "value": 1000,
+   "unit": "krad(Si)",
+   "source": "bae_rad750",
+   "locator": "Rad-hard RAD750, specifications",
+   "quote": "Total dose: 1Mrad (Si)",
+   "retrieved": "2026-11-03",
+   "note": "Perseverance's processor is a radiation-hardened BAE RAD750 (NASA, Perseverance Rover Components, Brains). Excavator electronics are not published, so they are not checked."
+  },
+  "mars.surface_dose_ugy_per_day": {
+   "classification": "published",
+   "value": 220,
+   "unit": "µGy/day",
+   "source": "rad_dose2015",
+   "locator": "Section 4.1",
+   "quote": "out of around 220 μGy/day",
+   "retrieved": "2026-11-03",
+   "note": "Curiosity RAD surface average, Gale crater, measured in plastic (tissue-like); used for silicon at the same order of magnitude."
+  },
+  "rover.computer_dose_life_days": {
+   "classification": "derived",
+   "unit": "days",
+   "formula": "rover.computer_tid_krad_si*10/(mars.surface_dose_ugy_per_day/1000000)",
+   "inputs": [
+    "rover.computer_tid_krad_si",
+    "mars.surface_dose_ugy_per_day"
+   ],
+   "note": "Days of surface exposure to reach the rated total dose (1 krad = 10 Gy)."
   }
  },
  "operator_decisions": {

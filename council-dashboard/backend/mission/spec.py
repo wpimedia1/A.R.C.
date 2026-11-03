@@ -41,6 +41,11 @@ def specification(package_id=PACKAGE_ID, overrides=None):
     require_approved(pkg)
     v = pkg['values']
     tick_h = v['mars.day_length_h'] / 24  # D7: one tick = 1/24 sol
+    from .package import PackageError
+    if v['ice.ice_below_overburden_m'] <= 0:
+        # The drill target (the overburden) must end inside the regional ice layer (Bramson et al. 2015), or the Rodwell
+        # has no ice to melt.
+        raise PackageError('Drill target is not above the base of the Arcadia ice layer (ice.ice_below_overburden_m <= 0)')
 
     def ref(*names):
         return list(names)
@@ -48,8 +53,9 @@ def specification(package_id=PACKAGE_ID, overrides=None):
     assets = [
         {'id': 'rover-1', 'kind': 'rover', 'name': 'Survey rover (Perseverance-class)', 'mass_kg': v['rover.mass_kg'],
          'grid_power_kw': 0.0, 'rate_per_h': v['rover.max_drive_m_per_sol'] / v['mars.day_length_h'], 'rate_unit': 'm',
+         'tid_gy': v['rover.computer_tid_krad_si'] * 10, 'dose_gy': 0.0, 'dose_gy_per_h': v['mars.surface_dose_ugy_per_day'] / 1e6 / 24,  # µGy per Earth day -> Gy per hour
          'rtg_battery_wh': v['rover.battery_wh'], 'rtg_soc_wh': v['rover.battery_wh'], 'drive_w': v['rover.drive_power_max_w'], 'rtg_w': v['rover.power_w'],
-         'parameters': ref('rover.mass_kg', 'rover.power_w', 'rover.max_drive_m_per_sol', 'mars.day_length_h', 'rover.battery_wh', 'rover.drive_power_max_w'),
+         'parameters': ref('rover.mass_kg', 'rover.power_w', 'rover.max_drive_m_per_sol', 'mars.day_length_h', 'rover.battery_wh', 'rover.drive_power_max_w', 'rover.computer_tid_krad_si', 'mars.surface_dose_ugy_per_day', 'rover.computer_dose_life_days'),
          'note': 'Self-powered: MMRTG (about 110 W) and its own batteries (2,408 Wh); draws nothing from the grid. Driving draws under 200 W (NASA); the batteries cover the difference and the MMRTG recharges them.'},
         *[{'id': f'excavator-{i}', 'kind': 'excavator', 'name': f'Excavator {i} (RASSOR 2.0-class)', 'mass_kg': v['excavator.mass_kg'],
            'grid_power_kw': 0.0, 'rate_per_h': v['excavator.mining_rate_kg_h'], 'rate_unit': 'kg',
@@ -82,8 +88,8 @@ def specification(package_id=PACKAGE_ID, overrides=None):
         {'id': 'drill', 'kind': 'drilling', 'title': 'Drill the Rodwell through the overburden', 'owner': 'resources', 'asset_kinds': ['rodwell'],
          'target': v['ice.overburden_max_m'], 'unit': 'm', 'output': 'drilled_m', 'dependencies': ['survey', 'power'],
          'rate_per_asset_h': v['ice.overburden_max_m'] / v['drill.hours_through_overburden'], 'power_per_asset_kw': None,
-         'parameters': ref('ice.overburden_max_m', 'drill.rop_min_mm_s', 'drill.hours_through_overburden'),
-         'basis': 'D9: lowest tested rate of penetration (Stolov et al. 2026). Drilling energy not published: not estimated.'},
+         'parameters': ref('ice.overburden_max_m', 'drill.rop_min_mm_s', 'drill.hours_through_overburden', 'ice.layer_base_mode_m', 'ice.ice_below_overburden_m', 'ice.excess_fraction_max'),
+         'basis': 'D9: lowest tested rate of penetration (Stolov et al. 2026). The target, the deepest reported overburden, ends inside the regional ice layer (base mode 42 m, up to 75% ice by volume; Bramson et al. 2015). Drilling-only power is not published: the drill holds all unallocated grid capacity while it runs.'},
         {'id': 'survey', 'kind': 'survey', 'title': 'Survey the work site', 'owner': 'survey', 'asset_kinds': ['rover'],
          'target': v['rover.max_drive_m_per_sol'], 'unit': 'm', 'output': 'survey_m', 'dependencies': [],
          'parameters': ref('rover.max_drive_m_per_sol'), 'basis': 'D3: one sol of driving at the published record distance.'},

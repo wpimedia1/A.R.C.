@@ -525,6 +525,13 @@ def advance(state, env=None):
         # Readiness is a milestone, not the end of operations: added work, charging and failures continue afterwards.
         event(s, 'Readiness criteria met', s['spec']['readiness']['description'] + ' Operations continue. Simulation result, not engineering certification.')
     for a in s['assets']:
+        if a.get('tid_gy') and a['available']:
+            # Radiation: surface dose accumulates on the rover's computer; at its rated total dose the unit fails.
+            a['dose_gy'] += a['dose_gy_per_h'] * hours
+            if a['dose_gy'] >= a['tid_gy']:
+                a['available'] = False
+                s['faults'].append({'tick': s['tick'], 'kind': 'radiation', 'asset_id': a['id'], 'available': False, 'basis': 'rated total dose reached'})
+                event(s, a['name'] + ' failed', f"Rated total ionizing dose reached ({a['tid_gy']:.0f} Gy).")
         if a.get('rtg_battery_wh') and a.get('drove_tick') != s['tick']:
             # Not driving this step: the MMRTG's full output recharges the rover battery.
             a['rtg_soc_wh'] = min(a['rtg_battery_wh'], a['rtg_soc_wh'] + a['rtg_w'] * hours)
