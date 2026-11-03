@@ -3,7 +3,7 @@
 Package: `council-dashboard/backend/mission/packages/arcadia-mars-v1.json`
 Validate and print every value: `python -m mission.package` (run from `council-dashboard/backend`).
 
-Every number used by the mission is either **published** (source, page/slide, quoted sentence, retrieval date), **derived** (formula over other parameters, recomputed at load) or **computed** (IAPWS R10-06 / IAPWS-95 water and ice properties via the `iapws` package). The mission refuses to start while any operator decision below is unapproved.
+Every number used by the mission is either **published** (source, page/slide, quoted sentence, retrieval date) or **derived** (formula over other parameters, recomputed at load). Water density is the published IAPWS-95 table value (R6-95(2018), Table 8); no GPL library is used. The mission refuses to start while any operator decision below is unapproved.
 
 ## Operator decisions
 

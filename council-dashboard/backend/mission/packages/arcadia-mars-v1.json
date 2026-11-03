@@ -81,10 +81,10 @@
    "local_file": "sources/mars_ice_drilling_assessment_v6_for_public_release.pdf"
   },
   "iapws": {
-   "title": "IAPWS R10-06(2009) Equation of State for Ice Ih and IAPWS-95, computed with python package iapws 1.5.5",
-   "authors": "IAPWS; Feistel, R.; Wagner, W.",
-   "year": 2009,
-   "url": "https://iapws.org/documents/release/Ice-2009.download"
+   "title": "IAPWS R6-95(2018) Revised Release on the IAPWS Formulation 1995 for the Thermodynamic Properties of Ordinary Water Substance for General and Scientific Use",
+   "authors": "IAPWS; Wagner, W.; Pruß, A.",
+   "year": 2018,
+   "url": "https://iapws.org/documents/release/IAPWS-95.download"
   },
   "proofwiki_gallon": {
    "title": "Definition:Gallon (US)/Conversion Factors",
@@ -448,14 +448,14 @@
    "note": "Exact: 231 in3."
   },
   "water.density_kg_per_l": {
-   "classification": "computed",
+   "classification": "published",
+   "value": 0.999887406,
    "unit": "kg/L",
    "source": "iapws",
-   "function": "liquid_density",
-   "args": {
-    "t_k": 273.16
-   },
-   "note": "Saturated liquid water density at the triple point (IAPWS-95)."
+   "locator": "Table 8, p.16, saturation test values, T = 275 K, ρ′ (kg m⁻³)",
+   "quote": "0.999 887 406 × 10³",
+   "retrieved": "2026-11-03",
+   "note": "Saturated liquid water at 275 K, the release's nearest tabulated value to meltwater at 0 °C (273.16 K is not tabulated). Converted from kg/m³ to kg/L."
   },
   "rodwell.water_kg_per_day": {
    "classification": "derived",

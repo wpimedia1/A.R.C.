@@ -29,5 +29,5 @@ Git history: commit `44bd845` is the pre-existing baseline. Every later commit i
 - Draco decoder files (`frontend/public/draco`) copied from three.js (MIT).
 - HiRISE image ESP_052358_2210: NASA/JPL-Caltech/UArizona, public domain (credit given in the interface). Loaded from the HiRISE PDS server; not committed.
 - `meta-sam-parser` (Meta Platforms, SAM License) parses SAM 3.1 output; `pillow` reads image dimensions.
-- Phosphor icons; npm and PyPI dependencies under their own licenses; `iapws` (GPL-3.0) is a runtime dependency — confirm license compatibility before redistribution.
+- Phosphor icons; npm and PyPI dependencies under their own licenses.
 - Scientific sources are cited in the environment package. Public availability is not blanket redistribution permission; raw datasets are not committed.
