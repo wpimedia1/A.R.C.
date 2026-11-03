@@ -113,7 +113,7 @@ def parse_swim(raw,member_name='Ci.tif'):
                 'transform':'swim-geotiff-arcadia-3','site':{'latitude':SITE['latitude'],'longitude':((SITE['longitude_east']+180)%360)-180,'classification':SITE['classification']},
                 'interpretation':'Consistency index [-1,1], not ice fraction or recoverable yield. 3 km projected pixels; effective instrument resolution varies. No rover-scale inference.'}
 
-def ingest(store):
+def ingest(store, adopt=True):
     results={}
     from .telemetry import ingest_weather
     results['msl-weather']=ingest_weather(store)
@@ -163,18 +163,9 @@ def ingest(store):
         'transformation_version':'swim-geotiff-arcadia-3','use':radar_spatial['interpretation']},radar)
     from .terrain import arcadia
     results['mola-arcadia']=arcadia(store)
-    # Adopt only these explicit versions; retain earlier catalog and mission revisions.
-    from copy import deepcopy
-    with store.transaction() as db:
-        m=store.row(db,'public')
-        if m.state.get('planning_claim'):raise RuntimeError('Scientific products downloaded; adoption deferred until planning finishes')
-        s=deepcopy(m.state)
-        if any(s['source_pins'].get(k)!=v for k,v in results.items()):
-            s['source_pins'].update(results)
-            from .region import local_sensors
-            s['local_sensors']=local_sensors()
-            s['planning_needed']=s['mode']=='meta' and not s.get('inference_stopped')
-            store.save(db,m,s,{'kind':'adopt-scientific-products','versions':results})
+    if adopt:
+        from .evidence import adopt_latest
+        adopt_latest(store,products=results)
     return results
 
 if __name__=='__main__':

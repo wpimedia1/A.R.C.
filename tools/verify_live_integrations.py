@@ -1,5 +1,5 @@
 """Live check of every external integration, on the owner's machine. Real requests; Meta calls are billed
-(one Muse Image generation, $0.01; one SAM 3.1 call, $0.0025). Uses an isolated SQLite database, never the mission database.
+(one SAM 3.1 call, $0.0025). Uses an isolated SQLite database, never the mission database.
 
     cd council-dashboard/backend && python ../../tools/verify_live_integrations.py
 

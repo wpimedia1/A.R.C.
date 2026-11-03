@@ -7,7 +7,7 @@
 
 ## Built during the hackathon (October 27 – November 4, 2026)
 
-- Meta Model API integration (`mission/provider.py`, `mission/planner.py`): one credential, Responses API with strict function tools, `previous_response_id` chaining, receipts carrying provider `response_id`, `x-request-id` and key fingerprint, cost from Meta's published prices.
+- Meta Model API integration (`mission/provider.py`, `mission/planner.py`): one credential, Responses API with strict function tools, self-contained turns (no `previous_response_id`), receipts carrying provider `response_id`, `x-request-id` and key fingerprint, cost from Meta's published prices.
 - Live checks: `tools/verify_agent_loop.py`, `tools/verify_live_integrations.py`.
 - Environment package and validator (`mission/package.py`, `mission/packages/arcadia-mars-v1.json`): published, derived and IAPWS-computed parameters, operator-decision gate.
 - Package-driven simulator (`mission/engine.py`, `mission/spec.py`): survey, trench, shielding, Rodwell water; power allocation; equipment faults; cost ledgers.

@@ -36,14 +36,17 @@ def media_step(store):
 
 def source_refresh(store,started):
     try:
-        results=refresh(store);adopt_latest(store)
+        results=refresh(store)
         from .science import ingest
+        scientific={}
         try:
-            scientific=ingest(store)
+            scientific=ingest(store,adopt=False)
             store.status('scientific-refresh',{'checked_at':time.time(),'status':'checked','versions':scientific})
         except Exception as exc:
             store.status('scientific-refresh',{'checked_at':time.time(),'status':'failed; last valid source versions retained','error':f'{type(exc).__name__}: {exc}'[:400]})
             logging.exception('Scientific refresh failed; keeping pinned evidence')
+        # Catalog and scientific products are adopted in one revision: one refresh, at most one planning cycle.
+        adopt_latest(store,products=scientific)
         store.status('source-refresh',{'checked_at':started,'results':results})
         logging.info('Source refresh: %s',results)
     except Exception as exc:

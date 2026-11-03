@@ -70,6 +70,6 @@ Status: **Implemented** (built and run) · **Unverified** (built; the live exter
 
 ## Checks to re-run on the current code (owner's machine)
 
-- `python tools/verify_live_integrations.py`: NASA weather, DSN Now, USGS footprints, HiRISE, Muse Image, SAM 3.1.
+- `python tools/verify_live_integrations.py`: NASA weather, DSN Now, USGS footprints, HiRISE, SAM 3.1.
 - `python tools/verify_agent_loop.py`: two real planning cycles in an isolated database.
 - `python tools/archive_sources.py && python -m mission.verify_sources`: archive web sources and check every quote.

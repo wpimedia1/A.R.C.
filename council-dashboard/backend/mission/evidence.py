@@ -44,8 +44,11 @@ def refresh(store, transport=None):
             results.append({'source':source['id'],'status':'stale / fetch failed','error':type(exc).__name__})
     return results
 
-def adopt_latest(store, mid='public'):
-    """Explicit evidence adoption; forks keep their original source versions."""
+def adopt_latest(store, mid='public', products=None):
+    """Explicit evidence adoption; forks keep their original source versions. `products` are the scientific product
+    versions downloaded in the same refresh (mission.science.ingest): catalog and products are adopted together in one
+    revision, so one refresh asks for at most one planning cycle."""
+    products=products or {}
     with store.transaction() as db:
         latest_pins={}
         for source in SOURCES:
@@ -55,15 +58,21 @@ def adopt_latest(store, mid='public'):
             scientific=[v for v in valid if v.record.get('passages') or v.record.get('observations') or v.record.get('image_url')]
             if scientific:valid=scientific
             latest_pins[source['id']]=max(valid,key=lambda v:v.record['retrieved_at']).id
+        latest_pins.update(products)
         current=store.row(db,mid).state['source_pins']
-        changed=[k for k,v in latest_pins.items() if current.get(k)!=v]
+        changed=sorted(k for k,v in latest_pins.items() if current.get(k)!=v)
     if changed:
+        science=[k for k in changed if k in products]
         def adopt(state):
             state['source_pins'].update({k:latest_pins[k] for k in changed})
+            if science:
+                from .region import local_sensors
+                state['local_sensors']=local_sensors()
             # A planning stop needs the owner (mission.cli replan); new evidence never restarts it.
             state['planning_needed']=state['mode']=='meta' and not state.get('inference_stopped')
+        note='Scientific products: '+', '.join(science) if science else 'Catalog context only; no physical parameter changed'
         # Applied only between planning cycles: a plan in progress is never overwritten.
-        store.commit_unclaimed(mid,adopt,{'kind':'adopt-evidence','sources':changed,'note':'Catalog context only; no physical parameter changed'})
+        store.commit_unclaimed(mid,adopt,{'kind':'adopt-evidence','sources':changed,'note':note})
     return changed
 
 def attach_stored(store, mid='public'):

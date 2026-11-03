@@ -78,3 +78,22 @@ def test_standby_evidence_must_resolve_to_stored_records(tmp_path, request):
                 [{'observation_id': 'msl:4700:abc', 'variable': 'air_min_c', 'interpretation': ' '}], []):
         with pytest.raises(InvalidAction):
             resolve_basis(store, bad)
+
+
+def test_one_refresh_adopts_catalog_and_products_in_one_revision(tmp_path, request):
+    # Final-check defect 1: a refresh that changes catalog and scientific products asks for one planning cycle, not two.
+    from mission.evidence import adopt_latest
+    from mission.spec import SOURCES
+    from mission.store import SourceVersion
+    store = make_store(tmp_path, request); store.initialize()
+    source = SOURCES[0]['id']
+    with store.transaction() as db:
+        db.add(SourceVersion(id=source + ':new', source_id=source, record={'retrieved_at': time.time()}))
+    before = store.snapshot('public')['revision']
+    changed = adopt_latest(store, products={'swim': 'swim:new-product'})
+    after = store.snapshot('public')
+    assert {source, 'swim'} <= set(changed) and after['revision'] == before + 1
+    s = after['state']
+    assert s['source_pins']['swim'] == 'swim:new-product' and s['source_pins'][source] == source + ':new'
+    assert 'local_sensors' in s
+    assert adopt_latest(store, products={'swim': 'swim:new-product'}) == [] and store.snapshot('public')['revision'] == before + 1
