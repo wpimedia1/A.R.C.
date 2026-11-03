@@ -26,17 +26,13 @@ def planning(store):
         store.log('worker','error',{'error':f'planning: {type(exc).__name__}: {exc}'[:2000]})
 
 def media_step(store):
-    """One media action per loop. SAM site analysis runs beside the loop (the full-resolution image download can take
-    minutes and must not hold up DSN reads, planning or ticks); else the next pending illustration."""
-    from .media import site_analysis_due, pending_visual, illustrate
+    """SAM site analysis runs beside the loop: the full-resolution image download can take minutes and must not hold up
+    DSN reads, planning or ticks."""
+    from .media import site_analysis_due
     import threading
     if (_analysis[0] is None or not _analysis[0].is_alive()) and site_analysis_due(store):
         _analysis[0]=threading.Thread(target=site_analysis,args=(store,),daemon=True,name='site-analysis');_analysis[0].start()
-        return
-    trigger=pending_visual(store)
-    if trigger:
-        record=illustrate(store,'public',trigger)
-        if record:logging.info('Illustration %s: %s',trigger,record.get('status'))
+
 
 def source_refresh(store,started):
     try:
@@ -73,6 +69,10 @@ def main():
     from .conditions import poll_dsn
     soi_km=load()['values']['comms.mars_soi_km']
     store.log('worker','started',{'pid':__import__('os').getpid()})
+    if store.started():
+        from .evidence import attach_stored
+        try:logging.info('Stored evidence attached: %s',attach_stored(store) or 'already current')
+        except Exception:logging.exception('Attaching stored evidence failed')
     last_error=[None,0.0,0]
     dsn_polled=0
     refresher=None
@@ -92,7 +92,6 @@ def main():
                 store.status('worker',{'heartbeat_at':time.time(),'credential':credential_status(),'waiting_for':'Start'})
                 time.sleep(1);continue
             recover_claims(store)
-            # Media first: the genesis illustration is ready within seconds of launch, before the first planning cycle.
             # Measured -> estimated -> checked: NASA weather feeds every 6 h; estimates and checks follow each pull.
             if time.time()-weather_polled>=21600:
                 weather_polled=time.time()

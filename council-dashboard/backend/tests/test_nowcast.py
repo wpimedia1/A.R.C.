@@ -1,6 +1,5 @@
 import json
 import math
-import time
 import pytest
 from mission import nowcast as nc
 from mission.store import Store

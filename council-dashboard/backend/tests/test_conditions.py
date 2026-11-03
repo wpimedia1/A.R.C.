@@ -1,4 +1,3 @@
-import math
 import calendar
 from copy import deepcopy
 import pytest
@@ -136,7 +135,7 @@ def test_fixed_priority_is_onboard_and_not_gated():
 
 
 def test_hazard_route_detours_around_detections():
-    from mission.route import plan, astar
+    from mission.route import plan
     wall = {'prompt': 'boulder', 'objects': [{'left': 480, 'right': 520, 'top': 0, 'bottom': 700, 'object_id': 1}]}
     r = plan(1000, 1000, 0.5, [wall], 0.0)
     assert r['status'] == 'route found' and r['detour_factor'] > 1.0 and r['straight_m'] == pytest.approx(999 * 0.5, rel=0.01)
@@ -197,15 +196,6 @@ def test_assurance_cannot_approve_without_acknowledging_open_conditions():
         assurance_decision(s, 'survey', True, 'No blockers.', 'assurance', [])
     review = assurance_decision(s, 'survey', True, 'Proceeding; the survey itself characterizes the site.', 'assurance', ids)
     assert review['open_conditions'] and review['acknowledged'] == ids
-
-
-def test_stamp_burns_label_into_pixels():
-    import io
-    from PIL import Image
-    from mission.media import stamp
-    buf = io.BytesIO(); Image.new('RGB', (800, 450), (120, 60, 30)).save(buf, format='PNG')
-    out = Image.open(io.BytesIO(stamp(buf.getvalue()))).convert('RGB')
-    assert out.getpixel((2, 225)) != (120, 60, 30) and out.getpixel((400, 445)) != (120, 60, 30)
 
 
 def test_reference_image_is_about_511_km_from_the_mission_site():
@@ -302,38 +292,6 @@ def test_send_over_real_http_retries_429_and_returns_plain_json():
         srv.shutdown()
     assert body['id'] == 'resp_local' and len(hits) == 2
     assert [a['http_status'] for a in json.loads(json.dumps(corr))['provider_attempts']] == [429, 200]
-
-
-def test_illustration_round_trip_over_real_http_is_stored_and_stamped(tmp_path, monkeypatch):
-    """Local HTTP server stands in for the image endpoint: the response must be stored, stamped and receipted."""
-    import base64, io, json, threading
-    from http.server import BaseHTTPRequestHandler, HTTPServer
-    from PIL import Image
-    from mission import media
-    from mission.store import Store, Visual, InferenceReceipt
-    buf = io.BytesIO(); Image.new('RGB', (64, 36), (150, 80, 40)).save(buf, format='PNG')
-    body = json.dumps({'created': 1, 'data': [{'b64_json': base64.b64encode(buf.getvalue()).decode()}]}).encode()
-
-    class H(BaseHTTPRequestHandler):
-        def do_POST(self):
-            self.rfile.read(int(self.headers.get('content-length', 0)))
-            self.send_response(200); self.send_header('content-type', 'application/json'); self.send_header('x-request-id', 'img1'); self.end_headers(); self.wfile.write(body)
-
-        def log_message(self, *a):
-            pass
-    srv = HTTPServer(('127.0.0.1', 0), H)
-    threading.Thread(target=srv.serve_forever, daemon=True).start()
-    monkeypatch.setattr(media, 'IMAGES_GENERATE', f'http://127.0.0.1:{srv.server_address[1]}/')
-    monkeypatch.setenv('MODEL_API_KEY', 'local-test-key')
-    st = Store('sqlite:///' + str(tmp_path / 'img.db')); st.initialize()
-    try:
-        record = media.illustrate(st, 'public', 'genesis')
-    finally:
-        srv.shutdown()
-    assert record['status'] == 'generated', record
-    with st.transaction() as db:
-        v = db.get(Visual, 'visual:public:genesis'); r = db.get(InferenceReceipt, 'visual:public:genesis')
-        assert v.image and v.raw_image and v.image != v.raw_image and r.record['status'] == 'received'
 
 
 def test_rover_drives_only_in_daylight_and_keeps_its_distance_per_sol():

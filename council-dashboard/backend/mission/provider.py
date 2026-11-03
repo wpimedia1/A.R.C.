@@ -62,12 +62,8 @@ def max_cost_usd(model, input_bytes, max_output_tokens):
     return (input_bytes * price_in + max_output_tokens * price_out) / 1e6
 
 
-IMAGE_MODEL = 'muse-image-1.0'
 SAM_MODEL = 'sam-3.1'
-IMAGES_GENERATE = 'https://api.meta.ai/v1/images/generations'
-IMAGES_EDIT = 'https://api.meta.ai/v1/images/edits'
 # Flat per-call prices from the same pricing page (retrieved 2026-10-31).
-IMAGE_USD_PER_IMAGE = 0.01      # muse-image-1.0: $0.01 per generated image
 SAM_USD_PER_IMAGE = 2.50 / 1000  # sam-3.1: $2.50 per 1,000 images
 
 

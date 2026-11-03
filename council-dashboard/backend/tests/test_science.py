@@ -1,6 +1,4 @@
-import json
 import time
-import hashlib
 from mission import science
 from mission.store import SourceVersion
 from conftest import make_store

@@ -1,7 +1,6 @@
 import asyncio
 import httpx
 from mission.api import create_app
-from mission.store import Store
 from conftest import make_store
 
 def test_api_permissions_revision_and_cookie(tmp_path,monkeypatch,request):

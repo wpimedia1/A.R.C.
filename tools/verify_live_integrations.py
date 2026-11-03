@@ -70,16 +70,6 @@ def hirise():
     return {'url': HIRISE['browse'], 'bytes': len(raw)}
 
 
-def muse_image():
-    from mission.media import illustrate
-    st = Store()
-    st.initialize()
-    record = illustrate(st, 'public', 'genesis')
-    if record['status'] != 'generated':
-        raise RuntimeError(record.get('error'))
-    return {k: record.get(k) for k in ('status', 'http_status', 'response_headers', 'sha256', 'raw_sha256', 'bytes', 'stamped_label')}
-
-
 def sam():
     from mission.media import _segment, HIRISE
     st = Store()
@@ -108,7 +98,7 @@ def weather():
 
 
 for name, fn in [('nasa-weather', weather), ('dsn-now', dsn), ('usgs-hirise-footprints', footprints), ('hirise-browse', hirise),
-                 ('muse-image', muse_image), ('sam-3.1', sam)]:
+                 ('sam-3.1', sam)]:
     check(name, fn)
 
 out = ROOT / 'docs' / 'live-integrations.json'

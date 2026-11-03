@@ -1,5 +1,16 @@
 'use client';
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
+// SAM site analysis status from the worker: started, pinned (with version) or failed (with the reason).
+export type SiteAnalysis={status?:string;started_at?:number;finished_at?:number;failed_at?:number;error?:string;version?:string;cleared_at?:number};
+export function useSiteAnalysis(revision:number){const [a,setA]=useState<SiteAnalysis|null>(null);
+ useEffect(()=>{let on=true;fetch('/api/v1/site/analysis').then(r=>r.ok?r.json():null).then(v=>{if(on)setA(v);}).catch(()=>{if(on)setA(null);});return()=>{on=false;};},[revision]);return a;}
+export function siteAnalysisText(a:SiteAnalysis|null,attached:boolean){
+ if(!a)return 'Site analysis status unavailable.';
+ if(a.failed_at)return `Segmentation failed: ${a.error||'no reason recorded'}. Not retried automatically (operator: mission.cli retry-site-analysis).`;
+ if(a.finished_at&&!attached)return `Segmentation finished (${a.version}) but is not attached to this mission yet; it is applied between planning cycles.`;
+ if(a.started_at&&!a.finished_at)return 'Running now: downloading the HiRISE image and segmenting it with SAM 3.1 (D13).';
+ return 'Runs at genesis on the HiRISE image containing the mission site (D13). Not started yet.';
+}
 type Obj={object_id:string;left:number;top:number;right:number;bottom:number;confidence:number|null;svg_path:string|null;mask_origin:[number,number]|null;equivalent_diameter_m:number};
 type Seg={prompt:string;response_id:string|null;objects:Obj[];summary:{count:number;min_m:number|null;median_m:number|null;max_m:number|null};response_headers?:Record<string,string>};
 export type SiteEvidence={applies_to_site?:boolean;site_relation?:string;product?:string;route?:{status:string;detour_factor:number|null;route_m?:number;straight_m?:number;blocked_fraction?:number;path_px?:[number,number][];method?:string};source_id:string;title:string;page:string;image_url:string;segmented_image?:string;image_size_px:[number,number];browse_m_per_px:number;resolution_limit:string;credit:string;acquired:string;latitude:number;longitude_east:number;use:string;segmentations:Seg[];version_id:string};

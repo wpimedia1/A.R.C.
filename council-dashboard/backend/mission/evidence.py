@@ -66,6 +66,27 @@ def adopt_latest(store, mid='public'):
         store.commit_unclaimed(mid,adopt,{'kind':'adopt-evidence','sources':changed,'note':'Catalog context only; no physical parameter changed'})
     return changed
 
+def attach_stored(store, mid='public'):
+    """Pin the newest already-downloaded version of every retrieved source (regional MOLA and SWIM products, REMS,
+    NASA documents) to a mission that lacks it, e.g. a new mission after Start. No download happens here. The site
+    image is excluded: it belongs to the mission's own SAM analysis (D13)."""
+    with store.transaction() as db:
+        rows=[(v.id,v.source_id,v.record) for v in db.scalars(select(SourceVersion)).all()]
+        state=store.row(db,mid).state
+    newest={}
+    for vid,source_id,record in rows:
+        if not record.get('retrieved_at') or source_id in ('hirise-site',state['spec']['package_id']):continue
+        scientific=bool(record.get('passages') or record.get('observations') or record.get('image_url') or record.get('spatial') or record.get('heights_m'))
+        key=(scientific,record['retrieved_at'])
+        if source_id not in newest or key>newest[source_id][0]:newest[source_id]=(key,vid)
+    changed={k:vid for k,(_,vid) in newest.items() if state['source_pins'].get(k)!=vid}
+    if changed:
+        def attach(s):
+            s['source_pins'].update(changed)
+            s['planning_needed']=s['mode']=='meta' and not s.get('inference_stopped')
+        store.commit_unclaimed(mid,attach,{'kind':'attach-stored-evidence','sources':sorted(changed),'note':'Already-downloaded versions; nothing fetched'})
+    return sorted(changed)
+
 if __name__=='__main__':
     import json
     from .store import Store

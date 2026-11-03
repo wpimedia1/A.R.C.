@@ -1,7 +1,6 @@
 import json
 import math
 import pytest
-import mission.package as package
 from mission.package import load, require_approved, PackageError
 
 
@@ -48,7 +47,6 @@ def test_unapproved_decision_blocks_mission(approved_package):
 
 
 def test_shipped_package_lists_its_unapproved_decisions():
-    pkg = json.loads((package.PACKAGES.parent / 'packages' / 'arcadia-mars-v1.json').read_text(encoding='utf-8')) if False else None
     from conftest import REAL_PACKAGES
     real = json.loads((REAL_PACKAGES / 'arcadia-mars-v1.json').read_text(encoding='utf-8'))
     for key, d in real['operator_decisions'].items():

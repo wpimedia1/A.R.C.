@@ -30,7 +30,7 @@ export default function LiveMars({missionStatus}:{missionStatus:string}){
   {data.conditions_status?.error&&<p role="alert">Public mission halted: live conditions failed ({data.conditions_status.error})</p>}
   {data.now&&<Conditions c={data.now}/>}
   <div className="dsn-box"><h3>Deep Space Network, now</h3>
-   {!dsn?<p>No DSN reading yet; the worker reads DSN Now every minute.</p>:dsn.error?<p role="alert">DSN Now unreachable since {when(dsn.failed_at)}: {dsn.error}. Work orders are not held by DSN while the feed is down (D10).</p>:<>
+   {!dsn?<p>No DSN reading yet; the worker reads DSN Now every minute.</p>:dsn.error?<p role="alert">DSN Now unreachable since {when(dsn.failed_at)}: {dsn.error}. The outpost never waits for DSN; this only affects what Earth can see (D10).</p>:<>
    <p>{up.length?`Uplink to Mars active: ${up.map(l=>`${l.station} ${l.dish} → ${l.spacecraft}${l.data_rate_bps?` (${fmt(l.data_rate_bps,0)} b/s)`:''}`).join(', ')}.`:'No uplink to Mars right now.'} {down.length?`Receiving from ${[...new Set(down.map(l=>l.spacecraft))].join(', ')}.`:''}</p>
    <small>Last uplink to Mars: {when(dsn.last_mars_uplink_at)} · read {when(dsn.checked_at)} · spacecraft at Mars identified by their DSN mission abbreviation (JPL DSN mission set: MRO, M01O, MVN, M20, MSL, TGO, MEX, EMM, MOM); the live feed currently publishes no ranges.</small>
    <details className="dsn-raw"><summary><Tag kind="measured"/> What the feed contained ({dsn.dishes_in_feed??'?'} dishes, {dsn.targets_seen?.length??'?'} targets) — check against <a href="https://eyes.nasa.gov/dsn/dsn.html" target="_blank" rel="noreferrer">NASA DSN Now</a></summary>

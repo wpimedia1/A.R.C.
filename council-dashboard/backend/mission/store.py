@@ -4,7 +4,7 @@ import time
 import uuid
 from contextlib import contextmanager
 from copy import deepcopy
-from sqlalchemy import create_engine, Column, String, Integer, Float, JSON, LargeBinary, UniqueConstraint, select, event
+from sqlalchemy import create_engine, Column, String, Integer, Float, JSON, UniqueConstraint, select, event
 from sqlalchemy.orm import declarative_base, Session
 from .engine import new_state, advance, modify, InvalidAction
 from .spec import digest, SOURCES
@@ -69,18 +69,6 @@ class EnvironmentObservation(Base):
     kind = Column(String, nullable=False, index=True)
     observed_at = Column(Float, nullable=False, index=True)
     record = Column(JSON, nullable=False)
-
-class Visual(Base):
-    """Muse Image illustrations of persisted mission state. Image bytes live in the database so API and worker share them."""
-    __tablename__ = 'mission_visuals'
-    id = Column(String, primary_key=True)
-    mission_id = Column(String, nullable=False, index=True)
-    trigger = Column(String, nullable=False)
-    created = Column(Float, nullable=False)
-    image = Column(LargeBinary, nullable=True)  # stamped for display
-    raw_image = Column(LargeBinary, nullable=True)  # unstamped, used only as the input of the next edit
-    record = Column(JSON, nullable=False)
-    __table_args__ = (UniqueConstraint('mission_id', 'trigger'),)
 
 class EventLog(Base):
     """Append-only record of every status write, receipt change and worker event, from genesis. Rows are never updated or deleted."""
@@ -172,7 +160,7 @@ class Store:
     def check(self):
         """Validate the database against the current package and engine. Returns True if the public mission exists, False
         if it has not been started. A public mission recorded under another package or engine version came from a build
-        that is no longer the tool, so it is discarded (mission, revisions, model receipts and illustrations); Start then
+        that is no longer the tool, so it is discarded (mission, revisions and model receipts); Start then
         begins a new genesis. The append-only event log, which also holds every model receipt and spend, is kept."""
         from .spec import specification
         spec = specification()  # the package must load and every operator decision must be approved before Start is offered
@@ -185,7 +173,7 @@ class Store:
                 return True
             record = {'package_hash': stored.get('package_hash'), 'engine_version': stored.get('version'), 'revisions': existing.revision,
                       'tick': existing.state.get('tick'), 'replaced_by_package': spec['package_hash'], 'replaced_by_engine': spec['version']}
-            for model in (Revision, InferenceReceipt, Visual):
+            for model in (Revision, InferenceReceipt):
                 for r in db.scalars(select(model).where(model.mission_id == 'public')).all():
                     db.delete(r)
             db.delete(existing)
@@ -225,6 +213,10 @@ class Store:
             m = Mission(id='public', state=state, revision=0, next_tick=now + state['spec']['tick_seconds'], pending_ticks=0, used_ticks=0)
             db.add(m)
             self.save(db, m, state, {'kind':'initialize', 'trigger':'start pressed'})
+        # Evidence already downloaded by earlier source refreshes is attached at once (no download), so a new mission
+        # starts with its regional products instead of waiting for the next daily refresh.
+        from .evidence import attach_stored
+        attach_stored(self)
         return True
 
     def request_replanning(self, mid, reason):

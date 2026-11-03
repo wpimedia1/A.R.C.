@@ -1,14 +1,11 @@
-"""Meta media models on real mission inputs.
+"""Meta media model on real mission inputs.
 
-- Muse Image (muse-image-1.0): illustrations of the *persisted* mission state, generated at genesis and
-  after each completed job, each one an edit of the previous illustration so the scene stays continuous.
-  Every image is labeled as an AI illustration, never as observation.
 - SAM 3.1 (sam-3.1): segmentation of a real HiRISE orbital image of Arcadia Planitia (public domain,
   NASA/JPL-Caltech/UArizona) for boulders and impact craters, run at genesis; detections route the survey (D13).
   Detections are model output on orbital imagery at the stated resolution, not ground truth.
 
 Every request is recorded as an InferenceReceipt (status, HTTP status, x-request-id, cost) before and
-after dispatch. Nothing is retried automatically except the documented retryable 503 on image generation.
+after dispatch. Nothing is retried automatically.
 """
 import base64
 import hashlib
@@ -17,10 +14,8 @@ import re
 import time
 from copy import deepcopy
 import httpx
-from sqlalchemy import select
-from .provider import (credential, fingerprint, send, ProviderConfigError, ENDPOINT, IMAGE_MODEL, SAM_MODEL,
-                       IMAGES_GENERATE, IMAGES_EDIT, IMAGE_USD_PER_IMAGE, SAM_USD_PER_IMAGE)
-from .store import InferenceReceipt, Visual
+from .provider import credential, fingerprint, send, ProviderConfigError, ENDPOINT, SAM_MODEL, SAM_USD_PER_IMAGE
+from .store import InferenceReceipt
 
 HIRISE = {
     'source_id': 'hirise-esp052358',
@@ -35,30 +30,6 @@ HIRISE = {
 }
 SAM_PROMPTS = ('boulder', 'impact crater')
 FOOTPRINTS = 'https://astrogeology.usgs.gov/pygeoapi/collections/mars/hirise-observation-footprints-equatorial/items'
-STAMP = 'AI ILLUSTRATION  ·  SIMULATED STATE  ·  NOT A PHOTOGRAPH  ·  NOT EVIDENCE'
-
-
-def stamp(image_bytes):
-    """Burn the illustration label into the pixels so it survives screenshots, downloads and exports."""
-    from PIL import Image, ImageDraw, ImageFont
-    import io
-    with Image.open(io.BytesIO(image_bytes)) as img:
-        img = img.convert('RGB')
-        w, h = img.size
-        band = max(24, h // 14)
-        draw = ImageDraw.Draw(img)
-        draw.rectangle([0, h - band, w, h], fill=(20, 20, 20))
-        try:
-            font = ImageFont.load_default(size=int(band * 0.5))
-        except TypeError:
-            font = ImageFont.load_default()
-        draw.text((band // 2, h - band + band // 4), STAMP, fill=(255, 214, 102), font=font)
-        draw.rectangle([0, 0, w - 1, h - 1], outline=(255, 214, 102), width=max(3, band // 8))
-        out = io.BytesIO()
-        img.save(out, format='WEBP', quality=90)
-        return out.getvalue()
-
-
 def _distance_km(lat1, lon1, lat2, lon2, radius_km):
     p1, p2 = math.radians(lat1), math.radians(lat2)
     dl = math.radians(lon2 - lon1)
@@ -134,149 +105,34 @@ def _update(store, rid, **fields):
         rec = deepcopy(r.record); rec.update(fields); r.record = rec
 
 
-def _dispatch(store, rid, mid, model, url, payload, price, transport=None, retry_503=0):
+def _dispatch(store, rid, mid, model, url, payload, price, transport=None):
     """Send one recorded request. Returns (json, correlation). Records failure and re-raises."""
     try:
         key, source = credential()
     except ProviderConfigError as exc:
         raise MediaError(str(exc)) from exc
-    logged = {k: v for k, v in payload.items() if k != 'images'}
-    if 'images' in payload:
-        logged['images'] = [{'image_url': '<previous illustration, data URL omitted>'}] * len(payload['images'])
+    logged = dict(payload)
     _receipt(store, rid, mid, {'status': 'dispatched', 'model': model, 'endpoint': url, 'created_at': time.time(),
                                'request': logged, 'key_fingerprint': fingerprint(key), 'key_source': source,
                                'price_basis_usd': price})
-    attempts = []
-    for attempt in range(retry_503 + 1):
-        try:
-            result, corr = send(payload, key, transport, timeout=300, url=url)
-            try:
-                _update(store, rid, status='received', received_at=time.time(), actual_usd=price, attempts=attempts, **corr)
-            except Exception as exc:
-                # The provider answered and was paid: a bookkeeping error must never discard the result.
-                import logging
-                logging.exception('Receipt update failed after a successful %s response', model)
-                corr = {**corr, 'receipt_update_error': f'{type(exc).__name__}: {exc}'[:300]}
-            return result, corr
-        except httpx.HTTPStatusError as exc:
-            info = {'http_status': exc.response.status_code,
-                    'request_id': exc.response.headers.get('x-request-id'),
-                    'body': exc.response.text.replace(key, '[redacted]')[:600]}
-            attempts.append(info)
-            if exc.response.status_code == 503 and attempt < retry_503:
-                time.sleep(5 * (attempt + 1))
-                continue
-            _update(store, rid, status='failed', attempts=attempts, **{k: v for k, v in info.items() if k != 'body'},
-                    provider_error_message=info['body'])
-            raise
-        except Exception as exc:
-            _update(store, rid, status='uncertain; no automatic retry', failure=type(exc).__name__, attempts=attempts)
-            raise
-
-
-# ---------------------------------------------------------------- Muse Image
-
-DESCRIPTIONS = {
-    'rover': 'a six-wheeled science rover similar to NASA Perseverance',
-    'excavator': 'a small low robotic excavator with two counter-rotating bucket drums (RASSOR-class)',
-    'rodwell': 'a compact drilling rig over a borehole, with an insulated hose to a small water tank (Rodwell)',
-    'power': 'a compact fission reactor with vertical radiator panels, about one kilometre from the camp, linked by a ground cable',
-    'habitat': 'a horizontal white cylindrical habitat module, 8.4 metres in diameter and 15.6 metres long',
-}
-
-
-def scene_prompt(s, trigger):
-    """Deterministic prompt from persisted state only. Equipment and job progress come from the record."""
-    # Deliberately non-photographic so the image cannot pass for a spacecraft photograph (audit 2026-10-31).
-    lines = ['Technical concept illustration in a flat-shaded engineering-diagram style, clearly a drawing and not a photograph, '
-             'of a simulated robotic construction site on Arcadia Planitia, Mars: a flat reddish plain under a pale sky. '
-             'No people, no text, no labels, no logos.']
-    present = [DESCRIPTIONS[a['kind']] + ('' if a['available'] else ' (idle, out of service)') for a in s['assets']]
-    lines.append('Equipment on site: ' + '; '.join(present) + '.')
-    state = []
-    for j in s['jobs']:
-        pct = round(100 * j['progress'])
-        if j['id'] == 'power':
-            state.append('the reactor radiators are deployed and the cable is laid' if j['status'] == 'complete'
-                         else f'the reactor is being deployed ({pct}% of the deployment timeline)' if j['status'] == 'running'
-                         else 'the reactor is still packed on its pallets')
-        elif j['id'] == 'survey':
-            state.append('rover wheel tracks cross the site' if j['status'] == 'complete' else 'the rover is surveying the site'
-                         if j['status'] == 'running' else 'the ground is untouched')
-        elif j['id'] == 'trench':
-            state.append('a rectangular trench 1.58 metres deep is fully dug beside the habitat' if j['status'] == 'complete'
-                         else f'a shallow rectangular trench beside the habitat is about {pct}% excavated, with spoil piles' if j['done'] > 0
-                         else 'no trench has been dug yet')
-        elif j['id'] == 'shielding':
-            state.append('the habitat lies in the trench fully covered by a mound of regolith' if j['status'] == 'complete'
-                         else f'the habitat is partly covered by regolith, about {pct}% of the shielding placed' if j['done'] > 0 else '')
-        elif j['id'] == 'drill':
-            state.append('the drilling rig stands over a finished borehole' if j['status'] == 'complete'
-                         else f'the drilling rig is boring into the ground ({pct}% of depth)' if j['status'] == 'running' else '')
-        elif j['id'] == 'water':
-            state.append(f'the water tank holds about {round(j["done"])} kilograms of water' if j['done'] > 0 else '')
-    lines.append('Current state: ' + '; '.join(x for x in state if x) + '.')
-    if trigger != 'genesis':
-        lines.append('Keep the same camera position, terrain and equipment layout as the input image; change only what the current state requires.')
-    return ' '.join(lines)
-
-
-def illustrate(store, mid, trigger, transport=None):
-    """Generate one illustration for a trigger ('genesis' or 'job:<id>'). Stores bytes and record in mission_visuals."""
-    snap = store.snapshot(mid)
-    s = snap['state']
-    prompt = scene_prompt(s, trigger)
-    with store.transaction() as db:
-        if db.scalar(select(Visual).where(Visual.mission_id == mid, Visual.trigger == trigger)):
-            return None
-        previous = db.scalars(select(Visual).where(Visual.mission_id == mid, Visual.image.is_not(None)).order_by(Visual.created.desc())).first()
-        prev_bytes = (previous.raw_image or previous.image) if previous else None
-        prev_format = previous.record.get('output_format', 'webp') if previous else None
-    rid = f'visual:{mid}:{trigger}'
-    if prev_bytes:
-        url = IMAGES_EDIT
-        payload = {'model': IMAGE_MODEL, 'prompt': prompt, 'n': 1,
-                   'images': [{'image_url': f'data:image/{prev_format};base64,' + base64.b64encode(prev_bytes).decode()}]}
-    else:
-        url = IMAGES_GENERATE
-        payload = {'model': IMAGE_MODEL, 'prompt': prompt, 'n': 1, 'size': '1792x1024', 'output_format': 'webp'}
-    record = {'trigger': trigger, 'prompt': prompt, 'revision': snap['revision'], 'tick': s['tick'], 'sol': s['sol'],
-              'method': 'edit of previous illustration' if prev_bytes else 'generation', 'model': IMAGE_MODEL,
-              'receipt_id': rid, 'label': 'AI illustration generated by muse-image-1.0 from recorded mission state. Not an observation.'}
     try:
-        result, corr = _dispatch(store, rid, mid, IMAGE_MODEL, url, payload, IMAGE_USD_PER_IMAGE, transport, retry_503=2)
-        data = (result.get('data') or [{}])[0]
-        if not data.get('b64_json'):
-            raise MediaError('Muse Image response contained no image data')
-        raw = base64.b64decode(data['b64_json'])
-        image = stamp(raw)
-        record.update(classification='generated illustration, not evidence', stamped_label=STAMP, raw_sha256=hashlib.sha256(raw).hexdigest(),
-                      status='generated', output_format=result.get('output_format', 'webp'), provider_created=result.get('created'),
-                      usage=result.get('usage'), sha256=hashlib.sha256(image).hexdigest(), bytes=len(image), output_format_stored='webp', **corr)
+        result, corr = send(payload, key, transport, timeout=300, url=url)
+        try:
+            _update(store, rid, status='received', received_at=time.time(), actual_usd=price, **corr)
+        except Exception as exc:
+            # The provider answered and was paid: a bookkeeping error must never discard the result.
+            import logging
+            logging.exception('Receipt update failed after a successful %s response', model)
+            corr = {**corr, 'receipt_update_error': f'{type(exc).__name__}: {exc}'[:300]}
+        return result, corr
+    except httpx.HTTPStatusError as exc:
+        _update(store, rid, status='failed', http_status=exc.response.status_code, request_id=exc.response.headers.get('x-request-id'),
+                provider_error_message=exc.response.text.replace(key, '[redacted]')[:600])
+        raise
     except Exception as exc:
-        image = raw = None
-        record.update(status='failed', error=f'{type(exc).__name__}: {exc}'[:600])
-    with store.transaction() as db:
-        db.add(Visual(id=rid, mission_id=mid, trigger=trigger, created=time.time(), image=image, raw_image=raw, record=record))
-    return record
+        _update(store, rid, status='uncertain; no automatic retry', failure=type(exc).__name__)
+        raise
 
-
-def pending_visual(store, mid='public'):
-    """Next trigger that has no visual yet: genesis first, then completed jobs in completion order."""
-    s = store.snapshot(mid)['state']
-    if s['mode'] != 'meta':
-        return None
-    with store.transaction() as db:
-        done = {v.trigger for v in db.scalars(select(Visual).where(Visual.mission_id == mid)).all()}
-    if 'genesis' not in done:
-        return 'genesis'
-    for j in sorted((j for j in s['jobs'] if j['status'] == 'complete'), key=lambda j: j['completed_tick']):
-        if 'job:' + j['id'] not in done:
-            return 'job:' + j['id']
-    return None
-
-
-# ---------------------------------------------------------------- SAM 3.1 on HiRISE
 
 def _label_value(label, key):
     m = re.search(rf'^\s*{re.escape(key)}\s*=\s*(-?[0-9.]+(?:[eE][-+]?[0-9]+)?)', label, re.M)

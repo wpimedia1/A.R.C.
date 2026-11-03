@@ -3,7 +3,6 @@ import {useState} from 'react';
 import {ArrowRight,CheckCircle,BookOpen} from '@phosphor-icons/react';
 import {State,Job,Snapshot,fmt,usd,solOf} from '../lib/mission';
 import {Operations} from './OperationsPanels';
-import {VisualTimeline,VisualSet} from './Visuals';
 import {HowItWorks,Legend,Tag,paramTag} from './Explain';
 import dynamic from 'next/dynamic';
 const MissionScene=dynamic(()=>import('./MissionScene'),{ssr:false,loading:()=><p className="fallback">Loading the outpost…</p>});
@@ -22,7 +21,7 @@ function ProgressChart({s,data,job}:{s:State;data:Operations|null;job:Job}){
   <p>Dashed line: target of {fmt(job.target)} {job.unit}, from {job.parameters.join(', ')}. Simulator output, not a measurement on Mars.</p></>;
 }
 
-export default function MissionJourney({s,snap,data,select,navigate,mid,visuals}:{s:State;snap:Snapshot;data:Operations|null;select:(id:string)=>void;navigate:(tab:string)=>void;mid:string;visuals:VisualSet|null}){
+export default function MissionJourney({s,snap,data,select,navigate,mid}:{s:State;snap:Snapshot;data:Operations|null;select:(id:string)=>void;navigate:(tab:string)=>void;mid:string}){
  const running=s.jobs.filter(j=>j.status==='running');
  const [chosen,setChosen]=useState<string|null>(null);
  const job=s.jobs.find(j=>j.id===(chosen||running[0]?.id||s.jobs.find(j=>j.status!=='complete')?.id||s.jobs[0].id))!;
@@ -42,7 +41,6 @@ export default function MissionJourney({s,snap,data,select,navigate,mid,visuals}
    <aside className="chapter-reason"><span className="eyebrow">03 / THE DECISION</span><h3>{job.reason&&job.status!=='complete'?'What is holding it up?':decision?'Why it was authorized':'Not yet authorized'}</h3><p>{job.reason&&job.status!=='complete'?job.reason:decision?.summary||'No agent has proposed this work yet.'}</p>{decision&&<small>{decision.actor} · {decision.id} · {solOf(decision.tick)}</small>}{decision?.assurance&&<div className="assurance-box"><small><Tag kind="model"/> Assurance {decision.assurance.approved?'approved':'held'}: {decision.assurance.reason}</small>{decision.assurance.open_conditions.length>0&&<ul>{decision.assurance.open_conditions.map(c=><li key={c.id}><Tag kind="computed"/> Open condition (simulator): {c.text}</li>)}</ul>}</div>}<button className="text-link" onClick={()=>navigate('Agents')}>Meet the team <ArrowRight/></button></aside></article>
    <details className="chapter-citation"><summary><BookOpen/> 04 / Numbers behind this step <span>{params.length} parameters</span></summary>{params.map(({n,p})=><p key={n}><strong>{n}</strong>: {fmt(p.value,4)} {p.unit} · <Tag kind={paramTag(p.classification)}/> {p.classification}{p.source?` · ${s.spec.sources[p.source]?.title}, ${p.locator}`:''}{p.formula?` · ${p.formula}`:''}{p.quote&&<><br/><q>{p.quote}</q></>}</p>)}<button onClick={()=>navigate('Records')}>All parameters and decisions <ArrowRight/></button></details>
   </section>
-  <details className="collapsible"><summary>Artist’s impression of the simulated outpost (AI illustrations)</summary><VisualTimeline mid={mid} set={visuals}/></details>
   <div className="journey-results"><section className="journey-chart"><div className="journey-section-heading"><div><span className="eyebrow">SIMULATOR RESULTS</span><h2>Is the plan working?</h2></div><span>{job.title} · {job.unit}</span></div><ProgressChart s={s} data={data} job={job}/></section>
    <section className="mars-feed"><span className="eyebrow">RESOURCES & COST</span><h2>What it takes.</h2><p>{s.power_commissioned?`Power allocated: ${fmt(s.power_used_kw,2)} of ${fmt(s.power_capacity_kw)} kW.`:'Fission power not yet commissioned: no grid power.'} Energy used: {fmt(s.energy_used_kwh)} kWh{Object.keys(s.energy_unestimated_hours).length?` plus unpublished energy for ${Object.entries(s.energy_unestimated_hours).map(([k,h])=>`${k} (${fmt(h)} h)`).join(', ')}`:''}.</p><p>Operations: {usd(s.spent_usd)}. Landed capital: {usd(s.capital_usd)}{s.capital_unestimated.length?` + not estimated for ${s.capital_unestimated.join(', ')}`:''}.</p><p><Tag kind="assumed"/> Cost basis: Perseverance historical figures (decision D5). Not a commercial price.</p>{(s.orders||[]).length>0&&<div className="orders"><h3>Replacement robots (D12)</h3>{s.orders!.map(o=><p key={o.id}><b>{o.asset_name}</b> · {o.status} · launch {o.launch_utc.slice(0,10)}, arrival {o.arrival_utc.slice(0,10)} · {o.cost_usd===null?'cost not estimated':usd(o.cost_usd)} · ordered by {o.actor}</p>)}</div>}{s.assets.some(a=>!a.available)&&<p role="alert">Failed: {s.assets.filter(a=>!a.available).map(a=>a.name).join(', ')}.</p>}<p>Local ground instruments: <strong>uninstrumented</strong>.</p></section></div>
   <details className="collapsible"><summary>About this mission: what is real, what is simulated, legend</summary><HowItWorks snap={snap}/><Legend/></details>

@@ -157,25 +157,10 @@ def create_app(store=None):
                      if key in ('mola-arcadia','swim','swim-radar') and (v:=db.get(SourceVersion,vid))}
         return {'bounds':BOUNDS,'local_sensors':s.get('local_sensors',local_sensors()),'sources':sources}
 
-    @app.get('/api/v1/missions/{mid}/visuals')
-    def visuals(mid:str,request:Request):
-        from sqlalchemy import select
-        from .store import Visual
-        store.snapshot(mid,owner(request))
-        with store.transaction() as db:
-            rows=db.scalars(select(Visual).where(Visual.mission_id==mid).order_by(Visual.created)).all()
-            visuals=[{'trigger':v.trigger,'created_at':v.created,'has_image':v.image is not None,**v.record} for v in rows]
-        return {'visuals':visuals,'site_analysis':store.status('site-analysis')}
-
-    @app.get('/api/v1/missions/{mid}/visuals/{trigger}/image')
-    def visual_image(mid:str,trigger:str,request:Request):
-        from sqlalchemy import select
-        from .store import Visual
-        store.snapshot(mid,owner(request))
-        with store.transaction() as db:
-            v=db.scalar(select(Visual).where(Visual.mission_id==mid,Visual.trigger==trigger))
-            if not v or v.image is None:raise HTTPException(404,'No image for this trigger')
-            return Response(v.image,media_type='image/'+v.record.get('output_format','webp'),headers={'Cache-Control':'public, max-age=31536000, immutable'})
+    @app.get('/api/v1/site/analysis')
+    def site_analysis_status():
+        # SAM site analysis progress for the Evidence tab: started, pinned (with version) or failed (with the reason).
+        return store.status('site-analysis') or {'status':'not started'}
 
     @app.get('/api/v1/environment/live')
     def live_environment():

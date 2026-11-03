@@ -2,7 +2,7 @@
 import time
 import pytest
 import mission.planner as planner
-from mission.engine import InvalidAction, event
+from mission.engine import InvalidAction
 from mission.store import EnvironmentObservation
 from mission.inspection import inspect
 from conftest import make_store

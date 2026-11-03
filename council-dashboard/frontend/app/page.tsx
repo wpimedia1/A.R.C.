@@ -2,7 +2,7 @@
 import RegionAtlas from '../components/RegionAtlas';
 import Schedule from '../components/Schedule';
 import MissionJourney from '../components/MissionJourney';
-import {useVisuals} from '../components/Visuals';
+import {useSiteAnalysis,siteAnalysisText} from '../components/SiteImagery';
 import SiteImagery,{SiteEvidence} from '../components/SiteImagery';
 import {Legend,Tag,paramTag} from '../components/Explain';
 import EventLog from '../components/EventLog';
@@ -28,7 +28,7 @@ export default function Page(){
  async function endExperiment(){if(mid==='public')return;setBusy(true);try{const r=await fetch('/api/v1/missions/'+mid,{method:'DELETE',credentials:'same-origin'});if(!r.ok)throw new Error(`${r.status}: ${await r.text()}`);try{localStorage.removeItem('arcadia-fork');}catch{}setMid('public');setError('');}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
  async function fork(){if(!snap)return;setBusy(true);try{const origin=mid==='public'?snap:await api<Snapshot>('missions/public');const s=await api<Snapshot>('forks',{revision:origin.revision});try{localStorage.setItem('arcadia-fork',s.id);}catch{}setSnap(s);setMid(s.id);setError('');}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
  const operations=useOperations(mid,snap?.revision||0);
- const visuals=useVisuals(mid,snap?.revision||0);
+ const siteAnalysis=useSiteAnalysis(snap?.revision||0);
  const s=snap?.state,j=s?.jobs.find(j=>j.id===selected),d=s?.decisions.find(d=>d.id===j?.decision_id);
  const rated=s?.assets.find(a=>a.kind==='power')?.output_kw;
  return <><header><a className="brand" href="/"><Planet size={27}/>A.R.C.<span>AUTONOMOUS ROBOTIC COLONY · MARS · {s?.spec.package_id||'—'}</span></a><nav aria-label="Main navigation">{['Today','Mars now','Outpost','Work','Agents','Evidence','Records'].map(t=><button key={t} aria-current={tab===t?'page':undefined} className={tab===t?'current':''} onClick={()=>setTab(t)}>{t}</button>)}</nav><button className="primary" disabled={busy||!snap} onClick={fork}>Create an experiment <Plus/></button></header><main><div className="eyebrow top-line"><span><i className={connected?'dot live':'dot'}/>{mid==='public'?'PUBLIC MISSION':'PRIVATE EXPERIMENT'} · {started===false&&mid==='public'?'NOT STARTED':connected?'CONNECTED':'RECONNECTING'}</span><span>{s?`${solOf(s.tick).toUpperCase()} · REVISION ${snap?.revision}`:'CONNECTING'}</span></div>{error&&<div className="error" role="alert">{error}</div>}
@@ -41,10 +41,10 @@ export default function Page(){
   <button disabled={busy} onClick={()=>control('configure',{planner:s.mode==='meta'?'fixed-priority':'meta'})}>Use {s.mode==='meta'?'fixed-priority benchmark':'Meta agents'}</button>
   <button onClick={()=>setMid('public')}>Public mission</button>
   <button disabled={busy} onClick={endExperiment}>End experiment</button></div></div>}
- {tab==='Today'&&<MissionJourney s={s} snap={snap!} data={operations.data} select={setSelected} navigate={setTab} mid={mid} visuals={visuals}/>}
+ {tab==='Today'&&<MissionJourney s={s} snap={snap!} data={operations.data} select={setSelected} navigate={setTab} mid={mid}/>}
  {operations.error&&<div className="error">{operations.error}</div>}
  {tab==='Agents'&&<><Legend only={['models']}/><Agents s={s} data={operations.data}/><Evaluation mid={mid} revision={snap!.revision}/></>}
- {tab==='Evidence'&&<><SiteImagery site={operations.data?.evidence.find(e=>e.source_id===(s.site_imagery?.source_id||'hirise-site')) as unknown as SiteEvidence|undefined} status={visuals?.site_analysis?`Segmentation failed: ${visuals.site_analysis.error}`:'Runs at genesis on a HiRISE image containing the mission site (D13).'}/><Legend only={['images','detections','values']}/><RegionAtlas mid={mid} revision={snap!.revision}/><Science data={operations.data}/></>}
+ {tab==='Evidence'&&<><SiteImagery site={operations.data?.evidence.find(e=>e.source_id===(s.site_imagery?.source_id||'hirise-site')) as unknown as SiteEvidence|undefined} status={siteAnalysisText(siteAnalysis,Boolean(s.site_imagery))}/><Legend only={['images','detections','values']}/><RegionAtlas mid={mid} revision={snap!.revision}/><Science data={operations.data}/></>}
  {(tab==='Outpost'||visited)&&<div hidden={tab!=='Outpost'}><div className="page-heading"><div><span className="eyebrow">EQUIPMENT</span><h1>The equipment on site.</h1><p>Specifications and sources for each unit. The live 3D view is on Today.</p></div></div><div className="asset-list">{s.assets.map(a=>{const job=s.jobs.find(j=>j.assigned.includes(a.id))||s.jobs.find(j=>j.asset_kinds.includes(a.kind));return <button key={a.id} onClick={()=>job&&setSelected(job.id)}><strong>{a.name}</strong><span>{a.available?'Available':'Unavailable'} · {a.mass_kg===null?'mass not published':`${fmt(a.mass_kg)} kg`} · {a.kind==='power'?`${a.output_kw} kWe`:`${fmt(a.grid_power_kw,3)} kW grid`}{a.rate_per_h?` · ${fmt(a.rate_per_h,2)} ${a.rate_unit}/h`:''}</span><small>{a.note}</small><ArrowUpRight/></button>;})}</div><Comparison data={operations.data}/></div>}
  {tab==='Work'&&<><Legend only={['status','values']}/><Schedule mid={mid} revision={snap!.revision} select={setSelected}/><div className="page-heading"><div><span className="eyebrow">OPERATIONS</span><h1>Work orders.</h1><p>The simulator validates dependencies, equipment and power before any work starts.</p></div></div><div className="work-table"><div className="work-head"><span>Work order / owner</span><span>Status</span><span>Progress</span><span>Equipment</span><span>Power</span></div>{s.jobs.map(j=><button className="work-row" key={j.id} onClick={()=>setSelected(j.id)}><span><strong>{j.title}</strong><small>{j.owner}</small></span><span className={'badge '+j.status}>{j.status}</span><span>{fmt(j.done)} / {fmt(j.target)} {j.unit}</span><span>{j.assigned.join(', ')||'—'}</span><span>{jobPower(s,j)===null?'not published':`${fmt(jobPower(s,j)!,3)} kW`} <ArrowUpRight/></span></button>)}</div></>}
  {tab==='Mars now'&&<><Weather/><LiveMars missionStatus={s.status}/></>}
