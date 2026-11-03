@@ -157,6 +157,53 @@ function Scene({s,labels,clock,sun}:{s:State;labels:boolean;clock:StepClock|null
 }
 
 type Rev={revision:number;at:number;kind:string};
+
+// Sound. Mars audio is real: NASA Perseverance recordings, streamed from NASA and credited (NASA media guidelines:
+// acknowledge NASA as the source; no endorsement implied). Event cues are interface tones, not Mars sounds.
+const NASA_AUDIO={
+ wind:{src:'https://www.nasa.gov/wp-content/uploads/2024/05/scam-mic-sol004-run001.wav',label:'Wind at Jezero Crater, SuperCam microphone, sol 4 (22 Feb 2021)',credit:'NASA/JPL-Caltech/LANL/CNES/CNRS/ISAE-Supaero',page:'https://science.nasa.gov/resource/perseverance-rovers-supercam-records-wind-on-mars'},
+ drive:{src:'https://www.nasa.gov/wp-content/uploads/2024/05/filtered-highlights-sol16roverdrivehighlights.wav',label:'Perseverance driving, sol 16 (90-second highlights)',credit:'NASA/JPL-Caltech',page:'https://science.nasa.gov/resource/sounds-of-perseverance-mars-rover-driving-sol-16-90-second-highlights/'},
+};
+type Cue='start'|'complete'|'warn'|'alert'|'charge'|'dawn'|'dusk';
+const CUES:Record<Cue,[number,number][]>={start:[[523,0],[659,.12]],complete:[[523,0],[659,.12],[784,.24]],warn:[[330,0],[330,.22]],alert:[[440,0],[349,.18],[294,.36]],charge:[[587,0]],dawn:[[392,0],[587,.3]],dusk:[[587,0],[392,.3]]};
+function cueFor(title:string):Cue|null{
+ if(title==='Planning needs attention')return 'alert';
+ if(/^Battery low|held by assurance| stopped$| failed$| behind plan$|^Survey blocked/.test(title))return 'warn';
+ if(/ completed$|^Readiness criteria met/.test(title))return 'complete';
+ if(/passed onboard assurance and started| started$/.test(title))return 'start';
+ if(/^Charging: /.test(title))return 'charge';
+ return null;
+}
+function playCue(ctx:AudioContext,cue:Cue){
+ const t0=ctx.currentTime;
+ for(const [f,dt] of CUES[cue]){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;
+  g.gain.setValueAtTime(0,t0+dt);g.gain.linearRampToValueAtTime(.18,t0+dt+.02);g.gain.exponentialRampToValueAtTime(.001,t0+dt+.5);
+  o.connect(g).connect(ctx.destination);o.start(t0+dt);o.stop(t0+dt+.55);}
+}
+function SoundBar({s,live,driving,night}:{s:State;live:boolean;driving:boolean;night:boolean}){
+ const [on,setOn]=useState(false),[err,setErr]=useState('');
+ const wind=useRef<HTMLAudioElement|null>(null),drive=useRef<HTMLAudioElement|null>(null),ctx=useRef<AudioContext|null>(null);
+ const lastEvent=useRef<number>(s.activity.at(-1)?.id??0),lastNight=useRef<boolean>(night);
+ const audio=(src:string,vol:number)=>{const a=new Audio(src);a.loop=true;a.volume=vol;a.onerror=()=>setErr('NASA audio could not be loaded (no connection to nasa.gov?)');return a;};
+ useEffect(()=>{if(!on){wind.current?.pause();drive.current?.pause();return;}
+  if(!wind.current)wind.current=audio(NASA_AUDIO.wind.src,.55);
+  if(!drive.current)drive.current=audio(NASA_AUDIO.drive.src,.45);
+  wind.current.play().catch(e=>setErr('Audio blocked: '+String(e).slice(0,80)));},[on]);
+ // The rover recording plays only while the rover is actually driving (same rule as the 3D view, D19).
+ useEffect(()=>{if(!on||!drive.current)return;if(driving&&live)drive.current.play().catch(()=>{});else drive.current.pause();},[on,driving,live]);
+ useEffect(()=>()=>{wind.current?.pause();drive.current?.pause();ctx.current?.close();},[]);
+ // Event cues: one tone per new mission event worth hearing (live only), plus sunrise and sunset at the site.
+ useEffect(()=>{const ev=s.activity.filter(e=>e.id>lastEvent.current);lastEvent.current=s.activity.at(-1)?.id??lastEvent.current;
+  if(!on||!live||!ctx.current)return;const cues=[...new Set(ev.map(e=>cueFor(e.title)).filter((c):c is Cue=>c!==null))];
+  cues.slice(0,3).forEach((c,i)=>setTimeout(()=>ctx.current&&playCue(ctx.current,c),i*700));},[s.activity,on,live]);
+ useEffect(()=>{if(night!==lastNight.current){lastNight.current=night;if(on&&live&&ctx.current)playCue(ctx.current,night?'dusk':'dawn');}},[night,on,live]);
+ const toggle=()=>{setErr('');if(!ctx.current){const A=window.AudioContext||(window as unknown as {webkitAudioContext:typeof AudioContext}).webkitAudioContext;ctx.current=new A();}
+  ctx.current.resume();setOn(v=>!v);};
+ return <div className="hud-block sound"><small>SOUND</small><button onClick={toggle} aria-pressed={on}>{on?'Sound on · mute':'Sound off · play Mars'}</button>
+  {err&&<span className="bad">{err}</span>}
+  {on&&<span className="sound-credit">Real Mars audio from NASA Perseverance: <a href={NASA_AUDIO.wind.page} target="_blank" rel="noreferrer">{NASA_AUDIO.wind.label}</a> (credit {NASA_AUDIO.wind.credit}){driving&&live?<>; <a href={NASA_AUDIO.drive.page} target="_blank" rel="noreferrer">{NASA_AUDIO.drive.label}</a> (credit {NASA_AUDIO.drive.credit}), played while the rover drives</>:null}. Recorded at Jezero Crater, not Arcadia. Event tones are interface sounds.</span>}</div>;
+}
+
 export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
  const [labels,setLabels]=useState(false);useEffect(()=>{const t=setTimeout(()=>setLabels(true),400);return()=>clearTimeout(t);},[]);
  const [revs,setRevs]=useState<Rev[]>([]);const [replay,setReplay]=useState<{n:number;state:State}|null>(null);const [playing,setPlaying]=useState(false);
@@ -184,6 +231,7 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
     {reviewing.map(j=><span key={j.id}>⏳ {j.title}: authorized, awaiting onboard assurance</span>)}
     {charging_.map(a=><span key={a.id}>⚡ {a.name.split(' (')[0]} charging · battery {pct(a)}%</span>)}
     {!replay&&!running.length&&!reviewing.length&&!charging_.length&&<span>{s.planning_status}</span>}</div>
+   <SoundBar s={s} live={!replay} night={Boolean(c&&c.site_solar_elevation_deg<=0)} driving={s.assets.some(a=>a.kind==='rover'&&jobOf(s,a)?.kind==='survey'&&working(s,a,Boolean(c&&c.site_solar_elevation_deg<=0)))}/>
    <div className="hud-block replay"><small>REPLAY FROM GENESIS</small>
     <input type="range" min={revs[0]?.revision||1} max={revs.at(-1)?.revision||1} value={replay?.n||revs.at(-1)?.revision||1} onChange={e=>{setPlaying(false);load(Number(e.target.value));}} aria-label="Replay revision"/>
     <div><button onClick={()=>{if(!revs.length)return;if(!replay)load(revs[0].revision);setPlaying(p=>!p);}}>{playing?'Pause':'Play'}</button><button onClick={()=>{setPlaying(false);setReplay(null);}} disabled={!replay}>Stop · back to live</button></div></div>
