@@ -132,7 +132,14 @@ function Tag({s,a,night=false}:{s:State;a:Asset;night?:boolean}){
 function Tags({s}:{s:State}){
  return <>{s.assets.filter(a=>a.kind!=='rover').map(a=><Html key={a.id} position={[a.position[0],(FILE[a.kind]?.[1]||2)+1.4,a.position[2]]} center><Tag s={s} a={a}/></Html>)}</>;
 }
-function Scene({s,labels,clock,sun}:{s:State;labels:boolean;clock:StepClock|null;sun:[number,number,number]|null}){
+// The viewer's own light, held at the camera like a photographer's flash (glTF models are metallic and need a
+// directional light to show). Off (0) it contributes nothing.
+function ViewLight({boost}:{boost:number}){
+ const ref=useRef<THREE.DirectionalLight>(null);
+ useFrame(({camera})=>{if(ref.current)ref.current.position.copy(camera.position);});
+ return boost>0?<directionalLight ref={ref} intensity={2.2*boost}/>:null;
+}
+function Scene({s,labels,clock,sun,boost}:{s:State;labels:boolean;clock:StepClock|null;sun:[number,number,number]|null;boost:number}){
  const night=sun!==null&&sun[2]<=0;// sun below the horizon at the site
  // sun: the live Mars24 sun direction at the site (live view, read every 30 s) or the one recorded with the step (replay).
  // None -> neutral light, no invented sun.
@@ -141,12 +148,15 @@ function Scene({s,labels,clock,sun}:{s:State;labels:boolean;clock:StepClock|null
  // day/night switch. The shading curve is a display mapping, not a measured sky brightness.
  const elev=sun?Math.asin(Math.max(-1,Math.min(1,sun[2])))*180/Math.PI:null;
  const ease=(a:number,b:number,x:number)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
- const k=elev==null?1:ease(-12,6,elev),direct=elev==null?0:ease(-1,6,elev);
+ // boost: the viewer's own light (0 = the real sun only). Like raising a camera's exposure it lifts the fill and sky
+ // toward daylight; the sun's direction, its direct light and every record stay as they are.
+ const real=elev==null?1:ease(-12,6,elev),k=real+(1-real)*boost,direct=elev==null?0:ease(-1,6,elev);
  const mix=(n:string,d:string)=>'#'+new THREE.Color(n).lerp(new THREE.Color(d),k).getHexString();
  return <>
   <color attach="background" args={[mix('#140d0b','#d7a77f')]}/>{/* Mars daytime sky: butterscotch from suspended dust */}
   <ambientLight intensity={0.08+0.37*k}/><hemisphereLight args={['#f1c9a4','#3a2418',0.08+0.52*k]}/>
   {sunPos?<directionalLight position={sunPos} intensity={0.05+2.55*direct} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-40} shadow-camera-right={40} shadow-camera-top={40} shadow-camera-bottom={-40}/>:<ambientLight intensity={0.5}/>}
+  <ViewLight boost={boost}/>
   <fog attach="fog" args={[mix('#120c0a','#d6a98a'),120,420]}/>
   <GroundBoundary><Suspense fallback={<PlainGround/>}><Ground/></Suspense></GroundBoundary>
   <Site s={s}/>
@@ -216,6 +226,8 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
  // Light follows the sun continuously: the live view uses the server's live Mars24 reading (polled every 30 s);
  // a replay uses the sun recorded with each step.
  const feed=useLive();
+ // Viewer light: off by default (the real sun). On, the viewer sets it like a camera's exposure; Off returns to the real light.
+ const [viewLight,setViewLight]=useState<number|null>(null);const boost=viewLight??0;
  const c:LiveClock|undefined=!replay&&feed.live?.now?.clock?feed.live.now.clock:s.environment?.clock;
  // Live public mission only: the time to the next step, from the server's schedule. None in replays or experiments.
  const clock:StepClock|null=!replay&&s.status==='active'&&snap.next_tick_at!=null&&snap.seconds_per_tick&&c?{next:snap.next_tick_at,len:snap.seconds_per_tick,sunUp:c.site_solar_elevation_deg>0}:null;
@@ -224,9 +236,11 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
   const xs=[...s.assets.map(a=>a.position[0]),rx];const lo=Math.min(...xs),hi=Math.max(...xs);const span=Math.max(30,hi-lo);const cx=(lo+hi)/2;
   return {target:[cx,0,8] as [number,number,number],position:[cx+span*.35,span*.42,8+span*.8] as [number,number,number]};});
  return <><LiveStrip snap={snap} feed={feed}/><section className="mission-scene">
-  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels} clock={clock} sun={c?.site_sun_enu??null}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary></div>
+  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels} clock={clock} sun={c?.site_sun_enu??null} boost={boost}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary>{viewLight!==null&&<div className="view-light-badge">VIEWING LIGHT {fmt(viewLight*100,0)}% · not the real sun</div>}</div>
   <div className="scene-hud">
-   <div className="hud-block"><small>{replay?`REPLAY · revision ${replay.n}`:'LIVE · real Mars time'}</small><strong>{solOf(s.tick)} · step {s.tick}</strong>{c&&<span>Sun {c.site_solar_elevation_deg>0?`${fmt(c.site_solar_elevation_deg,0)}° up`:`${fmt(-c.site_solar_elevation_deg,0)}° below the horizon`} · {c.season}</span>}</div>
+   <div className="hud-block"><small>{replay?`REPLAY · revision ${replay.n}`:'LIVE · real Mars time'}</small><strong>{solOf(s.tick)} · step {s.tick}</strong>{c&&<span>Sun {c.site_solar_elevation_deg>0?`${fmt(c.site_solar_elevation_deg,0)}° up`:`${fmt(-c.site_solar_elevation_deg,0)}° below the horizon`} · {c.season}</span>}
+    <div className="view-light"><button aria-pressed={viewLight!==null} onClick={()=>setViewLight(v=>v===null?0.6:null)}>{viewLight===null?'Real light · add viewing light':'Viewing light · back to real light'}</button>
+     {viewLight!==null&&<input type="range" min={0} max={100} value={Math.round(viewLight*100)} onChange={e=>setViewLight(Number(e.target.value)/100)} aria-label="Viewing light"/>}</div></div>
    <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>{hudLine(s,j,Boolean(c&&c.site_solar_elevation_deg<=0))}</span>):<span>No robot is working.</span>}
     {reviewing.map(j=><span key={j.id}>⏳ {j.title}: authorized, awaiting onboard assurance</span>)}
     {charging_.map(a=><span key={a.id}>⚡ {a.name.split(' (')[0]} charging · battery {pct(a)}%</span>)}
@@ -236,6 +250,6 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
     <input type="range" min={revs[0]?.revision||1} max={revs.at(-1)?.revision||1} value={replay?.n||revs.at(-1)?.revision||1} onChange={e=>{setPlaying(false);load(Number(e.target.value));}} aria-label="Replay revision"/>
     <div><button onClick={()=>{if(!revs.length)return;if(!replay)load(revs[0].revision);setPlaying(p=>!p);}}>{playing?'Pause':'Play'}</button><button onClick={()=>{setPlaying(false);setReplay(null);}} disabled={!replay}>Stop · back to live</button></div></div>
   </div>
-  <p className="scene-note">Robots move only while their work is running in the simulation; waiting robots stay still and say why. Sun position is computed for the site at this moment. The rover's position is the distance driven in the simulation along its survey line (east, per the route planner); between steps it advances at its authorized rate toward the next recorded step, and it drives only in daylight (D19); trench size is the published habitat size and depth. Ground: HiRISE orbital image nearest the site (single band, coloured), not to scale. Lighting follows the real sun elevation at the site; the twilight shading curve is illustrative. Layout positions, the spoil pile, excavator shuttling and models are illustrative.</p>
+  <p className="scene-note">Robots move only while their work is running in the simulation; waiting robots stay still and say why. Sun position is computed for the site at this moment. The rover's position is the distance driven in the simulation along its survey line (east, per the route planner); between steps it advances at its authorized rate toward the next recorded step, and it drives only in daylight (D19); trench size is the published habitat size and depth. Ground: HiRISE orbital image nearest the site (single band, coloured), not to scale. Lighting follows the real sun elevation at the site; the twilight shading curve is illustrative. The viewing light is the viewer's own control, like a camera's exposure: it brightens the view only, is labelled on the scene while on, and Real light returns to the sun. Layout positions, the spoil pile, excavator shuttling and models are illustrative.</p>
  </section></>;
 }
