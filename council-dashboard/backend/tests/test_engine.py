@@ -290,6 +290,17 @@ def test_unknown_drilling_power_is_not_zero():
     did = start(s, 'drill', ['rodwell-1'], 'drill', 'fixed-priority', [s['spec']['package_id']])
     d = next(x for x in s['decisions'] if x['id'] == did)
     assert d['calculation']['power_kw'] is None and not d['calculation']['power_published'] and 'not physically validated' in d['validation']
+    # Audit: the unknown draw is never booked as 0 kW. The drill holds all 40 kW that were unallocated, so nothing else
+    # can be booked onto the grid while it runs, and the hold is released when it stops.
+    j = job_by_id(s, 'drill')
+    assert j['reserved_kw'] == 40.0 and s['power_used_kw'] == 40.0 and d['calculation']['reserved_kw'] == 40.0
+    from mission.engine import charge, asset_by_id
+    asset_by_id(s, 'excavator-1')['soc_wh'] = 0.0
+    with pytest.raises(InvalidAction, match='Not enough grid power'):  # no capacity left for other grid work
+        charge(s, ['excavator-1'], 'test', 'fixed-priority')
+    from mission.engine import release
+    release(s, j, 'blocked', 'test')
+    assert s['power_used_kw'] == 0.0 and 'reserved_kw' not in j
 
 
 def test_operations_continue_after_readiness():

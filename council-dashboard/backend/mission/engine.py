@@ -147,8 +147,11 @@ def demand_kw(s, asset_ids, j=None):
 
 
 def reserved_kw(s, asset_ids, j=None):
-    """Power booked on the grid ledger. An unpublished draw books nothing and is reported as unvalidated, never as 0 kW."""
-    return demand_kw(s, asset_ids, j) or 0.0
+    """Power booked on the grid ledger. A published draw books that draw. An unpublished draw is never booked as 0 kW: the
+    job holds all grid capacity that was unallocated when it started (the most it could be drawing), recorded on the job."""
+    if not power_known(j):
+        return j.get('reserved_kw', 0.0)
+    return demand_kw(s, asset_ids, j)
 
 
 def reasons(s, j, asset_ids=None):
@@ -214,6 +217,11 @@ def start(s, jid, asset_ids, rationale, actor, source_ids):
                          'power_kw': demand_kw(s, asset_ids, j), 'power_published': power_known(j)},
          'validation': 'accepted' if power_known(j) else 'accepted; power not physically validated (draw not published)',
          'outcome': None}
+    if not power_known(j):
+        # Unknown draw: hold every unallocated kW, so no other work can be booked onto power this job may be using.
+        j['reserved_kw'] = s['power_capacity_kw'] - s['power_used_kw']
+        d['calculation']['reserved_kw'] = j['reserved_kw']
+        d['calculation']['reservation_basis'] = 'Draw not published: all unallocated grid capacity held while the job runs'
     s['decisions'].append(d)
     s['power_used_kw'] += reserved_kw(s, asset_ids, j)
     if reviewed_onboard(s, actor):
@@ -336,6 +344,7 @@ def rate_per_tick(s, asset_ids, j=None):
 
 def release(s, j, status, reason=''):
     s['power_used_kw'] = max(0.0, s['power_used_kw'] - reserved_kw(s, j['assigned'], j))
+    j.pop('reserved_kw', None)
     j.update(status=status, reason=reason, assigned=[])
 
 
