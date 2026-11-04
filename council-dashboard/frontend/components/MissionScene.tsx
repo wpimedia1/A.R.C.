@@ -2,9 +2,9 @@
 // The mission, live: robots move when their work is running, wait visibly when it is not,
 // and the sun sits where it really is over the site right now.
 // Motion is a visualization of the simulated job state (progress, assignments); models are illustrative stand-ins.
-import {Canvas,useFrame,useLoader} from '@react-three/fiber';
-import {OrbitControls,Html,useGLTF,Line} from '@react-three/drei';
-import {useMemo,useRef,useState,useEffect,Suspense,Component,ReactNode} from 'react';
+import {Canvas,useFrame,useLoader,useThree} from '@react-three/fiber';
+import {OrbitControls,useGLTF,Line} from '@react-three/drei';
+import {useMemo,useRef,useState,useEffect,useCallback,Suspense,Component,ReactNode} from 'react';
 import * as THREE from 'three';
 import {State,Asset,Job,Snapshot,api,solOf,fmt} from '../lib/mission';
 import LiveStrip,{useLive,LiveClock} from './LiveStrip';
@@ -26,29 +26,31 @@ const inReview=(j:Job)=>j.status==='review';
 // D18: battery state of charge as a percentage, for battery-powered units only.
 const pct=(a:Asset)=>{const b=a as unknown as {battery_wh?:number|null;soc_wh?:number};return b.battery_wh?Math.round(100*(b.soc_wh??0)/b.battery_wh):null;};
 const charging=(a:Asset)=>Boolean((a as unknown as {charging?:boolean}).charging);
-const standby=(s:State,a:Asset)=>((a as unknown as {standby_until_tick?:number}).standby_until_tick||0)>s.tick;
+const standby=(s:State,a:Asset)=>((a as unknown as {standby_until_tick?:number}).standby_until_tick??-1)>=s.tick;
 // D18: a battery unit cannot work a step its charge cannot supply (rate x step length x energy per kg, as the engine).
-const lowBattery=(s:State,a:Asset)=>{const b=a as unknown as {battery_wh?:number|null;soc_wh?:number;energy_wh_per_kg?:number};return Boolean(b.battery_wh)&&(b.soc_wh??0)<(a.rate_per_h||0)*s.spec.tick_hours*(b.energy_wh_per_kg||0)-1e-9;};
+const lowBattery=(s:State,a:Asset)=>{const b=a as unknown as {battery_wh?:number|null;soc_wh?:number;energy_wh_per_kg?:number;energy_wh_per_unit?:number};return Boolean(b.battery_wh)&&(b.soc_wh??0)<(a.rate_per_h||0)*s.spec.tick_hours*(b.energy_wh_per_unit??b.energy_wh_per_kg??0)-1e-9;};
 // A job that is running but not progressing right now says why in its reason (engine): paused, standby or night.
 export const pausedJob=(j:Job)=>j.status==='running'&&/^(Paused|Standby|Night)/.test(j.reason||'');
 // HUD line for a running job: ▶ only when at least one of its units is working now; otherwise ⏸ and why.
 function hudLine(s:State,j:Job,night:boolean){
  const units=j.assigned.map(id=>s.assets.find(a=>a.id===id)).filter((a):a is Asset=>Boolean(a));const pc=`${j.title} · ${fmt(j.progress*100,0)}%`;
+ if(s.status!=='active')return `⏸ ${pc} · mission paused or worker not advancing`;
  if(units.some(a=>working(s,a,night)))return `▶ ${pc}`;
  const why=night&&units.some(a=>a.kind==='rover')?'waiting for daylight (D19)':units.some(a=>standby(s,a))?'standby':units.every(a=>charging(a))?'charging':units.some(a=>lowBattery(s,a))?'batteries too low; recharge needed':units.some(a=>!a.available)?'equipment unavailable':(j.reason||'not progressing');
  return `⏸ ${pc} · ${why}`;
 }
 // Whether this unit is actually working at this moment, by the same rules the engine applies to the step.
-const working=(s:State,a:Asset,night=false)=>{const j=jobOf(s,a);return Boolean(a.available&&j&&j.status==='running'&&!standby(s,a)&&!charging(a)&&!lowBattery(s,a)&&!(night&&a.kind==='rover'));};
+const working=(s:State,a:Asset,night=false)=>{const j=jobOf(s,a);return Boolean(s.status==='active'&&a.available&&j&&j.status==='running'&&!standby(s,a)&&!charging(a)&&!lowBattery(s,a)&&!(night&&a.kind==='rover'));};
 
-export function Ground(){
- const tex=useLoader(THREE.TextureLoader,'/api/v1/site/ground.jpg');
- useMemo(()=>{tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(16,16);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;},[tex]);
+export function Ground({onReady,mid,version}:{onReady:()=>void;mid:string;version:string}){
+ const tex=useLoader(THREE.TextureLoader,`/api/v1/missions/${mid}/evidence/ground.jpg?version=${encodeURIComponent(version)}`);
+ useEffect(()=>{onReady();},[onReady]);
+ useMemo(()=>{tex.wrapS=tex.wrapT=THREE.ClampToEdgeWrapping;tex.repeat.set(1,1);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;},[tex]);
  // HiRISE RED is a single band; multiplying by a regolith colour gives the familiar ochre without inventing detail.
  return <mesh rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[1600,1600]}/><meshStandardMaterial map={tex} color="#d08a5c" roughness={1}/></mesh>;
 }
-export class GroundBoundary extends Component<{children:ReactNode},{failed:boolean}>{state={failed:false};static getDerivedStateFromError(){return {failed:true};}render(){return this.state.failed?<PlainGround/>:this.props.children;}}
-export function PlainGround(){return <mesh rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[1600,1600]}/><meshStandardMaterial color="#b9734a" roughness={1}/></mesh>;}
+export class GroundBoundary extends Component<{children:ReactNode;onFailure:()=>void},{failed:boolean}>{state={failed:false};static getDerivedStateFromError(){return {failed:true};}componentDidCatch(){this.props.onFailure();}render(){return this.state.failed?null:this.props.children;}}
+
 
 // Survey: the rover drives the simulated survey distance, east from its start (the route planner's west-to-east
 // convention, D13). Its position is the metres driven in the simulation (job.done). On the live public mission it also
@@ -68,7 +70,7 @@ function Rover({a,s,clock,labels,night}:{a:Asset;s:State;clock:StepClock|null;la
  const driven=surveyJobs(s).reduce((t,x)=>t+x.done,0);const at=useMemo(()=>new THREE.Vector3(),[]);
  useFrame((_,dt)=>{if(!ref.current)return;at.set(a.position[0]+driven+inStep(s,a,clock),0,a.position[2]);ref.current.position.lerp(at,1-Math.exp(-dt*2));});
  return <group ref={ref} position={a.position}><group rotation={[0,Math.PI/2,0]}><Suspense fallback={null}><Model file={FILE.rover[0]} size={FILE.rover[1]} tint={a.available?null:'#7a2c12'}/></Suspense>{moving&&<Dust/>}</group>
-  {labels&&<Html position={[0,FILE.rover[1]+1.4,0]} center><Tag s={s} a={a} night={night}/></Html>}</group>;
+  </group>;
 }
 function SurveyLine({a,s}:{a:Asset;s:State}){
  const jobs=surveyJobs(s);if(!jobs.length)return null;
@@ -78,7 +80,7 @@ function SurveyLine({a,s}:{a:Asset;s:State}){
  const label=`Survey drive ${fmt(driven,1)} / ${fmt(planned,2)} m`+(survey?.route_blocked?` · blocked: ${survey.route_blocked.status} (SAM, D13)`:route?` · hazard detour ×${route.detour_factor} applied (SAM, D13)`:' · no hazard detour applied');
  return <><Line points={[[x0,y,z],[x0+planned,y,z]]} color="#f4e3c8" lineWidth={1.5} dashed dashSize={1.2} gapSize={.8}/>
   {driven>0&&<Line points={[[x0,y+.01,z],[x0+driven,y+.01,z]]} color="#ffd27a" lineWidth={3}/>}
-  <Html position={[x0+planned,1.2,z]} center><span className="scene-chip">{label}</span></Html></>;
+  </>;
 }
 function Dust(){const ref=useRef<THREE.Points>(null);const geo=useMemo(()=>{const g=new THREE.BufferGeometry();const p=new Float32Array(90);for(let i=0;i<90;i++)p[i]=(Math.random()-.5)*1.6;g.setAttribute('position',new THREE.BufferAttribute(p,3));return g;},[]);
  useFrame(({clock})=>{if(ref.current){ref.current.rotation.y=clock.elapsedTime;ref.current.position.y=.4+Math.sin(clock.elapsedTime*3)*.1;}});
@@ -118,19 +120,15 @@ function Site({s}:{s:State}){
  const T=trenchAt(s);const depth=P(s,'habitat.trench_depth_m')*(tr?.progress||0);const spoil=(tr?.progress||0)-(sh?.progress||0)*0.9;
  return <>{depth>0.01&&<mesh position={[T.x,-depth/2+.01,T.z]}><boxGeometry args={[P(s,'habitat.diameter_m'),depth,P(s,'habitat.length_m')]}/><meshStandardMaterial color="#5a3424" roughness={1}/></mesh>}
   {spoil>0.01&&<mesh position={[SPOIL.x,0,SPOIL.z]} castShadow><coneGeometry args={[2.5+3*spoil,3*spoil,24]}/><meshStandardMaterial color="#a05a35" roughness={1}/></mesh>}
-  {hab&&<group position={hab.position}><Suspense fallback={null}><Model file={FILE.habitat[0]} size={FILE.habitat[1]}/></Suspense>
+  {hab&&<group position={[hab.position[0],hab.position[1]+(hab.descent_remaining_m??0),hab.position[2]]} rotation={[0,0,(90-(hab.orientation_deg??90))*Math.PI/180]}><Suspense fallback={null}><Model file={FILE.habitat[0]} size={FILE.habitat[1]}/></Suspense>
    {(sh?.progress||0)>0&&<mesh scale={[1,(sh?.progress||0),1]} castShadow><sphereGeometry args={[P(s,'habitat.diameter_m')/2,32,16,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#9a5634" roughness={1}/></mesh>}</group>}</>;
 }
 function Tag({s,a,night=false}:{s:State;a:Asset;night?:boolean}){
  const j=jobOf(s,a);const sb=standby(s,a);const dark=night&&a.kind==='rover'&&j?.status==='running'&&j.kind==='survey';
  const p=pct(a);const bat=p===null?'':` · battery ${p}%`;
- const txt=!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:dark?`${j.title} · ${fmt(j.progress*100,0)}% · waiting for daylight (D19)`:j?.status==='running'&&lowBattery(s,a)?`Battery too low for a step · ${p}% · recharge needed`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
- const cls=!a.available?'failed':charging(a)?'waiting':sb?'standby':dark?'waiting':j?.status==='running'&&lowBattery(s,a)?'waiting':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
+ const txt=s.status!=='active'?`Mission paused · ${j?.title||'idle'}${bat}`:!a.available?'FAILED':charging(a)?`Charging from the grid · battery ${p}%`:sb?`Standby: ${(a as unknown as {standby?:{reason:string}}).standby?.reason??'reason not recorded'}`:dark?`${j.title} · ${fmt(j.progress*100,0)}% · waiting for daylight (D19)`:j?.status==='running'&&lowBattery(s,a)?`Battery too low for a step · ${p}% · recharge needed`:j?.status==='running'?`${j.title} · ${fmt(j.progress*100,0)}%${bat}`:j&&inReview(j)?`Authorized · awaiting onboard assurance${bat}`:`Idle${bat}`;
+ const cls=s.status!=='active'?'waiting':!a.available?'failed':charging(a)?'waiting':sb?'standby':dark?'waiting':j?.status==='running'&&lowBattery(s,a)?'waiting':j?.status==='running'?'working':j&&inReview(j)?'held':'idle';
  return <span className={'scene-tag '+cls}><b>{a.name.split(' (')[0]}</b>{txt}</span>;
-}
-// The rover carries its own tag so it follows the rover; the other units stay put.
-function Tags({s}:{s:State}){
- return <>{s.assets.filter(a=>a.kind!=='rover').map(a=><Html key={a.id} position={[a.position[0],(FILE[a.kind]?.[1]||2)+1.4,a.position[2]]} center><Tag s={s} a={a}/></Html>)}</>;
 }
 // The viewer's own light, held at the camera like a photographer's flash (glTF models are metallic and need a
 // directional light to show). Off (0) it contributes nothing.
@@ -139,7 +137,7 @@ function ViewLight({boost}:{boost:number}){
  useFrame(({camera})=>{if(ref.current)ref.current.position.copy(camera.position);});
  return boost>0?<directionalLight ref={ref} intensity={2.2*boost}/>:null;
 }
-function Scene({s,labels,clock,sun,boost}:{s:State;labels:boolean;clock:StepClock|null;sun:[number,number,number]|null;boost:number}){
+function Scene({s,labels,clock,sun,boost,onGroundReady,onGroundFailure,mid,groundVersion}:{s:State;labels:boolean;clock:StepClock|null;sun:[number,number,number]|null;boost:number;mid:string;groundVersion:string;onGroundReady:()=>void;onGroundFailure:()=>void}){
  const night=sun!==null&&sun[2]<=0;// sun below the horizon at the site
  // sun: the live Mars24 sun direction at the site (live view, read every 30 s) or the one recorded with the step (replay).
  // None -> neutral light, no invented sun.
@@ -155,14 +153,14 @@ function Scene({s,labels,clock,sun,boost}:{s:State;labels:boolean;clock:StepCloc
  return <>
   <color attach="background" args={[mix('#140d0b','#d7a77f')]}/>{/* Mars daytime sky: butterscotch from suspended dust */}
   <ambientLight intensity={0.08+0.37*k}/><hemisphereLight args={['#f1c9a4','#3a2418',0.08+0.52*k]}/>
-  {sunPos?<directionalLight position={sunPos} intensity={0.05+2.55*direct} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-40} shadow-camera-right={40} shadow-camera-top={40} shadow-camera-bottom={-40}/>:<ambientLight intensity={0.5}/>}
+  {sunPos?direct>0&&<directionalLight position={sunPos} intensity={2.55*direct} castShadow shadow-mapSize={[2048,2048]} shadow-camera-near={1} shadow-camera-far={400} shadow-camera-left={-160} shadow-camera-right={160} shadow-camera-top={160} shadow-camera-bottom={-160} shadow-bias={-0.0005} shadow-normalBias={0.08}/>:<ambientLight intensity={0.5}/>}
   <ViewLight boost={boost}/>
   <fog attach="fog" args={[mix('#120c0a','#d6a98a'),120,420]}/>
-  <GroundBoundary><Suspense fallback={<PlainGround/>}><Ground/></Suspense></GroundBoundary>
+  <GroundBoundary key={mid+groundVersion} onFailure={onGroundFailure}><Suspense fallback={null}><Ground mid={mid} version={groundVersion} onReady={onGroundReady}/></Suspense></GroundBoundary>
   <Site s={s}/>
   {s.assets.filter(a=>a.kind==='rover').map(a=><SurveyLine key={'line-'+a.id} a={a} s={s}/>)}
   {s.assets.map((a,i)=>a.kind==='rover'?<Rover key={a.id} a={a} s={s} clock={clock} labels={labels} night={night}/>:a.kind==='excavator'?<Excavator key={a.id} a={a} s={s} i={i}/>:a.kind==='rodwell'?<Drill key={a.id} a={a} s={s}/>:a.kind==='power'?<Power key={a.id} a={a} s={s}/>:null)}
-  {labels&&<Tags s={s}/>}
+
  </>;
 }
 
@@ -214,11 +212,17 @@ function SoundBar({s,live,driving,night}:{s:State;live:boolean;driving:boolean;n
   {on&&<span className="sound-credit">Real Mars audio from NASA Perseverance: <a href={NASA_AUDIO.wind.page} target="_blank" rel="noreferrer">{NASA_AUDIO.wind.label}</a> (credit {NASA_AUDIO.wind.credit}){driving&&live?<>; <a href={NASA_AUDIO.drive.page} target="_blank" rel="noreferrer">{NASA_AUDIO.drive.label}</a> (credit {NASA_AUDIO.drive.credit}), played while the rover drives</>:null}. Recorded at Jezero Crater, not Arcadia. Event tones are interface sounds.</span>}</div>;
 }
 
+function Viewpoint({position,target}:{position:[number,number,number];target:[number,number,number]}){
+ const {camera,invalidate}=useThree();
+ useEffect(()=>{camera.position.set(...position);camera.lookAt(...target);invalidate();},[camera,invalidate,position,target]);
+ return null;
+}
+
 export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
  const [labels,setLabels]=useState(false);useEffect(()=>{const t=setTimeout(()=>setLabels(true),400);return()=>clearTimeout(t);},[]);
- const [revs,setRevs]=useState<Rev[]>([]);const [replay,setReplay]=useState<{n:number;state:State}|null>(null);const [playing,setPlaying]=useState(false);
+ const [revs,setRevs]=useState<Rev[]>([]);const [replay,setReplay]=useState<{n:number;state:State;clock?:LiveClock}|null>(null);const [playing,setPlaying]=useState(false);
  useEffect(()=>{api<{revisions:Rev[]}>(`missions/${mid}/revisions`).then(d=>setRevs(d.revisions)).catch(()=>{});},[mid,snap.revision]);
- const load=(n:number)=>api<{revision:number;state:State}>(`missions/${mid}/revisions/${n}`).then(d=>setReplay({n:d.revision,state:d.state}));
+ const load=(n:number)=>api<{revision:number;state:State;simulation_clock?:LiveClock}>(`missions/${mid}/revisions/${n}`).then(d=>setReplay({n:d.revision,state:d.state,clock:d.simulation_clock}));
  useEffect(()=>{if(!playing||!revs.length)return;const id=setInterval(()=>{setReplay(r=>{const cur=r?.n||revs[0].revision;const next=revs.find(x=>x.revision>cur);if(!next){setPlaying(false);return r;}load(next.revision);return r;});},700);return()=>clearInterval(id);},[playing,revs]);// eslint-disable-line react-hooks/exhaustive-deps
  const s=replay?.state||snap.state;
  // Clock time of a future step, from the server's next-step time and step length only; unknown if either is missing.
@@ -226,30 +230,39 @@ export default function MissionScene({snap,mid}:{snap:Snapshot;mid:string}){
  // Light follows the sun continuously: the live view uses the server's live Mars24 reading (polled every 30 s);
  // a replay uses the sun recorded with each step.
  const feed=useLive();
+ const executionFresh=!feed.err&&!feed.live?.worker?.error&&feed.live?.worker?.heartbeat_at!=null&&Date.now()/1000-feed.live.worker.heartbeat_at<180;
+ const displayState:State=!replay&&!executionFresh?{...s,status:'paused'}:s;
  // Viewer light: off by default (the real sun). On, the viewer sets it like a camera's exposure; Off returns to the real light.
+ const groundVersion=s.source_pins['hirise-ground']||'none';
+ const [groundStatus,setGroundStatus]=useState<'loading'|'ready'|'failed'>('loading');
+ useEffect(()=>setGroundStatus('loading'),[groundVersion,mid]);
+ const groundReady=useCallback(()=>setGroundStatus('ready'),[]),groundFailed=useCallback(()=>setGroundStatus('failed'),[]);
  const [viewLight,setViewLight]=useState<number|null>(null);const boost=viewLight??0;
- const c:LiveClock|undefined=!replay&&feed.live?.now?.clock?feed.live.now.clock:s.environment?.clock;
+ const c:LiveClock|undefined=replay?(replay.clock??s.environment?.clock):(mid!=='public'||s.acceptance_scope)?(snap.simulation_clock??undefined):(feed.live?.now?.clock??snap.simulation_clock??s.environment?.clock??undefined);
  // Live public mission only: the time to the next step, from the server's schedule. None in replays or experiments.
- const clock:StepClock|null=!replay&&s.status==='active'&&snap.next_tick_at!=null&&snap.seconds_per_tick&&c?{next:snap.next_tick_at,len:snap.seconds_per_tick,sunUp:c.site_solar_elevation_deg>0}:null;
- // Opening view frames the outpost and the rover's current point on its survey line (camera only; set once per visit).
- const [view]=useState(()=>{const rover=s.assets.find(a=>a.kind==='rover');const rx=rover?rover.position[0]+surveyJobs(s).reduce((t,x)=>t+x.done,0):0;
-  const xs=[...s.assets.map(a=>a.position[0]),rx];const lo=Math.min(...xs),hi=Math.max(...xs);const span=Math.max(30,hi-lo);const cx=(lo+hi)/2;
-  return {target:[cx,0,8] as [number,number,number],position:[cx+span*.35,span*.42,8+span*.8] as [number,number,number]};});
- return <><LiveStrip snap={snap} feed={feed}/><section className="mission-scene">
-  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Scene s={s} labels={labels} clock={clock} sun={c?.site_sun_enu??null} boost={boost}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary>{viewLight!==null&&<div className="view-light-badge">VIEWING LIGHT {fmt(viewLight*100,0)}% · not the real sun</div>}</div>
+ const clock:StepClock|null=!replay&&executionFresh&&s.status==='active'&&snap.next_tick_at!=null&&snap.seconds_per_tick&&c?{next:snap.next_tick_at,len:snap.seconds_per_tick,sunUp:c.site_solar_elevation_deg>0}:null;
+ // Separate camera views keep nearby construction equipment readable when the rover is far along its route.
+ const [focus,setFocus]=useState<'outpost'|'rover'>('outpost');
+ const view=useMemo(()=>{const rover=s.assets.find(a=>a.kind==='rover');const rx=rover?rover.position[0]+surveyJobs(s).reduce((t,x)=>t+x.done,0):0;
+  if(focus==='rover')return {target:[rx,0,rover?.position[2]||0] as [number,number,number],position:[rx+10,8,(rover?.position[2]||0)+16] as [number,number,number]};
+  const xs=s.assets.filter(a=>a.kind!=='rover').map(a=>a.position[0]);const lo=Math.min(...xs),hi=Math.max(...xs);const span=Math.max(30,hi-lo);const cx=(lo+hi)/2;
+  return {target:[cx,0,0] as [number,number,number],position:[cx+span*.35,span*.42,span*.8] as [number,number,number]};},[focus,s.assets,s.jobs]);
+ return <><LiveStrip snap={snap} feed={feed}/><section className="mission-scene"><div className="scene-view-controls" role="group" aria-label="Camera view"><button aria-pressed={focus==='outpost'} onClick={()=>setFocus('outpost')}>View outpost</button><button aria-pressed={focus==='rover'} onClick={()=>setFocus('rover')}>View survey rover</button><button aria-pressed={viewLight!==null} onClick={()=>setViewLight(v=>v===null?0.6:null)}>{viewLight===null?'Brighten view (display only)':'Return to real light'}</button></div>
+  <div className="scene-canvas"><Boundary><Canvas shadows camera={{position:view.position,fov:48}} dpr={[1,1.6]}><Viewpoint position={view.position} target={view.target}/><Scene mid={mid} groundVersion={groundVersion} onGroundReady={groundReady} onGroundFailure={groundFailed} s={displayState} labels={labels} clock={clock} sun={c?.site_sun_enu??null} boost={boost}/><OrbitControls makeDefault minDistance={12} maxDistance={260} maxPolarAngle={Math.PI/2.15} target={view.target}/></Canvas></Boundary>{viewLight!==null&&<div className="view-light-badge">VIEWING LIGHT {fmt(viewLight*100,0)}% · not the real sun</div>}</div>
+  <div className="scene-assets" aria-label="Equipment status">{s.assets.map(a=><Tag key={a.id} s={displayState} a={a} night={Boolean(c&&c.site_solar_elevation_deg<=0)}/>)}</div>
   <div className="scene-hud">
-   <div className="hud-block"><small>{replay?`REPLAY · revision ${replay.n}`:'LIVE · real Mars time'}</small><strong>{solOf(s.tick)} · step {s.tick}</strong>{c&&<span>Sun {c.site_solar_elevation_deg>0?`${fmt(c.site_solar_elevation_deg,0)}° up`:`${fmt(-c.site_solar_elevation_deg,0)}° below the horizon`} · {c.season}</span>}
+   <div className="hud-block"><small>{replay?`REPLAY · revision ${replay.n}`:s.status!=='active'?'MISSION PAUSED · live sun':!executionFresh?'WORKER NOT ADVANCING · live sun':'LIVE · real Mars time'}</small><strong>{solOf(s.tick)} · step {s.tick}</strong>{c&&<span>Sun {c.site_solar_elevation_deg>0?`${fmt(c.site_solar_elevation_deg,0)}° up`:`${fmt(-c.site_solar_elevation_deg,0)}° below the horizon`} · {c.season}</span>}
     <div className="view-light"><button aria-pressed={viewLight!==null} onClick={()=>setViewLight(v=>v===null?0.6:null)}>{viewLight===null?'Real light · add viewing light':'Viewing light · back to real light'}</button>
      {viewLight!==null&&<input type="range" min={0} max={100} value={Math.round(viewLight*100)} onChange={e=>setViewLight(Number(e.target.value)/100)} aria-label="Viewing light"/>}</div></div>
-   <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>{hudLine(s,j,Boolean(c&&c.site_solar_elevation_deg<=0))}</span>):<span>No robot is working.</span>}
+   <div className="hud-block"><small>NOW</small>{running.length?running.map(j=><span key={j.id}>{hudLine(displayState,j,Boolean(c&&c.site_solar_elevation_deg<=0))}</span>):<span>No robot is working.</span>}
     {reviewing.map(j=><span key={j.id}>⏳ {j.title}: authorized, awaiting onboard assurance</span>)}
     {charging_.map(a=><span key={a.id}>⚡ {a.name.split(' (')[0]} charging · battery {pct(a)}%</span>)}
     {!replay&&!running.length&&!reviewing.length&&!charging_.length&&<span>{s.planning_status}</span>}</div>
-   <SoundBar s={s} live={!replay} night={Boolean(c&&c.site_solar_elevation_deg<=0)} driving={s.assets.some(a=>a.kind==='rover'&&jobOf(s,a)?.kind==='survey'&&working(s,a,Boolean(c&&c.site_solar_elevation_deg<=0)))}/>
+   <SoundBar s={s} live={!replay} night={Boolean(c&&c.site_solar_elevation_deg<=0)} driving={s.assets.some(a=>a.kind==='rover'&&jobOf(s,a)?.kind==='survey'&&working(displayState,a,Boolean(c&&c.site_solar_elevation_deg<=0)))}/>
    <div className="hud-block replay"><small>REPLAY FROM GENESIS</small>
     <input type="range" min={revs[0]?.revision||1} max={revs.at(-1)?.revision||1} value={replay?.n||revs.at(-1)?.revision||1} onChange={e=>{setPlaying(false);load(Number(e.target.value));}} aria-label="Replay revision"/>
     <div><button onClick={()=>{if(!revs.length)return;if(!replay)load(revs[0].revision);setPlaying(p=>!p);}}>{playing?'Pause':'Play'}</button><button onClick={()=>{setPlaying(false);setReplay(null);}} disabled={!replay}>Stop · back to live</button></div></div>
   </div>
-  <p className="scene-note">Robots move only while their work is running in the simulation; waiting robots stay still and say why. Sun position is computed for the site at this moment. The rover's position is the distance driven in the simulation along its survey line (east, per the route planner); between steps it advances at its authorized rate toward the next recorded step, and it drives only in daylight (D19); trench size is the published habitat size and depth. Ground: HiRISE orbital image nearest the site (single band, coloured), not to scale. Lighting follows the real sun elevation at the site; the twilight shading curve is illustrative. The viewing light is the viewer's own control, like a camera's exposure: it brightens the view only, is labelled on the scene while on, and Real light returns to the sun. Layout positions, the spoil pile, excavator shuttling and models are illustrative.</p>
+  <p className="scene-note">Robots move only while their work is running in the simulation; waiting robots stay still and say why. Sun position follows calculated experiment/replay time for experiments and replays, and live site time for the public mission. The rover's position is the distance driven in the simulation along its survey line (east, per the route planner); between steps it advances at its authorized rate toward the next recorded step, and it drives only in daylight (D19); trench size is the published habitat size and depth. Ground: {groundStatus==='ready'?'Pinned site-covering HiRISE image: one site-centered 1.6 km browse window, tinted and flat. No repeated tiles or inferred surface heights.':groundStatus==='loading'?'Loading source imagery; no substitute terrain is generated.':'Source image unavailable. Equipment positions remain visible; no substitute terrain is generated.'} Lighting follows the real sun elevation at the site; the twilight shading curve is illustrative. The viewing light is the viewer's own control, like a camera's exposure: it brightens the view only, is labelled on the scene while on, and Real light returns to the sun. Configured payload descent and orientation follow persisted offload progress. Layout positions, the spoil pile, excavator shuttling and models are illustrative.</p>
  </section></>;
 }

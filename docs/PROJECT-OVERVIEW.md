@@ -224,6 +224,6 @@ Local acceptance comes before GitHub publication and deployment. The owner has e
 
 The appropriate sequence is provider/account verification → defensible inputs and clean state → validated execution → agent operation → usable provenance and interface → integrated fault testing → local acceptance → submission and approved deployment.
 
-The current code is not at that acceptance boundary. It is deliberately stopped after the requested record removal. The comprehensive gap list, including historical-copy cleanup limits, is [UNFINISHED-FEATURES.md](UNFINISHED-FEATURES.md).
+The full product is not at that acceptance boundary. The November 3 repair was tested locally against temporary databases and a restored PostgreSQL review copy; the original public mission was preserved and not resumed. See [REPAIR-GUIDE.md](REPAIR-GUIDE.md) for the current implementation and [UNFINISHED-FEATURES.md](UNFINISHED-FEATURES.md) for remaining work. After explicit authorization, current isolated acceptance produced 159 independently authenticated Meta responses across the nominal and controlled-fault studies. The nominal readiness gate failed with water held; post-readiness operation remains unverified. See live-acceptance-summary.json and WATER-MODEL-REVIEW.md.
 
 This project aims to investigate reliable autonomous teamwork. Its credibility depends on showing actual evidence, acknowledging unknowns and refusing to substitute generated appearances for demonstrated capability.

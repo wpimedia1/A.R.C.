@@ -29,6 +29,33 @@ def test_stopped_mission_is_not_replanned(tmp_path, request, monkeypatch):
     assert not plan_once(store, mission_id='public')
 
 
+def test_director_gets_created_job_ids_before_planning(monkeypatch):
+    from mission import planner
+    from mission.engine import new_state,instantiate_job
+    s=new_state('meta')
+    for j in s['jobs']:j['status']='complete'
+    jid=instantiate_job(s,'survey-extension','explicit unit-test actor','Unit fixture')
+    receipts=[{'role':'director','validation':'accepted','result':{'job_id':jid}}];seen=[]
+    def response(store,mid,operation,model,instructions,data,tools,transport=None):
+        seen.append(data)
+        assert data['required_job_ids']==[jid]
+        assert data['completed_tool_results'][0]['result']['job_id']==jid
+        return [{'name':'set_mission_plan','arguments':{'priority':[jid],'summary':'Unit-test plan after tool feedback'}}],'explicit-unit-test-only'
+    monkeypatch.setattr(planner,'call',response)
+    p,priority,operation=planner.finish_director_plan(None,'public','unit-claim',s,[],[jid],receipts)
+    assert len(seen)==1 and priority==[jid] and operation.endswith(':plan-after-tools')
+
+
+def test_director_can_return_empty_plan_without_fabricating_work():
+    from mission.planner import finish_director_plan
+    from mission.engine import new_state
+    s=new_state('meta')
+    for j in s['jobs']:j['status']='complete'
+    proposal={'name':'set_mission_plan','arguments':{'priority':[],'summary':'No eligible work in this unit scenario'}}
+    _,priority,_=finish_director_plan(None,'public','unit-claim',s,[proposal],[],[])
+    assert priority==[]
+
+
 def test_oversized_context_sheds_background_evidence_first():
     from mission.planner import fit_context, CONTEXT_LIMIT
     from mission.spec import canonical
@@ -50,6 +77,22 @@ def test_fit_context_trims_evidence_inside_agent_observations():
     assert len(canonical(out).encode()) <= CONTEXT_LIMIT and note
     assert out['world']['jobs'] == data['world']['jobs'] and out['own_memory'] == ['m']
     assert all(e['supports'] == 'kept' for e in out['world']['evidence'])
+
+
+def test_specialist_inspection_history_does_not_repeat_large_snapshots():
+    from copy import deepcopy
+    from mission.planner import specialist_history,fit_context,CONTEXT_LIMIT
+    from mission.spec import digest,canonical
+    snapshot={'evidence':[{'id':'unit-source','passages':[{'text':'x'*200000}]}],'jobs':[{'id':'unit-job','status':'blocked'}]}
+    results=[{'tool':'inspect_state','arguments':{},'result':snapshot},
+             {'tool':'estimate_job','arguments':{'job_id':'unit-job'},'result':{'rejected':'No commissioned power'}}]
+    before=deepcopy(results)
+    history=specialist_history(results)
+    body,note=fit_context({'state':snapshot,'tool_results_so_far':history})
+    assert len(canonical(body).encode())<CONTEXT_LIMIT and note
+    assert history[0]['result']['snapshot_hash']==digest(snapshot)
+    assert history[1]==results[1] and results==before
+    assert body['state']['jobs']==snapshot['jobs']
 
 
 def test_malformed_assurance_answer_applies_no_decision():
@@ -128,7 +171,8 @@ def test_full_planning_cycle_with_self_contained_turns(tmp_path, request, monkey
         if tail == 'power:0':
             return [{'name': 'estimate_job', 'call_id': 'p0', 'arguments': {'job_id': 'power', 'asset_ids': ['fsp-1']}}], 'rp0'
         if tail == 'power:1':
-            assert '"tool":"estimate_job"' in data[0]['content'] and '"validation_errors":[]' in data[0]['content']  # earlier results restated
+            assert data['tool_results_so_far'][0]['tool']=='estimate_job'
+            assert data['tool_results_so_far'][0]['result']['validation_errors']==[]  # actual prior result restated
             return [{'name': 'submit_work_order', 'call_id': 'p1', 'arguments': {'job_id': 'power', 'asset_ids': ['fsp-1'], 'summary': 'deploy', 'source_ids': [pkg]}}], 'rp1'
         if tail == 'survey:0':
             return [{'name': 'submit_work_order', 'call_id': 's0', 'arguments': {'job_id': 'survey', 'asset_ids': ['rover-1'], 'summary': 'survey', 'source_ids': [pkg]}}], 'rs0'
@@ -142,3 +186,37 @@ def test_full_planning_cycle_with_self_contained_turns(tmp_path, request, monkey
     assert not s['inference_stopped'], s['planning_status']
     assert job_by_id(s, 'power')['status'] == 'running' and job_by_id(s, 'survey')['status'] == 'running'
     assert [c.split(':', 1)[1] for c in calls if ':power:' in c] == ['power:0', 'power:1']
+
+
+def test_blocked_equipment_reaches_specialist_and_director_without_claiming_work(tmp_path,request,monkeypatch):
+    """Injected responses exercise routing, not a live provider run."""
+    from copy import deepcopy
+    import mission.planner as planner
+    monkeypatch.setenv('MISSION_MODEL_MODE','meta')
+    store=make_store(tmp_path,request);store.initialize()
+    with store.transaction() as db:
+        m=store.row(db,'public');s=deepcopy(m.state)
+        for j in s['jobs']:
+            if j['id']!='survey':j['status']='complete';s['milestones'][j['id']]=True
+        next(a for a in s['assets'] if a['id']=='rover-1')['available']=False
+        store.save(db,m,s,{'kind':'test-fixture'})
+    pkg=s['spec']['package_id'];seen=[]
+    def injected(st,mid,operation,model,instructions,data,tools,transport=None):
+        tail=operation.split(':',1)[1];seen.append(tail)
+        if tail.startswith('assessment:'):
+            return [{'name':'record_assessment','arguments':{'summary':'Fixture: equipment unavailable','recommended_jobs':[],
+                     'job_judgements':[{'job_id':j['id'],'judgement':'hold'} for j in data['world']['jobs']],
+                     'missing_information':[],'source_ids':[pkg]}}],'fixture-assessment'
+        if tail in ('director','conflict-director'):
+            state=data.get('state',data)
+            return [{'name':'set_mission_plan','arguments':{'priority':state['priority'],'summary':'Fixture: wait for replacement'}}],'fixture-director'
+        if tail=='survey:0':return [{'name':'request_replanning','arguments':{'summary':'Fixture: rover unavailable'}}],'fixture-specialist'
+        if tail=='logistics':return [],'fixture-logistics'
+        raise AssertionError(tail)
+    monkeypatch.setattr(planner,'call',injected)
+    assert planner.plan_once(store,mission_id='public')
+    result=store.snapshot('public')['state']
+    assert 'survey:0' in seen and 'conflict-director' in seen
+    assert not result['inference_stopped']
+    assert result['planning_status'].startswith('No executable work authorized')
+    assert result['department_conflicts'][-1]['status']=='director reviewed; awaiting feasible execution'

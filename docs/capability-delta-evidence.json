@@ -1,0 +1,122 @@
+{
+  "audit_date": "2026-11-04",
+  "method": "Read-only local Git, code, report, JUnit and SQLite inspection. No services started, tests rerun, provider requests, rendering, application edits or publication. Only this evidence file and the delta document are written.",
+  "baseline": {
+    "commit": "44bd845ad86a7349cfbd9a450929ffd75e40ae61",
+    "commit_metadata": "44bd845ad86a7349cfbd9a450929ffd75e40ae61 2026-10-27T23:02:51-04:00 Preserve pre-existing Mars Council baseline before mission rebuild",
+    "tracked_file_count": 35,
+    "historical_execution_reverified": false
+  },
+  "current": {
+    "head": "31e0e42ed4e4de1d8517e2e811320fdd974c6cad",
+    "head_metadata": "31e0e42ed4e4de1d8517e2e811320fdd974c6cad 2026-11-03T19:47:46Z Viewing light: a viewer-controlled light for the 3D scene, labelled, with a return to the real sun",
+    "modified_tracked_entries": 48,
+    "untracked_entries": 75
+  },
+  "acceptance_source_comparisons": {
+    "live-mission-acceptance-engine11-final.json": {
+      "recorded_files": 37,
+      "matching_files": 35,
+      "different_or_missing": [
+        "planner.py",
+        "store.py"
+      ],
+      "report_sha256": "7283b50643dcc277439d964ea5eb53258b80de9aa9c819be676e74934784d812"
+    },
+    "live-director-continuation-engine11.json": {
+      "recorded_files": 37,
+      "matching_files": 36,
+      "different_or_missing": [
+        "store.py"
+      ],
+      "report_sha256": "7411d30079c28a0f251322d46c47c8238cea4045530be058af27585b6ee2b3a7"
+    },
+    "live-water-power-loss-engine11.json": {
+      "recorded_files": 37,
+      "matching_files": 35,
+      "different_or_missing": [
+        "planner.py",
+        "store.py"
+      ],
+      "report_sha256": "0bd15cf36e65538855875620d465e239c6fea751ede46940034f6617a03bef50"
+    },
+    "local-verification.json": {
+      "recorded_files": 36,
+      "matching_files": 28,
+      "different_or_missing": [
+        "cli.py",
+        "engine.py",
+        "package.py",
+        "planner.py",
+        "science.py",
+        "spec.py",
+        "store.py",
+        "packages/arcadia-mars-v1.json"
+      ],
+      "report_sha256": "94f282425db52d652c490af22796f1e8918d95f07cf758f66bc8bec2a176f1d9"
+    }
+  },
+  "artifact_digests": {
+    "docs/live-responses-engine11.json": "9b126e9b0640c1b54b84fc8485d1590657b47648211010325d0c391ddbb64157",
+    "docs/live-director-continuation-responses-engine11.json": "359f5d243ca28a64948fd94036fd86984fe3ba0a76178cb1e5f5b1d8db254716",
+    "docs/live-water-power-loss-responses-engine11.json": "2383105ad1e406be2baa06a054ed11fd531aafab7349addec33988930c25b317",
+    "docs/live-acceptance-summary.json": "cac8e67f53d76f997cf1d2155fc3dabbb2afc2a3eebc556b10af9aefbc464d37",
+    "docs/postgres-recovery.json": "87306a52c810f5f7ed72ec725a68b947b22f1a8e2fbb72eeac8e3d1d5812b574",
+    "docs/source-verification.json": "2af1b601d3cf3a46e858dafa28f1971d12f87aca08c6efe85f5c9aff13539746",
+    "docs/scientific-refresh.json": "a2cc7a75cc88a055669660f0ab9526267e0dc118f4c4258190b6680f4b1f817a",
+    "docs/operations-benchmark.json": "87ccb34f3a0fc1f29f9925e17df10fd97bfe9a14b09cd502b76e58a4a043224c",
+    "docs/weather-backtest.json": "b1babc6424ae3bfe837ee1ae45128b805d2bbad0ee72acb5ad13fa17cfc5914a",
+    "docs/hirise-ground-verification.json": "70269bf11964f0726b3ea16e053ba2f6486e1ec9b80ad1f465300ef0ecca9d30",
+    "docs/repository-audit.json": "68ee0ee12ebd0e244cdb5b6bfcb1adae29b1c322845bac392323de0f5ff6eda3",
+    "output\\submission-keynote\\DELIVERY\\VERIFICATION.json": "e2f6d5c158b84b082dfdf67344f3470c24781519212b0ca0872abdb85cb48d69"
+  },
+  "junit": {
+    "council-dashboard\\backend\\data\\local-regression.xml": {
+      "sha256": "d7144b5c71b55c62eeba5fac50a7feaaf8a882c412f7b65a968caca35a85060d",
+      "suites": [
+        {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "147",
+          "time": "182.630",
+          "timestamp": "2026-11-04T00:10:51.169890-05:00"
+        }
+      ]
+    },
+    "council-dashboard\\backend\\data\\science\\engine11-postgres.xml": {
+      "sha256": "cc5ba47c545c6010895c06af3adad968f06d8cf7e5ec4c6d5a795fc82f485a9b",
+      "suites": [
+        {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "156",
+          "time": "132.202",
+          "timestamp": "2026-11-04T17:22:44.705815+00:00"
+        }
+      ]
+    }
+  },
+  "direct_database_check": {
+    "database": "output\\submission-final-silent\\mission_review_final_video.db",
+    "opened": "SQLite mode=ro",
+    "mission_id": "84cf589c-22c0-451a-b139-8aaf76aba7e2",
+    "current_tick": 2024,
+    "status": "paused",
+    "job": {
+      "id": "survey-extension-2",
+      "status": "complete",
+      "done": 175.15,
+      "target": 175.15,
+      "started_tick": 1977,
+      "completed_tick": 2001,
+      "night_steps": 10
+    },
+    "source_pins": 46,
+    "unresolved_pins": [],
+    "provider_report_ids_present_with_matching_models": 6,
+    "provider_report_checks": 6,
+    "live_provider_retrieval_repeated": false
+  }
+}

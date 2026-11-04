@@ -1,0 +1,1478 @@
+{
+  "checked_at": 1793754490.7175903,
+  "method": "Authenticated GET of existing Meta response IDs only; no inference request",
+  "key_fingerprint": "sha256:7aba5621ec50695c",
+  "credential_source": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\council-dashboard\\backend\\.env",
+  "stored_records": 55,
+  "attempted": 52,
+  "verified": 51,
+  "not_verified": 1,
+  "results": [
+    {
+      "record_id": "7ac3da88-8466-4f78-9d53-49456859f0c1:assessment:construction",
+      "stored_response_id": "resp_6ae93e6598a8ad15037143d3",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "229c74fa-3f96-45d2-941f-c3734022bfc3",
+      "response_sha256": "77b6e2a0da2d1d2f4f02fd68787f6c02f3b49726b8553c500ca246030211cdb5",
+      "provider_response_id": "resp_6ae93e6598a8ad15037143d3",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12507,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 949,
+        "output_tokens_details": {
+          "reasoning_tokens": 569
+        },
+        "total_tokens": 13456
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "9494268d-d5f5-4336-ba0c-b9e777528562:assessment:construction",
+      "stored_response_id": "resp_6ae90c0bcb6cdfdc61264f5f",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "bab6eff1-f140-4598-8183-64c6b4b4487d",
+      "response_sha256": "be007508c9a2ed1c915b52664d28055df788edf29b8b409f88b24b3167ed6cee",
+      "provider_response_id": "resp_6ae90c0bcb6cdfdc61264f5f",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 7994,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1512,
+        "output_tokens_details": {
+          "reasoning_tokens": 1129
+        },
+        "total_tokens": 9506
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:assessment:assurance",
+      "stored_response_id": "resp_6ae90eb86ded337e33ed4cf9",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "f216316a-d1e1-4fed-be8b-1cf18d16c1c9",
+      "response_sha256": "de0c040e5b1aba0c5925772850b4371bf3824e09380290aa09be7642a18a432a",
+      "provider_response_id": "resp_6ae90eb86ded337e33ed4cf9",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8267,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1193,
+        "output_tokens_details": {
+          "reasoning_tokens": 802
+        },
+        "total_tokens": 9460
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "9494268d-d5f5-4336-ba0c-b9e777528562:assessment:power",
+      "stored_response_id": "resp_6ae90c12f1b9fe079b474cf9",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "3ec6b2d8-20e8-48c8-aee8-32456490136d",
+      "response_sha256": "6b53e67ae0e0cf5b2e869cdde5a56fc04bc1db36ef79b20cfb2cbce4a00bd736",
+      "provider_response_id": "resp_6ae90c12f1b9fe079b474cf9",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 7966,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1663,
+        "output_tokens_details": {
+          "reasoning_tokens": 1302
+        },
+        "total_tokens": 9629
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "9494268d-d5f5-4336-ba0c-b9e777528562:assessment:resources",
+      "stored_response_id": "resp_6ae90c19fbd366c076fc40c3",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "9a637584-47a9-4209-a360-c8a16c9d48bb",
+      "response_sha256": "e498c12d2f5df9e8c7df517b3d8bf11c0935a6bf9ece466ef3f9ccaa60229321",
+      "provider_response_id": "resp_6ae90c19fbd366c076fc40c3",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 7993,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1419,
+        "output_tokens_details": {
+          "reasoning_tokens": 1043
+        },
+        "total_tokens": 9412
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:assessment:power",
+      "stored_response_id": "resp_6ae91068843486f730174508",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "0252b499-c8ac-4cc4-8cb5-2b859a787f29",
+      "response_sha256": "c48a5eaf053c1878f43b12a5cafac0e30e884788700706b3d9389e7e9c37becf",
+      "provider_response_id": "resp_6ae91068843486f730174508",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8606,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1056,
+        "output_tokens_details": {
+          "reasoning_tokens": 685
+        },
+        "total_tokens": 9662
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "9494268d-d5f5-4336-ba0c-b9e777528562:assessment:survey",
+      "stored_response_id": "resp_6ae90c20a2ede86fc692404b",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "6c2a2d8a-aeb2-4ec9-9d94-dce681287c8a",
+      "response_sha256": "177bc575c2004c607874f7060a65c8a2462be56b513aa6e246dc0775cef620fd",
+      "provider_response_id": "resp_6ae90c20a2ede86fc692404b",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 7966,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1660,
+        "output_tokens_details": {
+          "reasoning_tokens": 1285
+        },
+        "total_tokens": 9626
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:director",
+      "stored_response_id": "resp_6ae90ec21e87904eee39423b",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "32b44676-62ac-46cf-b913-a22ef4d33a54",
+      "response_sha256": "108f8fc066c04eab9df7672897eb8e7ce4aea9f2618c36266e1d4f320a2f9548",
+      "provider_response_id": "resp_6ae90ec21e87904eee39423b",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 9935,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1235,
+        "output_tokens_details": {
+          "reasoning_tokens": 982
+        },
+        "total_tokens": 11170
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "9494268d-d5f5-4336-ba0c-b9e777528562:assessment:assurance",
+      "stored_response_id": "resp_6ae90c26289f328904ee447d",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "50eee91a-93a0-4ace-9603-b3cbcccba2a5",
+      "response_sha256": "cd318366e480c566ddecc85c4d6559658f232df06f9e40f3b0bae74bbec148eb",
+      "provider_response_id": "resp_6ae90c26289f328904ee447d",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 7941,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1131,
+        "output_tokens_details": {
+          "reasoning_tokens": 734
+        },
+        "total_tokens": 9072
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "9494268d-d5f5-4336-ba0c-b9e777528562:director",
+      "stored_response_id": "resp_6ae90c37b554246b56be4eee",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "f0615d35-0016-4d79-8f76-1d49748089bd",
+      "response_sha256": "772d97bc99b0b2365990136c7ee060f3ff4420eb59915d20aa8e8e156b1e301c",
+      "provider_response_id": "resp_6ae90c37b554246b56be4eee",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 9891,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2442,
+        "output_tokens_details": {
+          "reasoning_tokens": 2227
+        },
+        "total_tokens": 12333
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "9494268d-d5f5-4336-ba0c-b9e777528562:power:0",
+      "stored_response_id": "resp_6ae90c3a41e8a52e135a4b42",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "0b274140-770d-4559-9ee0-39a264bca3e4",
+      "response_sha256": "d52d529de33229b0933fc367150e936e8b23d7a0721383704757ec1858e64167",
+      "provider_response_id": "resp_6ae90c3a41e8a52e135a4b42",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8426,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 543,
+        "output_tokens_details": {
+          "reasoning_tokens": 452
+        },
+        "total_tokens": 8969
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:power:0",
+      "stored_response_id": "resp_6ae90ec73d8ace3324864fb0",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "0f61480d-10b7-4a04-a013-209af4eaf9bc",
+      "response_sha256": "82636da92be5c3a06bd39ed5e13309b08da484a2b00b351f3acc8fe6b1089e63",
+      "provider_response_id": "resp_6ae90ec73d8ace3324864fb0",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8748,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 420,
+        "output_tokens_details": {
+          "reasoning_tokens": 326
+        },
+        "total_tokens": 9168
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "9494268d-d5f5-4336-ba0c-b9e777528562:power:1",
+      "stored_response_id": "resp_6ae90c3fdf8c13f9c3944463",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 404,
+      "request_id": "a7250efb-57b0-4432-8773-4f420010a9bf",
+      "response_sha256": "24236a58e8e471bd780c3da8312c1f6c27bc84f94777b431a305c3a022593f98",
+      "error": "{'code': 'response_not_found', 'message': 'The requested response was not found.', 'param': None, 'type': 'invalid_request_error'}"
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:assessment:construction",
+      "stored_response_id": "resp_6ae90e674324eb56d9c44585",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "ae6f2064-ed9a-4e52-8646-4d7b905393b9",
+      "response_sha256": "dac1ea9157ff17ae183456cd309ff16789f400d560f4de0b379d5b502330b42b",
+      "provider_response_id": "resp_6ae90e674324eb56d9c44585",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8345,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1637,
+        "output_tokens_details": {
+          "reasoning_tokens": 1257
+        },
+        "total_tokens": 9982
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:power:1",
+      "stored_response_id": "resp_6ae90ed00116033522b9453f",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "ed6bf7a4-de4a-425a-8288-98ab7c27e749",
+      "response_sha256": "5dda4aaaf58cc6e30648cd39580d275aa1724d4593c9c62c8561f7ba4a4caf9e",
+      "provider_response_id": "resp_6ae90ed00116033522b9453f",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8918,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 333,
+        "output_tokens_details": {
+          "reasoning_tokens": 254
+        },
+        "total_tokens": 9251
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:assessment:power",
+      "stored_response_id": "resp_6ae90e75e8e6c38971d04509",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "26ae5f41-17a9-4062-ad34-bd22025a86ee",
+      "response_sha256": "f235d3ff656031b3d48525fd819a783a7a283782674d3b64297afeebd688f7ca",
+      "provider_response_id": "resp_6ae90e75e8e6c38971d04509",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8282,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1409,
+        "output_tokens_details": {
+          "reasoning_tokens": 1038
+        },
+        "total_tokens": 9691
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:assessment:resources",
+      "stored_response_id": "resp_6ae90e829fd9f58934684b43",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "01294a3b-e18d-4937-bed1-b24657b6a314",
+      "response_sha256": "2ceec391a8dec3e44a0731ab53428bfe9ce99e9852e8087b183ea5c80e8d2107",
+      "provider_response_id": "resp_6ae90e829fd9f58934684b43",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8339,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1272,
+        "output_tokens_details": {
+          "reasoning_tokens": 873
+        },
+        "total_tokens": 9611
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:assessment:resources",
+      "stored_response_id": "resp_6ae910746689b62bbd244268",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "c5ae9af2-a3b9-4332-922b-2a8e4812452c",
+      "response_sha256": "0177c3bb987a0a35f6b614102b8199abe9474db0f070918977b51e2d76ca8c6c",
+      "provider_response_id": "resp_6ae910746689b62bbd244268",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8709,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 999,
+        "output_tokens_details": {
+          "reasoning_tokens": 623
+        },
+        "total_tokens": 9708
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:assessment:survey",
+      "stored_response_id": "resp_6ae90eab2ccd3b37a92f455b",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "e3b70645-e8ff-4778-b2f3-18dd4f2e333f",
+      "response_sha256": "e1ab1bcf0eea5399e134a62d9abd226d01f584dd302d6c28e57f1a2dd8ea98a1",
+      "provider_response_id": "resp_6ae90eab2ccd3b37a92f455b",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8293,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3482,
+        "output_tokens_details": {
+          "reasoning_tokens": 3101
+        },
+        "total_tokens": 11775
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:power:2",
+      "stored_response_id": "resp_6ae90edcf09eed8f1d774e48",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "05409a60-d7c1-429c-8547-fd911272362d",
+      "response_sha256": "c1c48dce43e407b010451daf5c37149b4f32e1b021818cadc19aeab49f91d9c5",
+      "provider_response_id": "resp_6ae90edcf09eed8f1d774e48",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 9167,
+        "input_tokens_details": {
+          "cached_tokens": 8817
+        },
+        "output_tokens": 410,
+        "output_tokens_details": {
+          "reasoning_tokens": 334
+        },
+        "total_tokens": 9577
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "1f7ca3f0-e088-4e1b-afc4-84e2ef9d923d:director",
+      "stored_response_id": "resp_6ae9d42d7cda0af9ecd944ab",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "543ef4fc-c8ed-4510-8477-bd0741aae3d3",
+      "response_sha256": "b39d8942781bb48f888a14b61e912deea633606d7509ffe45e6769e81f2549a5",
+      "provider_response_id": "resp_6ae9d42d7cda0af9ecd944ab",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 13473,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1396,
+        "output_tokens_details": {
+          "reasoning_tokens": 1154
+        },
+        "total_tokens": 14869
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:assessment:construction",
+      "stored_response_id": "resp_6ae9105d2ebe998378af4470",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "90173acd-1f99-4e84-baef-ab594770149a",
+      "response_sha256": "ccb8c15b3a66146c1f93bc51e87247190c1778f58368c4b6838ea42561a49677",
+      "provider_response_id": "resp_6ae9105d2ebe998378af4470",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8696,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 831,
+        "output_tokens_details": {
+          "reasoning_tokens": 454
+        },
+        "total_tokens": 9527
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:assessment:survey",
+      "stored_response_id": "resp_6ae9107d54e6481c1570463d",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "efad976b-c00a-4447-96cf-30ca19b84afa",
+      "response_sha256": "fbc244e67efa71d674b37e9847a896a86304f112b2b2de91da8b89d247b4c18f",
+      "provider_response_id": "resp_6ae9107d54e6481c1570463d",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8625,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 825,
+        "output_tokens_details": {
+          "reasoning_tokens": 445
+        },
+        "total_tokens": 9450
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "7ac3da88-8466-4f78-9d53-49456859f0c1:assessment:power",
+      "stored_response_id": "resp_6ae93e6f9e2355cb3f284cbe",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "9a69566f-8e93-436c-b619-4889aab0dd10",
+      "response_sha256": "d2d28e23e637a11b73bd3995f8374146c0c053013890e091debc3228eef4199e",
+      "provider_response_id": "resp_6ae93e6f9e2355cb3f284cbe",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12425,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1091,
+        "output_tokens_details": {
+          "reasoning_tokens": 715
+        },
+        "total_tokens": 13516
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:assessment:assurance",
+      "stored_response_id": "resp_6ae91086a2841e1a0bf94c53",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "40107160-ad11-47a7-9505-8fc77575110d",
+      "response_sha256": "66c8ec4ac992a372ea256fc97e3bb6e713723b517a0e668c9d7a8b58c2a2e2bf",
+      "provider_response_id": "resp_6ae91086a2841e1a0bf94c53",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 8595,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1054,
+        "output_tokens_details": {
+          "reasoning_tokens": 659
+        },
+        "total_tokens": 9649
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:director",
+      "stored_response_id": "resp_6ae9108eded652c136344573",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "6fd0f39d-e7fb-4ccf-a84f-a7df9d48001f",
+      "response_sha256": "b51d2f0c72da0a5c19c260bda716cf144b4acb5a15eccd2bc052b2bdaa3c445f",
+      "provider_response_id": "resp_6ae9108eded652c136344573",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 9891,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1242,
+        "output_tokens_details": {
+          "reasoning_tokens": 1004
+        },
+        "total_tokens": 11133
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "1f7ca3f0-e088-4e1b-afc4-84e2ef9d923d:assessment:power",
+      "stored_response_id": "resp_6ae9d3f756e2917869ad4786",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "b1a1db63-aa03-40d5-9ed3-161b46ef4165",
+      "response_sha256": "524a7180450400f228a29cdc7a866a8aab34b28b21bb6dcbbdd28ceb39f9f722",
+      "provider_response_id": "resp_6ae9d3f756e2917869ad4786",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12767,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 924,
+        "output_tokens_details": {
+          "reasoning_tokens": 554
+        },
+        "total_tokens": 13691
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:power:0",
+      "stored_response_id": "resp_6ae910952f685fb6fba94e06",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "ab1b652b-f0d4-4a0f-9b83-9705f3e01aee",
+      "response_sha256": "ab43374a4f424b09c34d622d01fb4a648302013f3b82f64a850385270e2660a7",
+      "provider_response_id": "resp_6ae910952f685fb6fba94e06",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 9077,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 623,
+        "output_tokens_details": {
+          "reasoning_tokens": 426
+        },
+        "total_tokens": 9700
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "7ac3da88-8466-4f78-9d53-49456859f0c1:assessment:resources",
+      "stored_response_id": "resp_6ae93e7c0e25dda3f41f424d",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "330ebaaa-d9e6-41f3-91cf-cd3c68616d68",
+      "response_sha256": "4aadafd50429587afbc20dcd3ecd5d4455ba774d1ba6d8a5539cbcbee76856d1",
+      "provider_response_id": "resp_6ae93e7c0e25dda3f41f424d",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12526,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1354,
+        "output_tokens_details": {
+          "reasoning_tokens": 957
+        },
+        "total_tokens": 13880
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:power:1",
+      "stored_response_id": "resp_6ae910a06a19ec620f7a4259",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "e1dfcf9a-6426-45a0-945a-e8f43113860f",
+      "response_sha256": "863da68a7592af714a58742354c43f26c0d4936b0ea93237b23f2b03d1aa9684",
+      "provider_response_id": "resp_6ae910a06a19ec620f7a4259",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 9530,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1062,
+        "output_tokens_details": {
+          "reasoning_tokens": 877
+        },
+        "total_tokens": 10592
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:survey:0",
+      "stored_response_id": "resp_6ae910a6a0fad7d64133428e",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "22515b19-802a-488d-8cf8-c61cdf6b71b1",
+      "response_sha256": "364f390cb09dcc2864dc7c5360f513053b53e84143c4ad4cd1e93c0aca53cfc6",
+      "provider_response_id": "resp_6ae910a6a0fad7d64133428e",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 9132,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 555,
+        "output_tokens_details": {
+          "reasoning_tokens": 410
+        },
+        "total_tokens": 9687
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:survey:1",
+      "stored_response_id": "resp_6ae910afa58af1d05da446fb",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "952deb86-9075-4ff6-89bd-27d1afabdef3",
+      "response_sha256": "0c5fb2ad8ff9eb5fa5adb07d7c9ed02214d16b5f84ad6736a53243149e692ad3",
+      "provider_response_id": "resp_6ae910afa58af1d05da446fb",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 9368,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 852,
+        "output_tokens_details": {
+          "reasoning_tokens": 680
+        },
+        "total_tokens": 10220
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "7ac3da88-8466-4f78-9d53-49456859f0c1:assessment:survey",
+      "stored_response_id": "resp_6ae93e8ff09af32788864f0f",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "a51a4b97-e787-46ba-acd3-24c030db456a",
+      "response_sha256": "1db6715a4a5db36d2d431e7342bb332c47a4b2c793f27aa28032f34e5123f205",
+      "provider_response_id": "resp_6ae93e8ff09af32788864f0f",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12439,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1452,
+        "output_tokens_details": {
+          "reasoning_tokens": 1060
+        },
+        "total_tokens": 13891
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "548139ab-e03d-4f53-b744-2faa03136258:assurance-review",
+      "stored_response_id": "resp_6ae910c545a42d7b13c94f26",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "1ad96e27-9cbc-4338-806c-fed551eed783",
+      "response_sha256": "3854144d81e284a098cb44dbd26bbf2f672f30e3b5d9f0d7d1c40acc4c9c63cc",
+      "provider_response_id": "resp_6ae910c545a42d7b13c94f26",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 9001,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1890,
+        "output_tokens_details": {
+          "reasoning_tokens": 1647
+        },
+        "total_tokens": 10891
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "1f7ca3f0-e088-4e1b-afc4-84e2ef9d923d:assessment:resources",
+      "stored_response_id": "resp_6ae9d4009140a10f8088495c",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "016128dc-94f9-4cfc-8cda-9138bac6e700",
+      "response_sha256": "27c1bbd8ad1ae3b63d8736acf4d765bf68ddc20d8ede51e29f5068e3fcc2a4ff",
+      "provider_response_id": "resp_6ae9d4009140a10f8088495c",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12943,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 834,
+        "output_tokens_details": {
+          "reasoning_tokens": 444
+        },
+        "total_tokens": 13777
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "7ac3da88-8466-4f78-9d53-49456859f0c1:assessment:assurance",
+      "stored_response_id": "resp_6ae93e9a41958d97120447b2",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "71b38fcf-2043-4dda-ae86-fd09e7eee4fb",
+      "response_sha256": "a275607980e3c202e764dcb174fa6004eee7596ddc81a815d5d686b47c282cdd",
+      "provider_response_id": "resp_6ae93e9a41958d97120447b2",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12360,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1053,
+        "output_tokens_details": {
+          "reasoning_tokens": 655
+        },
+        "total_tokens": 13413
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "7ac3da88-8466-4f78-9d53-49456859f0c1:director",
+      "stored_response_id": "resp_6ae93ea37a4f8493e5f248c6",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "d872171c-801b-447c-8e48-50d12c34048a",
+      "response_sha256": "4ee9d28cd076ab8227b6febe62c26d23266281aa46665cfe77cad595db168e65",
+      "provider_response_id": "resp_6ae93ea37a4f8493e5f248c6",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 13453,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1448,
+        "output_tokens_details": {
+          "reasoning_tokens": 1193
+        },
+        "total_tokens": 14901
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "2b7c77bb-b8d2-4b1b-8d21-ba449ec19d22:assessment:resources",
+      "stored_response_id": "resp_6aea29a7e19b1387c6fe4ee2",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "fb08991c-2fe6-4e7b-8368-ba51661e469f",
+      "response_sha256": "1316881188d801cde5638d152953e657a23b545a5b094b1c61f9d009c2b06fc4",
+      "provider_response_id": "resp_6aea29a7e19b1387c6fe4ee2",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12987,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 947,
+        "output_tokens_details": {
+          "reasoning_tokens": 552
+        },
+        "total_tokens": 13934
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "1f7ca3f0-e088-4e1b-afc4-84e2ef9d923d:assessment:construction",
+      "stored_response_id": "resp_6ae9d3ee7a73d85ebbd34aeb",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "0b7db16c-ae33-46d8-b72c-ff92bf04e630",
+      "response_sha256": "10407e6692e976d9785e212b613d3e7e9ef7837d00304a66007e4633d261bce6",
+      "provider_response_id": "resp_6ae9d3ee7a73d85ebbd34aeb",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12896,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 915,
+        "output_tokens_details": {
+          "reasoning_tokens": 532
+        },
+        "total_tokens": 13811
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "1f7ca3f0-e088-4e1b-afc4-84e2ef9d923d:assessment:survey",
+      "stored_response_id": "resp_6ae9d4166120a5936be84ff9",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "7f5734f7-1f42-4ff4-9cf3-3635c0b8a78b",
+      "response_sha256": "097af516895b4c6b5c4b2fe026e8dbb302efb66e4b01f7ce67ab786d43b5cc32",
+      "provider_response_id": "resp_6ae9d4166120a5936be84ff9",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12824,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2169,
+        "output_tokens_details": {
+          "reasoning_tokens": 1805
+        },
+        "total_tokens": 14993
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "2b7c77bb-b8d2-4b1b-8d21-ba449ec19d22:assessment:construction",
+      "stored_response_id": "resp_6aea2998ec230185dbb84001",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "1cf3fab8-609d-4857-81cb-786242e0d636",
+      "response_sha256": "1e441b456975394041feb49748cb43278685df7c8f7147d4d16fbd49227a92af",
+      "provider_response_id": "resp_6aea2998ec230185dbb84001",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12913,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1081,
+        "output_tokens_details": {
+          "reasoning_tokens": 688
+        },
+        "total_tokens": 13994
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "1f7ca3f0-e088-4e1b-afc4-84e2ef9d923d:assessment:assurance",
+      "stored_response_id": "resp_6ae9d42322b1468eb83a41d4",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "c35947ef-c40d-4de6-be5d-324248040345",
+      "response_sha256": "d904eaa4ae86d469f289ddacddecac67cb2a945c5551b5f28d6636874533c7c8",
+      "provider_response_id": "resp_6ae9d42322b1468eb83a41d4",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12703,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1443,
+        "output_tokens_details": {
+          "reasoning_tokens": 1045
+        },
+        "total_tokens": 14146
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "2b7c77bb-b8d2-4b1b-8d21-ba449ec19d22:assessment:power",
+      "stored_response_id": "resp_6aea29a084fdf29edd6a4a84",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "38db24a2-a2fa-44b7-900e-601ba2376beb",
+      "response_sha256": "6042d27d097ca0956e35df7c51859355da124efd28f4ad7fb7202a85437d76c6",
+      "provider_response_id": "resp_6aea29a084fdf29edd6a4a84",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12772,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 954,
+        "output_tokens_details": {
+          "reasoning_tokens": 583
+        },
+        "total_tokens": 13726
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "2b7c77bb-b8d2-4b1b-8d21-ba449ec19d22:assessment:assurance",
+      "stored_response_id": "resp_6aea29b953f6e3658fed4182",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "1ea00629-360e-4d19-9f36-91ca9e255489",
+      "response_sha256": "7fb06df6ae8ef5dcd37e1d4e2d0e8ab182312794fa8d226c2f57719016353704",
+      "provider_response_id": "resp_6aea29b953f6e3658fed4182",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12704,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1068,
+        "output_tokens_details": {
+          "reasoning_tokens": 650
+        },
+        "total_tokens": 13772
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "2b7c77bb-b8d2-4b1b-8d21-ba449ec19d22:assessment:survey",
+      "stored_response_id": "resp_6aea29b0de51b306f3ac4d12",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "41e1d134-5eb9-40f4-a38b-9ec51d335570",
+      "response_sha256": "25ca82ab26a45e6b6d0b822db6b6d32cd39470b72eb74c90115f3408aa6be3bb",
+      "provider_response_id": "resp_6aea29b0de51b306f3ac4d12",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12836,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1153,
+        "output_tokens_details": {
+          "reasoning_tokens": 765
+        },
+        "total_tokens": 13989
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "2b7c77bb-b8d2-4b1b-8d21-ba449ec19d22:director",
+      "stored_response_id": "resp_6aea29c2bed7f521335b4671",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "0133bbbc-7c26-459a-9a52-29de9b3b9ebe",
+      "response_sha256": "b4d0a3290cc9301e0d52576af5b0a816fb27a632b07e4c53d18fde22f6c55ad8",
+      "provider_response_id": "resp_6aea29c2bed7f521335b4671",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 13507,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 885,
+        "output_tokens_details": {
+          "reasoning_tokens": 624
+        },
+        "total_tokens": 14392
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "80715fef-d988-4823-ae13-2b1da2d04d9e:assessment:construction",
+      "stored_response_id": "resp_6aea2a862e7f511a73c04c3e",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "02bf0b6f-1c05-4901-8b72-376eaa34b5c0",
+      "response_sha256": "2d46ad3b3e201357afe42ad0c941d65aac438461adc1af043701c14ae56716d0",
+      "provider_response_id": "resp_6aea2a862e7f511a73c04c3e",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 13152,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1355,
+        "output_tokens_details": {
+          "reasoning_tokens": 960
+        },
+        "total_tokens": 14507
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "80715fef-d988-4823-ae13-2b1da2d04d9e:assessment:power",
+      "stored_response_id": "resp_6aea2a8e5940fd0d5fbb4402",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "56efc323-f8e4-446f-817b-51e254e6cd39",
+      "response_sha256": "fdb0d0fd28af38f6e120479a1ecaa23eca9a1acc314c4b979b9db8267a6e9d8e",
+      "provider_response_id": "resp_6aea2a8e5940fd0d5fbb4402",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12977,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 994,
+        "output_tokens_details": {
+          "reasoning_tokens": 622
+        },
+        "total_tokens": 13971
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "80715fef-d988-4823-ae13-2b1da2d04d9e:assessment:resources",
+      "stored_response_id": "resp_6aea2a956b2887effa6940ad",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "33c1666b-b074-4bb8-b58b-b7a158c894a0",
+      "response_sha256": "50e4fe979a967082ed61d09b942065522a615f4ca63827c1bd5b17c0fe7b25c5",
+      "provider_response_id": "resp_6aea2a956b2887effa6940ad",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 13215,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1095,
+        "output_tokens_details": {
+          "reasoning_tokens": 708
+        },
+        "total_tokens": 14310
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "80715fef-d988-4823-ae13-2b1da2d04d9e:assessment:survey",
+      "stored_response_id": "resp_6aea2a9e61b370efbaae4a42",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "545f3fbb-c6e0-475b-b9b4-eac592949606",
+      "response_sha256": "272707b16d0e44704366631ed124336fabaed0a1fde8b87ed9c7cbf1272e675d",
+      "provider_response_id": "resp_6aea2a9e61b370efbaae4a42",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 13075,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1275,
+        "output_tokens_details": {
+          "reasoning_tokens": 880
+        },
+        "total_tokens": 14350
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "80715fef-d988-4823-ae13-2b1da2d04d9e:assessment:assurance",
+      "stored_response_id": "resp_6aea2aa8f65289b977bd4a2a",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "1b22e5b4-3426-4f94-8e89-c894257c3158",
+      "response_sha256": "401297439e38de8c5ca4bdee33370af3bd913be94e61799166d3a4dc0f61524a",
+      "provider_response_id": "resp_6aea2aa8f65289b977bd4a2a",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 12926,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1440,
+        "output_tokens_details": {
+          "reasoning_tokens": 1022
+        },
+        "total_tokens": 14366
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "80715fef-d988-4823-ae13-2b1da2d04d9e:director",
+      "stored_response_id": "resp_6aea2ab3de809157d6d34690",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "3a45d861-4953-46ad-ace1-2f7efad8e5b7",
+      "response_sha256": "b20b5d1bf076236b2017449fe4309611b59f2a950efc77ebbd579cefe61ea719",
+      "provider_response_id": "resp_6aea2ab3de809157d6d34690",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 13723,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1365,
+        "output_tokens_details": {
+          "reasoning_tokens": 1112
+        },
+        "total_tokens": 15088
+      },
+      "public_tool_calls_match": true
+    }
+  ],
+  "excluded_records": [
+    {
+      "record_id": "visual:public:genesis",
+      "model": "muse-image-1.0",
+      "status": "received",
+      "reason": "No received response ID; cannot authenticate through response retrieval"
+    },
+    {
+      "record_id": "9494268d-d5f5-4336-ba0c-b9e777528562:power:2",
+      "model": "muse-spark-1.3",
+      "status": "uncertain; reservation retained; no automatic retry",
+      "reason": "No received response ID; cannot authenticate through response retrieval"
+    },
+    {
+      "record_id": "b01f5446-a78a-4ad0-a8e2-a84b0092da52:power:3",
+      "model": "muse-spark-1.3",
+      "status": "uncertain; reservation retained; no automatic retry",
+      "reason": "No received response ID; cannot authenticate through response retrieval"
+    }
+  ],
+  "previous_checks": [
+    {
+      "checked_at": 1793754286.2190087,
+      "method": "Authenticated GET of two existing response IDs from the restored review database; no inference request",
+      "key_fingerprint": "sha256:7aba5621ec50695c",
+      "results": [
+        {
+          "stored_response_id": "resp_6aea2ab3de809157d6d34690",
+          "stored_model": "muse-wonder-1.0",
+          "stored_key_matches_current": true,
+          "http_status": 200,
+          "request_id": "9e2fbb44-77e5-41a8-b36d-1f31d29a9096",
+          "response_sha256": "8501e15ea7b6d730dd3b5740b80f446453d1ed798f94a002a767b5b75b9bb7b2",
+          "provider_response_id": "resp_6aea2ab3de809157d6d34690",
+          "provider_model": "muse-wonder-1.0",
+          "provider_status": "completed",
+          "identity_matches": true,
+          "usage_matches": true,
+          "usage": {
+            "input_tokens": 13723,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1365,
+            "output_tokens_details": {
+              "reasoning_tokens": 1112
+            },
+            "total_tokens": 15088
+          }
+        },
+        {
+          "stored_response_id": "resp_6aea2aa8f65289b977bd4a2a",
+          "stored_model": "muse-spark-1.3",
+          "stored_key_matches_current": true,
+          "http_status": 200,
+          "request_id": "14df0598-d81b-4fb4-ab9c-3938b2cf4833",
+          "response_sha256": "c352ba60008af455453dd0a0ad0efbb18c9ec2adb01fa8a4d9e428ece60e4011",
+          "provider_response_id": "resp_6aea2aa8f65289b977bd4a2a",
+          "provider_model": "muse-spark-1.3",
+          "provider_status": "completed",
+          "identity_matches": true,
+          "usage_matches": true,
+          "usage": {
+            "input_tokens": 12926,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1440,
+            "output_tokens_details": {
+              "reasoning_tokens": 1022
+            },
+            "total_tokens": 14366
+          }
+        }
+      ],
+      "scope": "Historical record spot-check only; not current-code planning acceptance. Retrieval failure cannot by itself prove fabrication or distinguish retention, account scope and provider persistence errors."
+    }
+  ],
+  "scope": "Historical identity/model/usage/public-tool-output comparison, not current-code planning acceptance or physical validity. A failed retrieval alone cannot establish fabrication."
+}

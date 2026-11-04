@@ -32,6 +32,13 @@ def test_missing_quote_is_rejected(approved_package):
         load()
 
 
+def test_well_model_assumption_must_exist_and_be_approved(approved_package):
+    edit(approved_package,lambda p:p['operator_decisions']['D21_water_establishment_model'].update(approved=False))
+    with pytest.raises(PackageError,match='D21'):require_approved(load())
+    edit(approved_package,lambda p:p['parameters']['rodwell.control_reserve_kg'].update(model_assumption='nonexistent-decision'))
+    with pytest.raises(PackageError,match='model assumption'):load()
+
+
 def test_unknown_formula_name_is_rejected(approved_package):
     def bad(p):
         p['parameters']['excavator.mining_rate_kg_h']['formula'] = 'excavator.min_rate_kg_per_day/hours'

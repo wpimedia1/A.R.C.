@@ -1,0 +1,93 @@
+{
+  "checked_at": 1793749249.6724916,
+  "method": "PostgreSQL custom-format pg_dump restored into a newly created isolated database; row counts and ordered row digests compared for every public table",
+  "original_database": "mission",
+  "restore_database": "mission_restore_1793749241",
+  "matches": true,
+  "before": {
+    "environment_observations": {
+      "rows": 6725,
+      "row_digest_md5": "cbcc2e2fd922d855347b111c45a9a325"
+    },
+    "event_log": {
+      "rows": 1934,
+      "row_digest_md5": "042871238027d1fa3aacaf14cea95003"
+    },
+    "inference_budgets": {
+      "rows": 3,
+      "row_digest_md5": "a4ba41ac484131f2053b0c4fddeefdc2"
+    },
+    "inference_receipts": {
+      "rows": 55,
+      "row_digest_md5": "23d1dc474c621038922f54ad9ab8a61f"
+    },
+    "mission_revisions": {
+      "rows": 43,
+      "row_digest_md5": "0dc42e39f360743c954c7016c5d1855f"
+    },
+    "mission_visuals": {
+      "rows": 1,
+      "row_digest_md5": "9e5e56f7fa0e7cbb3e04438c25353107"
+    },
+    "missions": {
+      "rows": 1,
+      "row_digest_md5": "3fdfab4c1b22ec052cf3242037487690"
+    },
+    "owners": {
+      "rows": 1,
+      "row_digest_md5": "15be94034051fcad441bdd1912ce95e0"
+    },
+    "service_status": {
+      "rows": 8,
+      "row_digest_md5": "1dd19c005e987035d894ffad004fc04e"
+    },
+    "source_versions": {
+      "rows": 53,
+      "row_digest_md5": "228f8cb88e7c2c9205e673bcede44929"
+    }
+  },
+  "after": {
+    "environment_observations": {
+      "rows": 6725,
+      "row_digest_md5": "cbcc2e2fd922d855347b111c45a9a325"
+    },
+    "event_log": {
+      "rows": 1934,
+      "row_digest_md5": "042871238027d1fa3aacaf14cea95003"
+    },
+    "inference_budgets": {
+      "rows": 3,
+      "row_digest_md5": "a4ba41ac484131f2053b0c4fddeefdc2"
+    },
+    "inference_receipts": {
+      "rows": 55,
+      "row_digest_md5": "23d1dc474c621038922f54ad9ab8a61f"
+    },
+    "mission_revisions": {
+      "rows": 43,
+      "row_digest_md5": "0dc42e39f360743c954c7016c5d1855f"
+    },
+    "mission_visuals": {
+      "rows": 1,
+      "row_digest_md5": "9e5e56f7fa0e7cbb3e04438c25353107"
+    },
+    "missions": {
+      "rows": 1,
+      "row_digest_md5": "3fdfab4c1b22ec052cf3242037487690"
+    },
+    "owners": {
+      "rows": 1,
+      "row_digest_md5": "15be94034051fcad441bdd1912ce95e0"
+    },
+    "service_status": {
+      "rows": 8,
+      "row_digest_md5": "1dd19c005e987035d894ffad004fc04e"
+    },
+    "source_versions": {
+      "rows": 53,
+      "row_digest_md5": "228f8cb88e7c2c9205e673bcede44929"
+    }
+  },
+  "backup_file_in_database_container": "/tmp/mission-backup-1793749241.dump",
+  "original_database_modified": false
+}

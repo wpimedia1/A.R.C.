@@ -1,0 +1,11 @@
+{
+  "checked_at": 1793832976.9438338,
+  "submission_file_count": 196,
+  "reachable_blob_count": 427,
+  "largest_reachable_blob_bytes": 4987176,
+  "largest_submission_file_bytes": 4987176,
+  "threshold_bytes": 100000000,
+  "oversized": [],
+  "credential_findings": [],
+  "secret_check_scope": "Exact configured credential values and private-key markers in submission files and all reachable Git blobs. Not a claim to detect every possible secret."
+}

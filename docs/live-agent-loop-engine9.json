@@ -1,0 +1,545 @@
+{
+ "checked_at": 1793763780.0984616,
+ "duration_s": 247.7,
+ "package": "arcadia-mars-v1",
+ "engine_version": "arcadia-mars-v1/engine-9-procedures-physics",
+ "input_basis": {
+  "basis": "Actual mission snapshot and exact pinned source records",
+  "source_revision": 50,
+  "source_state_hash": "ed23e00091820e090bc2345cf92395de90bed583a67576f277c7c16667631da7",
+  "bundle_hash": "f953e4bc2f1bb85b557ddfde7aa84b4a42518066b9170ca645e509b2a2be705c",
+  "source_pins": {
+   "nasa-dra": "nasa-dra:592bda3d069562f5",
+   "nasa-m2m": "nasa-m2m:71c1209404c7c93a",
+   "swim": "swim:760202f154dcb2a6",
+   "mola": "mola:51e2ad3502c029d2",
+   "rems": "rems:e6e93ff6e5ccce88",
+   "kleinhenz2017": "kleinhenz2017:d36ee9a39ade86a3",
+   "rassor2016": "rassor2016:b673c0bf0efb81c3",
+   "fsp2024": "fsp2024:73135570a56b2eac",
+   "m2020launch": "m2020launch:9df73b798c347523",
+   "m2020landing": "m2020landing:6d5beb0f1e10d809",
+   "autonav2021": "autonav2021:499887d7c608a63e",
+   "nssdc_mars": "nssdc_mars:ebe980c6a23c9a16",
+   "tp3079": "tp3079:0effc401c43d7b12",
+   "howard2023": "howard2023:478a93766d19a01e",
+   "mank2021": "mank2021:58a94e048d7accd8",
+   "hoffman2016": "hoffman2016:ed43ad3e4e3f6a70",
+   "iapws": "iapws:c70474ee2e5bdaeb",
+   "proofwiki_gallon": "proofwiki_gallon:4a5452c7562c7b3e",
+   "oleson2022": "oleson2022:ee8e7f5d35b8a5f4",
+   "stolov2026": "stolov2026:87e557ba2a4a2518",
+   "nssdc_sun": "nssdc_sun:cef274113c6cbf3d",
+   "lasp2015": "lasp2015:752436b75835b99f",
+   "erfa": "erfa:5103e0d76f0bcdee",
+   "mars24": "mars24:e7887192f3095dc1",
+   "dust_gds_2021": "dust_gds_2021:29f45b0f9c46be00",
+   "stancliff2005": "stancliff2005:316299b0688fa87a",
+   "dsn_now": "dsn_now:a23222bf6151cc2c",
+   "usgs_hirise_footprints": "usgs_hirise_footprints:a4219aab4cb78375",
+   "schuler2019": "schuler2019:66177f8d43c91b28",
+   "nasa_night2022": "nasa_night2022:0e0add562fdff38e",
+   "arcadia-mars-v1": "arcadia-mars-v1:8d2cba815edf28cf",
+   "msl-weather": "msl-weather:62581c8183e0c56d",
+   "sicsa-outpost": "sicsa-outpost:f1ca3cc76810763a",
+   "swim-radar": "swim-radar:a3b62165bea033f3",
+   "mola-arcadia": "mola-arcadia:371bd6b8622af3fc",
+   "redwater2019": "redwater2019:f0f7f064c5c47955",
+   "rover-components": "rover-components:33264826e4aa3766",
+   "rover-battery2021": "rover-battery2021:785a58def3ee7eff",
+   "nist-water": "nist-water:f3dfa05d5f5d622f",
+   "rad750-bae2025": "rad750-bae2025:bafa1d48c8362914",
+   "rad750-heritage-nasa": "rad750-heritage-nasa:69bdd5ec3aeb96b6",
+   "rad750-niac": "rad750-niac:e54416b2a090b20d",
+   "nist-gallon": "nist-gallon:60f9a154fa03fd4a",
+   "arcadia-climate": "arcadia-climate:b86b23c4eb87e2aa",
+   "hirise-ground": "hirise-ground:88104f0d0c797c6d"
+  }
+ },
+ "isolated_database": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\output\\live-acceptance\\run-8ru3_zh2\\agent-loop.db",
+ "package_hash": "8d2cba815edf28cfbfa5d4aedbcc153d9a2fea36ef5d2a932a763f24b1e2ff4e",
+ "ticks": 24,
+ "cycles": [
+  {
+   "cycle_id": "55728933-a9ea-4a82-830a-c30588f72cce",
+   "roles": [
+    "construction",
+    "power",
+    "resources",
+    "survey",
+    "assurance"
+   ],
+   "same_frozen_observation": true,
+   "peer_proposals_withheld": true,
+   "memory_entries_seen": 20
+  },
+  {
+   "cycle_id": "7b851e51-cd53-4442-927f-e911e659a42c",
+   "roles": [
+    "construction",
+    "power",
+    "resources",
+    "assurance"
+   ],
+   "same_frozen_observation": true,
+   "peer_proposals_withheld": true,
+   "memory_entries_seen": 25
+  }
+ ],
+ "decisions": [
+  {
+   "id": "D1",
+   "job_id": "power",
+   "actor": "power / muse-spark-1.3",
+   "assets": [
+    "fsp-1"
+   ],
+   "summary": "Power: assign fsp-1 to deploy/commission fission unit, 162h per D8. Estimate shows rate 1.03 h/tick, 0 kW, no blockers. No grid power until complete.",
+   "source_ids": [
+    "arcadia-mars-v1",
+    "oleson2022",
+    "fsp2024"
+   ]
+  },
+  {
+   "id": "D2",
+   "job_id": "survey",
+   "actor": "survey / muse-spark-1.3",
+   "assets": [
+    "rover-1"
+   ],
+   "summary": "Start survey with rover-1 in daylight sun 14.2 deg. One sol drive at published 175.15m record rate, MMRTG self-powered, estimate shows no blockers.",
+   "source_ids": [
+    "arcadia-mars-v1",
+    "autonav2021"
+   ]
+  }
+ ],
+ "jobs": {
+  "power": {
+   "status": "running",
+   "done": 24.659699999999994,
+   "target": 162.0
+  },
+  "drill": {
+   "status": "pending",
+   "done": 0.0,
+   "target": 20.0
+  },
+  "survey": {
+   "status": "complete",
+   "done": 175.15,
+   "target": 175.15
+  },
+  "trench": {
+   "status": "pending",
+   "done": 0.0,
+   "target": 310564.8
+  },
+  "shielding": {
+   "status": "pending",
+   "done": 0.0,
+   "target": 104501.93802901088
+  },
+  "water": {
+   "status": "pending",
+   "done": 0.0,
+   "target": 15701.0
+  }
+ },
+ "provider_requests": [
+  {
+   "id": "55728933-a9ea-4a82-830a-c30588f72cce:assessment:construction",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa8d93969a418743d45d4",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "53957b83-b528-45da-8dd5-88236d0a95a7",
+    "date": "Wed, 04 Nov 2026 03:39:06 GMT"
+   },
+   "usage": {
+    "input_tokens": 14875,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1350,
+    "output_tokens_details": {
+     "reasoning_tokens": 958
+    },
+    "total_tokens": 16225
+   },
+   "actual_usd": 0.02433125
+  },
+  {
+   "id": "55728933-a9ea-4a82-830a-c30588f72cce:assessment:power",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa8e3be9d147cac9043a1",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "52954350-bed6-47f3-a603-c4163f8ee8b1",
+    "date": "Wed, 04 Nov 2026 03:39:15 GMT"
+   },
+   "usage": {
+    "input_tokens": 14609,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1061,
+    "output_tokens_details": {
+     "reasoning_tokens": 692
+    },
+    "total_tokens": 15670
+   },
+   "actual_usd": 0.0227705
+  },
+  {
+   "id": "55728933-a9ea-4a82-830a-c30588f72cce:assessment:resources",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa8ea65583d80f2b64ac9",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "7493b56b-21c0-4a89-8765-75157d6560ef",
+    "date": "Wed, 04 Nov 2026 03:39:22 GMT"
+   },
+   "usage": {
+    "input_tokens": 14952,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 859,
+    "output_tokens_details": {
+     "reasoning_tokens": 458
+    },
+    "total_tokens": 15811
+   },
+   "actual_usd": 0.02234075
+  },
+  {
+   "id": "55728933-a9ea-4a82-830a-c30588f72cce:assessment:survey",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa8f5dfbab7386b6042a3",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "2749e706-71eb-4394-8591-a6f5dfe35ea0",
+    "date": "Wed, 04 Nov 2026 03:39:34 GMT"
+   },
+   "usage": {
+    "input_tokens": 14754,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1236,
+    "output_tokens_details": {
+     "reasoning_tokens": 843
+    },
+    "total_tokens": 15990
+   },
+   "actual_usd": 0.0236955
+  },
+  {
+   "id": "55728933-a9ea-4a82-830a-c30588f72cce:assessment:assurance",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa8fe44304a8e069644f6",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "5769b708-adff-44e9-9eee-81cdb49e76ad",
+    "date": "Wed, 04 Nov 2026 03:39:43 GMT"
+   },
+   "usage": {
+    "input_tokens": 14638,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1174,
+    "output_tokens_details": {
+     "reasoning_tokens": 743
+    },
+    "total_tokens": 15812
+   },
+   "actual_usd": 0.023287
+  },
+  {
+   "id": "55728933-a9ea-4a82-830a-c30588f72cce:director",
+   "model": "muse-wonder-1.0",
+   "response_id": "resp_6aeaa90b865a4a1114754719",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "9aa76aa0-4d25-4b7c-8f2c-ebd7f51cdff7",
+    "date": "Wed, 04 Nov 2026 03:39:55 GMT"
+   },
+   "usage": {
+    "input_tokens": 15628,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1569,
+    "output_tokens_details": {
+     "reasoning_tokens": 1307
+    },
+    "total_tokens": 17197
+   },
+   "actual_usd": 0.093892
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:consolidate:assurance",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa921e2e173962e594dd8",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "ea4e55fb-4df7-4bce-a28a-ca524637e002",
+    "date": "Wed, 04 Nov 2026 03:40:17 GMT"
+   },
+   "usage": {
+    "input_tokens": 5263,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 2463,
+    "output_tokens_details": {
+     "reasoning_tokens": 1939
+    },
+    "total_tokens": 7726
+   },
+   "actual_usd": 0.0170465
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:consolidate:construction",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa933932561fe86d14aa2",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "ae35aa28-dba8-49e3-861c-4bae07804a61",
+    "date": "Wed, 04 Nov 2026 03:40:35 GMT"
+   },
+   "usage": {
+    "input_tokens": 5012,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1798,
+    "output_tokens_details": {
+     "reasoning_tokens": 1428
+    },
+    "total_tokens": 6810
+   },
+   "actual_usd": 0.0139065
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:consolidate:director",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa947c576438092a0473e",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "cbd293bf-0fca-4585-8471-eae35662cd36",
+    "date": "Wed, 04 Nov 2026 03:40:56 GMT"
+   },
+   "usage": {
+    "input_tokens": 2482,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 2126,
+    "output_tokens_details": {
+     "reasoning_tokens": 1734
+    },
+    "total_tokens": 4608
+   },
+   "actual_usd": 0.012138
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:consolidate:power",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa95aa9217b39bdfa4ddd",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "9a6b5aa7-a289-4aee-b856-c76090aaff77",
+    "date": "Wed, 04 Nov 2026 03:41:14 GMT"
+   },
+   "usage": {
+    "input_tokens": 4926,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1938,
+    "output_tokens_details": {
+     "reasoning_tokens": 1661
+    },
+    "total_tokens": 6864
+   },
+   "actual_usd": 0.014394
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:consolidate:resources",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa969652f618d5c45459d",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "c84bbe0a-26f1-4c18-8ff3-d9b9d720f79c",
+    "date": "Wed, 04 Nov 2026 03:41:29 GMT"
+   },
+   "usage": {
+    "input_tokens": 5095,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1508,
+    "output_tokens_details": {
+     "reasoning_tokens": 1184
+    },
+    "total_tokens": 6603
+   },
+   "actual_usd": 0.01277775
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:consolidate:survey",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa9891698c2f070cf4c25",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "ce5e1d6f-ced3-406d-b5b0-80ec8c9e7898",
+    "date": "Wed, 04 Nov 2026 03:42:01 GMT"
+   },
+   "usage": {
+    "input_tokens": 5168,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 3431,
+    "output_tokens_details": {
+     "reasoning_tokens": 3006
+    },
+    "total_tokens": 8599
+   },
+   "actual_usd": 0.02104175
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:assessment:construction",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa99ccd5b8c9ba3e142ea",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "ff62eb00-914a-421a-8340-d4a023c21849",
+    "date": "Wed, 04 Nov 2026 03:42:20 GMT"
+   },
+   "usage": {
+    "input_tokens": 13509,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 2307,
+    "output_tokens_details": {
+     "reasoning_tokens": 1928
+    },
+    "total_tokens": 15816
+   },
+   "actual_usd": 0.026691
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:assessment:power",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa9a5a967325992ef47f0",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "6c52572c-1957-49be-b3c6-944b2556119e",
+    "date": "Wed, 04 Nov 2026 03:42:29 GMT"
+   },
+   "usage": {
+    "input_tokens": 13389,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 940,
+    "output_tokens_details": {
+     "reasoning_tokens": 602
+    },
+    "total_tokens": 14329
+   },
+   "actual_usd": 0.02073125
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:assessment:resources",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa9af74d63225ec714571",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "1b80ec8c-f648-4749-b530-3d674b11a1b6",
+    "date": "Wed, 04 Nov 2026 03:42:40 GMT"
+   },
+   "usage": {
+    "input_tokens": 13477,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 983,
+    "output_tokens_details": {
+     "reasoning_tokens": 609
+    },
+    "total_tokens": 14460
+   },
+   "actual_usd": 0.021024
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:assessment:assurance",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeaa9ba9a9975a6b2ec46f4",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "d3f9e4c8-e40b-4bfd-ad60-bb9d99ee45b4",
+    "date": "Wed, 04 Nov 2026 03:42:50 GMT"
+   },
+   "usage": {
+    "input_tokens": 13571,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1254,
+    "output_tokens_details": {
+     "reasoning_tokens": 829
+    },
+    "total_tokens": 14825
+   },
+   "actual_usd": 0.02229325
+  },
+  {
+   "id": "7b851e51-cd53-4442-927f-e911e659a42c:director",
+   "model": "muse-wonder-1.0",
+   "response_id": "resp_6aeaa9c418f622ce668c4953",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "50600cc8-10a5-4035-9712-ba7e71269372",
+    "date": "Wed, 04 Nov 2026 03:43:00 GMT"
+   },
+   "usage": {
+    "input_tokens": 15401,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 915,
+    "output_tokens_details": {
+     "reasoning_tokens": 714
+    },
+    "total_tokens": 16316
+   },
+   "actual_usd": 0.079904
+  }
+ ],
+ "total_usd": 0.47226499999999993,
+ "verify": "Match each response_id in the Meta developer dashboard before treating this report as evidence."
+}

@@ -3,6 +3,85 @@ import httpx
 from mission.api import create_app
 from conftest import make_store
 
+
+def test_records_reads_pins_without_constructing_full_export(tmp_path,request,monkeypatch):
+    store=make_store(tmp_path,request);store.initialize();app=create_app(store)
+    def forbidden(*args,**kwargs):raise AssertionError('A normal page load must not materialize the full mission history')
+    monkeypatch.setattr(store,'export',forbidden)
+    async def exercise():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
+            response=await client.get('/api/v1/missions/public/records')
+            assert response.status_code==200
+            result=response.json();pins=store.snapshot('public')['state']['source_pins']
+            assert set(pins)==set(result['sources']) and set(pins.values())<=set(result['source_versions'])
+            assert 'history' not in result and 'inference_receipts' in result
+    asyncio.run(exercise())
+
+
+def test_live_operations_compacts_context_without_losing_export_or_history(tmp_path,request):
+    """Isolated fixture receipt; explicitly not evidence of a provider call."""
+    from mission.store import InferenceReceipt
+    from mission.inspection import inspect
+    store=make_store(tmp_path,request);store.initialize()
+    expected={}
+    with store.transaction() as db:
+        db.add(InferenceReceipt(id='unit-test-only',mission_id='public',record={
+            'status':'unit-test-only','model':'no-provider','created_at':0,
+            'request':{'instructions':'Unit fixture context'},'actual_usd':0,
+            'tool_calls':[{'name':'unit-test-only','arguments':{}}]}))
+        m=store.row(db,'public')
+        for _ in range(3):
+            s=store.step(m.state);store.save(db,m,s,{'kind':'unit-test-step'})
+            expected[s['tick']]={**s['resources'],'energy_used_kwh':s['energy_used_kwh'],'spent_usd':s['spent_usd']}
+    panel=inspect(store,'public')
+    receipt=next(r for r in panel['receipts'] if r['id']=='unit-test-only')
+    assert 'request' not in receipt and receipt['tool_calls'][0]['name']=='unit-test-only'
+    exported=next(r for r in store.export('public')['inference_receipts'] if r['id']=='unit-test-only')
+    assert exported['request']['instructions']=='Unit fixture context'
+    import pytest
+    for row in panel['series']:
+        # SQLite JSON projections serialize numeric display values to 15 digits;
+        # the full immutable state/export retains the original float precision.
+        if row['tick'] in expected:assert {k:v for k,v in row.items() if k!='tick'}==pytest.approx(expected[row['tick']],rel=1e-12,abs=1e-9)
+
+
+def test_ground_never_substitutes_remote_reference_for_site(tmp_path,request,monkeypatch):
+    from copy import deepcopy
+    from mission import science
+    store=make_store(tmp_path,request);store.initialize();app=create_app(store)
+    def forbid_fetch(*args,**kwargs):raise AssertionError('No image may be fetched without site-covering pinned evidence')
+    monkeypatch.setattr(science,'fetch',forbid_fetch)
+    async def exercise():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
+            absent=await client.get('/api/v1/site/ground.jpg')
+            assert absent.status_code==404 and 'no reference ground substituted' in absent.text
+            with store.transaction() as db:
+                m=store.row(db,'public');s=deepcopy(m.state)
+                s['site_imagery']={'source_id':'test-proxy','applies_to_site':False}
+                store.save(db,m,s,{'kind':'test-fixture'})
+            proxy=await client.get('/api/v1/site/ground.jpg')
+            assert proxy.status_code==404
+    asyncio.run(exercise())
+
+
+def test_ground_checks_exact_pinned_image_hash(tmp_path,request,monkeypatch):
+    from copy import deepcopy
+    from mission.store import SourceVersion
+    from mission import science
+    store=make_store(tmp_path,request);store.initialize();app=create_app(store)
+    with store.transaction() as db:
+        db.add(SourceVersion(id='test-ground:1',source_id='hirise-ground',record={
+            'applies_to_site':True,'browse':'https://test.invalid/image','product':'test-only',
+            'content_hash':'not-the-returned-image-hash'}))
+        m=store.row(db,'public');s=deepcopy(m.state);s['source_pins']['hirise-ground']='test-ground:1'
+        store.save(db,m,s,{'kind':'test-fixture'})
+    monkeypatch.setattr(science,'fetch',lambda *args:(b'changed source bytes',0))
+    async def exercise():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
+            response=await client.get('/api/v1/missions/public/evidence/ground.jpg')
+            assert response.status_code==502 and 'differs from the pinned source' in response.text
+    asyncio.run(exercise())
+
 def test_api_permissions_revision_and_cookie(tmp_path,monkeypatch,request):
     monkeypatch.setenv('COOKIE_SECURE','false')
     store=make_store(tmp_path,request);store.initialize();app=create_app(store)
@@ -82,4 +161,35 @@ def test_visitor_ends_own_experiment_only(tmp_path, monkeypatch, request):
             again=await client.post('/api/v1/forks',json={'revision':p['revision']})
             assert again.status_code==200  # a fresh experiment can start once the old one is ended
             assert (await client.get('/api/v1/missions/public')).status_code==200
+    asyncio.run(exercise())
+
+
+def test_ground_request_cannot_render_a_different_source_version(tmp_path,request,monkeypatch):
+    from copy import deepcopy
+    from mission.store import SourceVersion
+    from mission import science
+    store=make_store(tmp_path,request);store.initialize()
+    with store.transaction() as db:
+        db.add(SourceVersion(id='unit-ground-current',source_id='hirise-ground',record={'applies_to_site':True}))
+        m=store.row(db,'public');state=deepcopy(m.state);state['source_pins']['hirise-ground']='unit-ground-current'
+        store.save(db,m,state,{'kind':'explicit unit-test source pin'})
+    def forbid(*args):raise AssertionError('No image fetch may follow a source-version mismatch')
+    monkeypatch.setattr(science,'fetch',forbid)
+    app=create_app(store)
+    async def exercise():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
+            result=await client.get('/api/v1/missions/public/evidence/ground.jpg?version=unit-ground-old')
+            assert result.status_code==409 and 'pin changed' in result.text
+    asyncio.run(exercise())
+
+
+def test_acceptance_view_rejects_writes_but_allows_inspection(tmp_path,request,monkeypatch):
+    store=make_store(tmp_path,request);store.initialize();app=create_app(store)
+    monkeypatch.setenv('ACCEPTANCE_READ_ONLY','1')
+    async def exercise():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
+            snapshot=await client.get('/api/v1/missions/public')
+            assert snapshot.status_code==200
+            result=await client.post('/api/v1/forks',json={'revision':snapshot.json()['revision']})
+            assert result.status_code==403 and 'read-only' in result.text
     asyncio.run(exercise())

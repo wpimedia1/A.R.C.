@@ -95,3 +95,49 @@ def test_start_attaches_already_downloaded_evidence(tmp_path, request):
     store.initialize()
     pins = store.snapshot('public')['state']['source_pins']
     assert pins['mola-arcadia'] == 'mola-arcadia:new' and 'hirise-site' not in pins
+def test_proxy_image_cannot_trigger_sam(monkeypatch):
+    import pytest
+    from mission import media,science
+    monkeypatch.setattr(media,'site_image',lambda *args:{'applies_to_site':False,'site_relation':'test-only proxy'})
+    def forbid_fetch(*args,**kwargs):raise AssertionError('No source download or inference may follow rejected coverage')
+    monkeypatch.setattr(science,'fetch',forbid_fetch)
+    with pytest.raises(media.MediaError,match='SAM was not dispatched'):
+        media.analyze_site(None)
+
+
+def test_paused_or_stopped_planning_cannot_schedule_sam():
+    from mission import media
+    from mission.engine import new_state
+    from types import SimpleNamespace
+    state=new_state('meta')
+    store=SimpleNamespace(snapshot=lambda mid:{'state':state},status=lambda key:None)
+    assert media.site_analysis_due(store)
+    state['status']='paused';assert not media.site_analysis_due(store)
+    state.update(status='active',inference_stopped=True);assert not media.site_analysis_due(store)
+
+
+def test_browse_crop_uses_actual_site_pixel_and_rejects_annotated_margins():
+    import io
+    import pytest
+    import numpy as np
+    from PIL import Image
+    from mission.media import browse_site_crop,MediaError
+    # Explicit pixel-ramp fixture, never mission imagery.
+    raw=io.BytesIO();Image.fromarray(np.tile(np.arange(100,dtype='uint8'),(200,1))).save(raw,format='PNG')
+    coverage=dict(source_samples=1000,source_lines=2000,source_sample=700,source_line=800,map_scale_m=1)
+    crop,receipt=browse_site_crop(raw.getvalue(),coverage,span_m=100)
+    assert receipt['site_browse_pixel']==pytest.approx([69.55,79.55])
+    assert receipt['span_m']==100
+    with Image.open(io.BytesIO(crop)) as im:assert 68<=im.getpixel((512,512))<=71
+    annotated=io.BytesIO();Image.new('L',(100,220)).save(annotated,format='PNG')
+    with pytest.raises(MediaError,match='annotated'):browse_site_crop(annotated.getvalue(),coverage,100)
+
+
+def test_browse_crop_does_not_pad_missing_site_coverage():
+    import io
+    import pytest
+    from PIL import Image
+    from mission.media import browse_site_crop,MediaError
+    raw=io.BytesIO();Image.new('L',(100,100)).save(raw,format='PNG')
+    coverage=dict(source_samples=1000,source_lines=1000,source_sample=1,source_line=1,map_scale_m=1)
+    with pytest.raises(MediaError,match='outside the pinned raster'):browse_site_crop(raw.getvalue(),coverage,100)

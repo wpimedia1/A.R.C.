@@ -21,17 +21,18 @@ export default function LiveMars({missionStatus}:{missionStatus:string}){
  const {data,error}=useLiveMars();
  if(error)return <section className="live-mars"><h2>Mars right now</h2><p role="alert">Live conditions unavailable: {error}</p></section>;
  if(!data)return <section className="live-mars"><h2>Mars right now</h2><p>Loading live conditions…</p></section>;
- const dsn=data.dsn;const up=(dsn?.links||[]).filter(l=>l.direction==='up');const down=(dsn?.links||[]).filter(l=>l.direction==='down');
+ const dsn=data.dsn;const stale=Boolean(dsn?.checked_at&&Date.now()/1000-dsn.checked_at>180);const up=(dsn?.links||[]).filter(l=>l.direction==='up');const down=(dsn?.links||[]).filter(l=>l.direction==='down');
  return <section className="live-mars">
   <div className="live-head"><div><span className="eyebrow">LIVE · UPDATES EVERY MINUTE{missionStatus!=='active'?' · MISSION PAUSED':''}</span><h2>Mars right now.</h2>
    <p>{missionStatus==='active'?'These conditions are applied to the mission at every step. The agents run onboard and never wait for Earth; DSN activity shows when Earth and Mars are actually in contact.':'The mission is paused, but Mars keeps moving. Everything below is recorded and applied when the mission resumes; the agents then replan.'}</p></div>
-   <span>{dsn&&!dsn.error&&dsn.checked_at?<><Tag kind="measured"/> DSN Now read</>:<b className="tag sim">DSN Now: unavailable</b>}</span></div>
+   <span>{dsn&&!dsn.error&&dsn.checked_at&&!stale?<><Tag kind="measured"/> DSN Now read</>:<b className="tag sim">DSN Now: unavailable</b>}</span></div>
   {data.error&&<p role="alert">Could not compute conditions: {data.error}</p>}
   {data.conditions_status?.error&&<p role="alert">Public mission halted: live conditions failed ({data.conditions_status.error})</p>}
   {data.now&&<Conditions c={data.now}/>}
   <div className="dsn-box"><h3>Deep Space Network, now</h3>
    {!dsn?<p>No DSN reading yet; the worker reads DSN Now every minute.</p>:dsn.error?<p role="alert">DSN Now unreachable since {when(dsn.failed_at)}: {dsn.error}. The outpost never waits for DSN; this only affects what Earth can see (D10).</p>:<>
-   <p>{up.length?`Uplink to Mars active: ${up.map(l=>`${l.station} ${l.dish} → ${l.spacecraft}${l.data_rate_bps?` (${fmt(l.data_rate_bps,0)} b/s)`:''}`).join(', ')}.`:'No uplink to Mars right now.'} {down.length?`Receiving from ${[...new Set(down.map(l=>l.spacecraft))].join(', ')}.`:''}</p>
+   {stale&&<p role="status">DSN reading is stale. Current contact is unknown; details below describe the archived reading.</p>}
+   <p>{stale?'Archived reading: ':''}{up.length?`${stale?'Uplink in that reading':'Uplink to Mars active'}: ${up.map(l=>`${l.station} ${l.dish} → ${l.spacecraft}${l.data_rate_bps?` (${fmt(l.data_rate_bps,0)} b/s)`:''}`).join(', ')}.`:stale?'No uplink in that reading.':'No uplink to Mars right now.'} {down.length?`Receiving from ${[...new Set(down.map(l=>l.spacecraft))].join(', ')}.`:''}</p>
    <small>Last uplink to Mars: {when(dsn.last_mars_uplink_at)} · read {when(dsn.checked_at)} · spacecraft at Mars identified by their DSN mission abbreviation (JPL DSN mission set: MRO, M01O, MVN, M20, MSL, TGO, MEX, EMM, MOM); the live feed currently publishes no ranges.</small>
    <details className="dsn-raw"><summary><Tag kind="measured"/> What the feed contained ({dsn.dishes_in_feed??'?'} dishes, {dsn.targets_seen?.length??'?'} targets) — check against <a href="https://eyes.nasa.gov/dsn/dsn.html" target="_blank" rel="noreferrer">NASA DSN Now</a></summary>
     <table><thead><tr><th>Station · dish</th><th>Target</th><th>Mission</th><th>Range (km)</th><th>At Mars?</th><th>Up</th><th>Down</th></tr></thead><tbody>{(dsn.targets_seen||[]).slice(0,14).map((t,i)=><tr key={i}><td>{t.station} {t.dish}</td><td>{t.target}</td><td>{t.mission||'—'}</td><td>{t.range_km===null?'not published':fmt(t.range_km,0)}</td><td>{t.at_mars?'yes':'no'}</td><td>{t.up_active?'active':'—'}</td><td>{t.down_active?'active':'—'}</td></tr>)}</tbody></table></details></>}

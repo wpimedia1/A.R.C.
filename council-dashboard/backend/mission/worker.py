@@ -40,7 +40,14 @@ def source_refresh(store,started):
         from .science import ingest
         scientific={}
         try:
-            scientific=ingest(store,adopt=False)
+            from .climate import ingest as ingest_climate
+            from .conditions import SITE, mars_clock
+            scientific['arcadia-climate']=ingest_climate(store,mars_clock(time.time())['ls_deg'],SITE['latitude'],SITE['longitude_east'])
+            store.status('site-climate',{'checked_at':time.time(),'status':'MCD site climatology retrieved','version':scientific['arcadia-climate']})
+        except Exception as exc:
+            store.status('site-climate',{'checked_at':time.time(),'status':'fetch failed; last valid version retained','error':f'{type(exc).__name__}: {exc}'[:400]})
+        try:
+            scientific.update(ingest(store,adopt=False))
             store.status('scientific-refresh',{'checked_at':time.time(),'status':'checked','versions':scientific})
         except Exception as exc:
             store.status('scientific-refresh',{'checked_at':time.time(),'status':'failed; last valid source versions retained','error':f'{type(exc).__name__}: {exc}'[:400]})

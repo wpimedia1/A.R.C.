@@ -1,0 +1,166 @@
+1
+00:00:00,400 --> 00:00:03,133
+An AI proposal is easy to write.
+
+2
+00:00:03,133 --> 00:00:06,648
+The harder question is whether it becomes accountable work.
+
+3
+00:00:06,648 --> 00:00:11,724
+This demonstration follows one recorded survey order
+through A.R.C., a mission-planning simulator using
+
+4
+00:00:11,724 --> 00:00:13,677
+Mars as its first environment.
+
+5
+00:00:15,400 --> 00:00:21,335
+This is read-only inspection of an accelerated software
+study, not a new mission
+
+6
+00:00:21,335 --> 00:00:24,987
+running now. The survey target is 175.15 metres.
+
+7
+00:00:24,987 --> 00:00:28,182
+Its source describes a published rover record.
+
+8
+00:00:28,182 --> 00:00:33,660
+The application preserves that citation and explicitly
+says: record, not typical performance.
+
+9
+00:00:35,400 --> 00:00:40,170
+Here, Muse Wonder requested an additional survey job using
+the create-job tool.
+
+10
+00:00:40,170 --> 00:00:45,337
+The stored receipt contains the model, public tool
+arguments and provider response identifier.
+
+11
+00:00:45,337 --> 00:00:50,504
+This is the director's concrete output, rather than a
+paragraph claiming that work
+
+12
+00:00:50,504 --> 00:00:50,901
+happened.
+
+13
+00:00:55,400 --> 00:01:00,834
+Muse Spark then submitted the work order, naming the job,
+rover and evidence
+
+14
+00:01:00,834 --> 00:01:06,268
+references. A separate assurance request approved it while
+acknowledging missing site obstacle analysis.
+
+15
+00:01:06,268 --> 00:01:11,285
+That condition remains visible. Approval here means
+permission inside this configured simulator.
+
+16
+00:01:11,285 --> 00:01:16,719
+It does not establish safe physical navigation, and the
+complete rover energy model
+
+17
+00:01:16,719 --> 00:01:17,555
+remains unvalidated.
+
+18
+00:01:25,400 --> 00:01:29,931
+The work-order record separates the proposal from the
+simulator result.
+
+19
+00:01:29,931 --> 00:01:35,821
+It records accepted validation, the input snapshot,
+calculation and completed outcome: 175.15 metres
+
+20
+00:01:35,821 --> 00:01:38,992
+at tick 1976. These are simulated metres.
+
+21
+00:01:38,992 --> 00:01:44,882
+Zero grid power means no draw from the outpost grid; it
+does not
+
+22
+00:01:44,882 --> 00:01:47,600
+mean the rover uses no energy.
+
+23
+00:01:50,400 --> 00:01:53,291
+Each accepted decision retains the source versions it
+cited.
+
+24
+00:01:53,291 --> 00:01:57,466
+I can move from the job into its input, calculation and
+result, then
+
+25
+00:01:57,466 --> 00:02:01,641
+into the decision trail. That lets a reviewer examine the
+basis of the
+
+26
+00:02:01,641 --> 00:02:04,532
+action instead of relying on the agent's summary alone.
+
+27
+00:02:15,400 --> 00:02:20,339
+This saved verification report records authenticated
+retrieval of 89 provider responses from the
+
+28
+00:02:20,339 --> 00:02:25,278
+study. For the survey submission, it records matching
+response identity, model, token usage
+
+29
+00:02:25,278 --> 00:02:29,457
+and public tool calls. This is evidence from the recorded
+run.
+
+30
+00:02:29,457 --> 00:02:34,396
+It is not a fresh API call or independent access to an
+account's
+
+31
+00:02:34,396 --> 00:02:35,156
+billing dashboard.
+
+32
+00:02:40,400 --> 00:02:45,141
+The demonstrated result is a traceable software workflow: a
+cited input, a Meta-generated
+
+33
+00:02:45,141 --> 00:02:48,423
+work order, explicit authorization and a recorded simulator
+outcome.
+
+34
+00:02:48,423 --> 00:02:51,341
+It gives a reviewer something concrete to inspect.
+
+35
+00:02:51,341 --> 00:02:56,082
+It does not establish that the site is safe or that an
+autonomous
+
+36
+00:02:56,082 --> 00:02:57,541
+colony is physically feasible.

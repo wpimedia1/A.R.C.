@@ -118,6 +118,11 @@ def validate_assessment(state, role, args):
 
 
 def remember(state, cycle, receipts):
+    if cycle.get('director'):
+        role_memory(state, 'director')['working'].append({
+            'cycle_id': cycle['id'], 'tick': state['tick'], 'sol': state['tick'] // 24,
+            'plan': deepcopy(cycle['director']),
+            'actions': deepcopy([r for r in receipts if r.get('role') == 'director'])})
     for assessment in cycle.get('assessments', []):
         role = assessment['role']
         entry = {'cycle_id': cycle['id'], 'tick': state['tick'], 'sol': state['tick'] // 24,

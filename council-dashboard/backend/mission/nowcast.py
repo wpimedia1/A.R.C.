@@ -84,7 +84,7 @@ def _key(o):
 
 def ingest(store, station, payload):
     """Append every sol not yet stored (or whose published values changed). Returns the new observation records."""
-    from .store import EnvironmentObservation
+    from .store import EnvironmentObservation, SourceVersion
     obs = parse_feed(payload, station)
     now = time.time()
     new = []
@@ -271,7 +271,7 @@ def brief(summary_out):
 def resolve_basis(store, refs):
     """Resolve an agent's evidence references against stored records. Each reference must name an existing measurement,
     estimate or check and a variable that record actually carries; the stored value and record hash are attached."""
-    from .store import EnvironmentObservation
+    from .store import EnvironmentObservation, SourceVersion
     from .engine import InvalidAction, BASIS_KINDS
     from .spec import digest
     from sqlalchemy.orm import Session
@@ -283,6 +283,17 @@ def resolve_basis(store, refs):
             if not isinstance(ref, dict) or set(ref) != {'observation_id', 'variable', 'interpretation'}:
                 raise InvalidAction('Each reference needs observation_id, variable and interpretation')
             row = db.get(EnvironmentObservation, str(ref['observation_id']))
+            if row is None:
+                source=db.get(SourceVersion,str(ref['observation_id']))
+                if source and source.record.get('classification')=='climate-model':
+                    rec=source.record
+                    var=rec.get('variables',{}).get(ref['variable'])
+                    if not var or not isinstance(ref['interpretation'],str) or not ref['interpretation'].strip():
+                        raise InvalidAction('Climate reference requires a stored variable and interpretation')
+                    out.append({'observation_id':source.id,'kind':'climate-model','station':'Arcadia MCD '+rec['model_version'],
+                                'variable':ref['variable'],'value':{'minimum':var['minimum'],'maximum':var['maximum'],'unit':var['unit']},
+                                'record_hash':digest(rec),'interpretation':ref['interpretation'][:400]})
+                    continue
             if row is None or row.kind not in BASIS_KINDS:
                 raise InvalidAction(f"Unknown observation {str(ref['observation_id'])[:80]}: not a stored measurement, estimate or check")
             rec, var = row.record, ref['variable']

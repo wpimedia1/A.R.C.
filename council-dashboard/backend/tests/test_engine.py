@@ -52,7 +52,7 @@ def test_resources_equal_physical_ledger_and_energy_matches_power():
     for r, value in s['resources'].items():
         assert value == pytest.approx(sum(e['amount'] for e in s['physical_ledger'] if e['resource'] == r))
     assert s['energy_used_kwh'] == pytest.approx(sum(e['energy_kwh'] for e in s['physical_ledger'] if e['energy_kwh'] is not None) + s.get('charging_energy_kwh', 0.0))
-    assert any(e['energy_kwh'] is None for e in s['physical_ledger'] if e['job_id'] == 'drill')
+    assert all(e['energy_kwh'] is not None for e in s['physical_ledger'] if e['job_id'] == 'drill')
     assert s['spent_usd'] == pytest.approx(sum(e['amount_usd'] for e in s['ledger'] if e['kind'] == 'operations'))
 
 
@@ -122,7 +122,7 @@ def test_agents_can_create_work_from_templates():
     s = new_state('meta')
     jid = instantiate_job(s, 'water-batch', 'director', 'More water needed.')
     j = job_by_id(s, jid)
-    assert j['status'] == 'pending' and j['dependencies'] == ['drill', 'power'] and jid in s['priority'] and jid not in s['spec']['readiness']['jobs']
+    assert j['status'] == 'pending' and j['dependencies'] == ['drill', 'power','well-establish'] and jid in s['priority'] and jid not in s['spec']['readiness']['jobs']
     with pytest.raises(InvalidAction):
         instantiate_job(s, 'no-such-template', 'director', 'x')
 
@@ -155,7 +155,7 @@ def test_standby_pauses_work_and_resumes():
     basis = [{'observation_id': 'msl:air_min_c:5001:after5000', 'kind': 'weather-estimate', 'station': 'msl', 'variable': 'air_min_c',
               'value': -82, 'record_hash': 'h', 'interpretation': 'Estimated night minimum below the recent range'}]
     set_standby(s, ['rover-1'], 3, 'Estimated night minimum below recent range', 'director', basis)
-    for _ in range(2):  # standby covers ticks t+1 and t+2
+    for _ in range(3):  # three requested ticks means three paused execution intervals
         s = advance(s)
         assert job_by_id(s, 'survey')['done'] == done and job_by_id(s, 'survey')['reason'].startswith('Standby')
     s = advance(s)
@@ -221,7 +221,7 @@ def test_charging_needs_commissioned_grid_power():
     s = new_state('meta')
     with pytest.raises(InvalidAction, match='not commissioned'):
         charge(s, ['excavator-1'], 'x', 'director / test')
-    with pytest.raises(InvalidAction, match='no battery'):
+    with pytest.raises(InvalidAction, match='onboard generator'):
         s.update(power_capacity_kw=40, power_commissioned=True)
         charge(s, ['rover-1'], 'x', 'director / test')
 
@@ -284,12 +284,13 @@ def test_unknown_drilling_power_is_not_zero():
     for jid in ('power', 'survey'):
         job_by_id(s, jid).update(status='complete', done=job_by_id(s, jid)['target'], progress=1.0)
     errors = reasons(s, job_by_id(s, 'drill'), ['rodwell-1'])
-    assert errors and 'not published' in errors[0]
+    assert errors and 'kW' in errors[0]
     s['power_capacity_kw'] = 40.0
     assert reasons(s, job_by_id(s, 'drill'), ['rodwell-1']) == []
     did = start(s, 'drill', ['rodwell-1'], 'drill', 'fixed-priority', [s['spec']['package_id']])
     d = next(x for x in s['decisions'] if x['id'] == did)
-    assert d['calculation']['power_kw'] is None and not d['calculation']['power_published'] and 'not physically validated' in d['validation']
+    assert d['calculation']['power_kw'] == s['spec']['parameters']['redwater.design_power_upper_kw']['value']
+    assert s['power_used_kw'] == d['calculation']['power_kw']
 
 
 def test_operations_continue_after_readiness():
@@ -298,6 +299,8 @@ def test_operations_continue_after_readiness():
     s = run(new_state('fixed-priority'), 24 * 200)
     assert s['milestones']['ready'] and s['status'] == 'active'
     jid = instantiate_job(s, 'water-batch', 'test', 'More water')
+    s = modify(s, {'production': {'water_feed_remaining_kg': job_by_id(s,jid)['target'],
+                                 'water_storage_capacity_kg': 2*job_by_id(s,jid)['target']}})
     for _ in range(24 * 200):
         if job_by_id(s, jid)['status'] == 'complete':
             break

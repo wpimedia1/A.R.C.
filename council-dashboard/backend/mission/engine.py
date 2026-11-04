@@ -9,8 +9,8 @@ class InvalidAction(ValueError):
     pass
 
 
-def new_state(mode='meta'):
-    spec = specification()
+def new_state(mode='meta', package_id='arcadia-mars-v1'):
+    spec = specification(package_id)
     s = {'tick': 0, 'sol': 0.0, 'status': 'active', 'mode': mode, 'spec': spec,
          'assets': deepcopy(spec['assets']),
          'jobs': [{**deepcopy(j), 'status': 'pending', 'done': 0.0, 'progress': 0.0, 'assigned': [], 'reason': '',
@@ -22,9 +22,16 @@ def new_state(mode='meta'):
          'milestones': {jid: False for jid in spec['readiness']['jobs']} | {'ready': False}, 'readiness_tick': None,
          'ledger': [], 'physical_ledger': [], 'decisions': [], 'activity': [], 'faults': [],
          'spent_usd': 0.0, 'capital_usd': 0.0, 'capital_unestimated': [],
-         'planning_needed': mode == 'meta', 'inference_stopped': False, 'environment': None, 'orders': [],
+         'planning_needed': mode == 'meta', 'memory_consolidation_due':False, 'inference_stopped': False, 'environment': None, 'orders': [],
          'reliability_seed': spec['package_hash'],
          'planning_status': 'Awaiting Meta mission plan' if mode == 'meta' else 'Fixed-priority benchmark'}
+    target = next((j['target'] for j in s['jobs'] if j['kind'] == 'water'), 0.0)
+    s['production'] = {'water_feed_remaining_kg': target, 'water_storage_capacity_kg': target,
+                       'water_stored_kg': 0.0, 'rate_multiplier': 1.0,
+                       'basis': 'Mission design allocation equal to the pinned water objective; not a measurement of local ice or installed tank hardware.'}
+    s['operating_spending_limit_usd'] = None
+    from .water import initialize
+    initialize(s)
     for c in spec['capital']:
         if c['amount_usd'] is None:
             s['capital_unestimated'].append(c['asset_id'])
@@ -55,7 +62,8 @@ def asset_by_id(s, aid):
 
 
 def busy_assets(s, exclude=None):
-    return {aid for j in s['jobs'] if j['status'] in ('running', 'review') and j['id'] != exclude for aid in j['assigned']}
+    from .procedures import locks
+    return {aid for j in s['jobs'] if j['status'] in ('running', 'review') and j['id'] != exclude for aid in j['assigned']} | locks(s, exclude)
 
 
 def reviewed_onboard(s, actor):
@@ -71,7 +79,7 @@ def battery(a):
 
 def step_energy_wh(s, a):
     """Battery energy one step of excavation needs: rate x step length x energy per kg (schuler2019, D18)."""
-    return a['rate_per_h'] * s['spec']['tick_hours'] * a['energy_wh_per_kg']
+    return a['rate_per_h'] * s['spec']['tick_hours'] * a.get('energy_wh_per_unit', a.get('energy_wh_per_kg', 0.0))
 
 
 def charge(s, asset_ids, reason, actor):
@@ -88,8 +96,16 @@ def charge(s, asset_ids, reason, actor):
         a = asset_by_id(s, aid)
         if not battery(a):
             raise InvalidAction(f'{aid} has no battery to charge')
+        if a.get('generator_w'):
+            raise InvalidAction(f'{aid} charges from its onboard generator, not the grid')
         if not a['available']:
             raise InvalidAction(f'{aid} is unavailable')
+        from .procedures import locks
+        if aid in locks(s):
+            raise InvalidAction(f'{aid} is reserved for a service procedure')
+        from .hazards import blockers
+        if blockers(s,a):
+            raise InvalidAction('; '.join(blockers(s,a)))
         if a.get('charging'):
             raise InvalidAction(f'{aid} is already charging')
         if a['soc_wh'] >= a['battery_wh'] - 1e-9:
@@ -147,8 +163,11 @@ def demand_kw(s, asset_ids, j=None):
 
 
 def reserved_kw(s, asset_ids, j=None):
-    """Power booked on the grid ledger. An unpublished draw books nothing and is reported as unvalidated, never as 0 kW."""
-    return demand_kw(s, asset_ids, j) or 0.0
+    """Only known demands can be reserved; missing engineering data cannot authorize work."""
+    value = demand_kw(s, asset_ids, j)
+    if value is None:
+        raise InvalidAction('Power requirement is unresolved; work cannot reserve power')
+    return value
 
 
 def reasons(s, j, asset_ids=None):
@@ -156,13 +175,19 @@ def reasons(s, j, asset_ids=None):
     if j['status'] not in ('pending', 'blocked'):
         return ['Job is ' + j['status']]
     out = []
+    from .water import blockers as water_blockers
+    out.extend(water_blockers(s,j))
+    if j['id']=='shielding' and s.get('unfulfilled_payloads'):
+        out.append('Habitat is still on its lander; complete configured offload before shielding')
     for d in j['dependencies']:
         if job_by_id(s, d)['status'] != 'complete':
             out.append('Waiting for ' + job_by_id(s, d)['title'].lower())
     asset_ids = asset_ids if asset_ids is not None else compatible_free(s, j)
+    from .procedures import validate_assignment
+    out.extend(validate_assignment(j, asset_ids))
     if not asset_ids:
         out.append('No compatible equipment is available')
-    busy = busy_assets(s)
+    busy = busy_assets(s, j['id'])
     for aid in asset_ids:
         try:
             a = asset_by_id(s, aid)
@@ -172,18 +197,23 @@ def reasons(s, j, asset_ids=None):
             out.append(f"{a['name']} cannot perform {j['kind']}")
         if not a['available']:
             out.append(f"{a['name']} is unavailable")
+        from .hazards import blockers
+        out.extend(a['name']+': '+reason for reason in blockers(s,a))
         if aid in busy:
             out.append(f"{a['name']} is assigned to other work")
     if len(set(asset_ids)) != len(asset_ids):
         out.append('Duplicate equipment assignment')
-    if j['id'] == 'survey' and j.get('route_blocked'):
-        out.append('No hazard-free route across the analysed site image: ' + j['route_blocked']['status'] + ' (D13)')
-    if not out and not power_known(j):
-        # Unknown draw: the job cannot be checked against capacity. It may run only on a commissioned grid with spare
-        # capacity, and its decision is recorded as not physically validated for power.
-        if not s['power_commissioned'] or s['power_capacity_kw'] - s['power_used_kw'] <= 1e-9:
-            out.append('Power draw is not published and no grid capacity is unallocated'
-                       + ('' if s['power_commissioned'] else ' (fission power not yet commissioned)'))
+    route_block=j.get('route_blocked') or (next((x.get('route_blocked') for x in s['jobs'] if x['id']=='survey'),None) if j['kind']=='survey' else None)
+    if route_block:
+        out.append('No hazard-free route across the analysed site image: ' + route_block['status'] + ' (D13)')
+    if j['kind'] == 'water' and s.get('production'):
+        p = s['production']
+        if p['water_feed_remaining_kg'] <= 0:
+            out.append('Allocated water feed exhausted; a sourced or explicit scenario allocation is required')
+        if p['water_stored_kg'] >= p['water_storage_capacity_kg']:
+            out.append('Water storage allocation is full')
+    if not power_known(j):
+        out.append('Power requirement unresolved: provide a cited engineering input before execution')
     elif not out and s['power_used_kw'] + demand_kw(s, asset_ids, j) > s['power_capacity_kw'] + 1e-9:
         out.append(f"Needs {demand_kw(s, asset_ids, j):.3g} kW; {s['power_capacity_kw'] - s['power_used_kw']:.3g} kW unallocated"
                    + ('' if s['power_commissioned'] else ' (fission power not yet commissioned)'))
@@ -192,7 +222,9 @@ def reasons(s, j, asset_ids=None):
 
 def compatible_free(s, j):
     busy = busy_assets(s)
-    return [a['id'] for a in s['assets'] if a['kind'] in j['asset_kinds'] and a['available'] and a['id'] not in busy]
+    requested = j.get('procedure', {}).get('service_ids')
+    return [a['id'] for a in s['assets'] if a['kind'] in j['asset_kinds'] and a['available'] and a['id'] not in busy
+            and (requested is None or a['id'] in requested)]
 
 
 def start(s, jid, asset_ids, rationale, actor, source_ids):
@@ -209,9 +241,14 @@ def start(s, jid, asset_ids, rationale, actor, source_ids):
          'source_versions': {k: s.get('source_pins', {}).get(k) for k in source_ids},
          'package_hash': s['spec']['package_hash'], 'parameters': j['parameters'],
          'input_snapshot': {'resources': deepcopy(s['resources']), 'power_used_kw': s['power_used_kw'],
-                            'power_capacity_kw': s['power_capacity_kw']},
+                            'power_capacity_kw': s['power_capacity_kw'],
+                            'procedure':deepcopy(j.get('procedure')), 'inventory':deepcopy(s.get('inventory',{})),
+                            'production':deepcopy(s.get('production')), 'equipment_conditions':deepcopy(s.get('equipment_conditions',{})),
+                            'well':deepcopy(s.get('well')),
+                            'equipment':[{k:a.get(k) for k in ('id','generation','soc_wh','battery_wh')} for a in s['assets'] if a['id'] in asset_ids]},
          'calculation': {'target': j['target'], 'unit': j['unit'], 'rate_per_tick': rate_per_tick(s, asset_ids, j),
-                         'power_kw': demand_kw(s, asset_ids, j), 'power_published': power_known(j)},
+                         'power_kw': demand_kw(s, asset_ids, j), 'power_published': power_known(j),
+                         'power_scope':j.get('power_scope','Job-specific demand')},
          'validation': 'accepted' if power_known(j) else 'accepted; power not physically validated (draw not published)',
          'outcome': None}
     s['decisions'].append(d)
@@ -223,25 +260,27 @@ def start(s, jid, asset_ids, rationale, actor, source_ids):
         d['authorization'] = j['authorization']
         event(s, j['title'] + ' authorized onboard', rationale, jid)
         return d['id']
-    j.update(status='running', assigned=list(asset_ids), reason='', decision_id=d['id'], run_since_tick=s['tick'], done_at_run=j['done'], night_steps_at_run=j.get('night_steps', 0), behind_flagged=False,
+    j.update(status='running', assigned=list(asset_ids), reason='', decision_id=d['id'], run_since_tick=s['tick'], done_at_run=j['done'], night_steps_at_run=j.get('night_steps', 0), planned_charging_at_run=j.get('planned_charging_steps',0.0), behind_flagged=False,
              started_tick=j['started_tick'] if j['started_tick'] is not None else s['tick'])
     event(s, j['title'] + ' started', rationale, jid)
     return d['id']
 
 
-SITE_JOBS = ('survey', 'trench', 'shielding', 'drill', 'water')
+SITE_JOBS = ('survey', 'trench', 'shielding', 'drill', 'well-establish', 'water')
 
 
 def open_conditions(s, j):
     """Facts the simulator knows are unresolved for this work order. Assurance must acknowledge each one to approve."""
     out = []
+    if j['kind'] in ('water','well-establishment') and s['spec'].get('water_model'):
+        out.append({'id':'conditional-well-model','text':'D21: one-control-interval reserve and effective-energy startup extrapolation are explicit uncalibrated design-study assumptions; local phase and ice yield are uninstrumented. Approval authorizes a conditional calculation, not physical readiness.'})
     units = [asset_by_id(s, a) for a in j['assigned']]
-    if any(battery(a) for a in units) and not s['power_commissioned']:
+    if any(battery(a) and not a.get('generator_w') for a in units) and not s['power_commissioned']:
         out.append({'id': 'no-grid-charging', 'text': 'Batteries cannot be recharged until fission power is commissioned'})
     low = [a['id'] for a in units if battery(a) and a['soc_wh'] < step_energy_wh(s, a)]
     if low:
         out.append({'id': 'battery-low', 'text': 'Battery too low for one step of work: ' + ', '.join(low)})
-    if j['id'] in SITE_JOBS:
+    if j['id'] in SITE_JOBS or j.get('template_id') in ('survey-extension','water-batch'):
         img = s.get('site_imagery')
         if not img:
             out.append({'id': 'no-site-imagery', 'text': 'No orbital hazard imagery of the mission site has been analysed'})
@@ -269,7 +308,7 @@ def assurance_decision(s, jid, approve, reason, actor, acknowledged=None):
     d['assurance'] = review
     if approve:
         j['authorization']['assurance'] = 'approved'
-        j.update(status='running', reason='', run_since_tick=s['tick'], done_at_run=j['done'], night_steps_at_run=j.get('night_steps', 0), behind_flagged=False,
+        j.update(status='running', reason='', run_since_tick=s['tick'], done_at_run=j['done'], night_steps_at_run=j.get('night_steps', 0), planned_charging_at_run=j.get('planned_charging_steps',0.0), behind_flagged=False,
                  started_tick=j['started_tick'] if j['started_tick'] is not None else s['tick'])
         event(s, j['title'] + ' passed onboard assurance and started', reason, jid)
     else:
@@ -285,6 +324,9 @@ def assurance_decision(s, jid, approve, reason, actor, acknowledged=None):
 def place_order(s, order):
     """D12: record a replacement unit in transit. Delivery makes the asset available at order['arrival_tick']."""
     asset = asset_by_id(s, order['asset_id'])
+    from .procedures import locks
+    if asset['id'] in locks(s):
+        raise InvalidAction('Target is reserved for service; a replacement cannot supersede the active procedure')
     if asset['available']:
         raise InvalidAction(f"{asset['name']} has not failed; no replacement needed")
     if any(o['asset_id'] == order['asset_id'] and o['status'] == 'in transit' for o in s['orders']):
@@ -330,18 +372,29 @@ def apply_environment(s, env):
 
 def rate_per_tick(s, asset_ids, j=None):
     if j is not None and j.get('rate_per_asset_h') is not None:
-        return j['rate_per_asset_h'] * len(asset_ids) * s['spec']['tick_hours']
-    return sum(asset_by_id(s, a)['rate_per_h'] for a in asset_ids) * s['spec']['tick_hours']
+        rate=j['rate_per_asset_h'] * len(asset_ids) * s['spec']['tick_hours']
+    else:rate=sum(asset_by_id(s, a)['rate_per_h'] for a in asset_ids) * s['spec']['tick_hours']
+    if j is not None and j['kind'] in ('water','well-establishment'):
+        rate*=s.get('production',{}).get('rate_multiplier',1.0)
+    return rate
 
 
 def release(s, j, status, reason=''):
-    s['power_used_kw'] = max(0.0, s['power_used_kw'] - reserved_kw(s, j['assigned'], j))
+    # Older states may contain an unreserved, unknown-power job. Release it without inventing a reservation.
+    demand = demand_kw(s, j['assigned'], j)
+    s['power_used_kw'] = max(0.0, s['power_used_kw'] - (demand if demand is not None else 0.0))
     j.update(status=status, reason=reason, assigned=[])
 
 
 def advance(state, env=None):
-    s = deepcopy(state)
+    # The pinned specification is immutable during a step. Sharing it avoids copying the entire source catalog per tick.
+    s = deepcopy(state, {id(state['spec']): state['spec']})
     if s['status'] != 'active':
+        return s
+    limit = s.get('operating_spending_limit_usd')
+    if limit is not None and s['spent_usd'] + s['spec']['ops_usd_per_tick'] > limit:
+        s['status'] = 'paused'
+        event(s, 'Operating allocation reached', 'Mission paused before the next operating expenditure. Change the experiment allocation to continue.')
         return s
     s['tick'] += 1
     if env is not None:
@@ -350,8 +403,17 @@ def advance(state, env=None):
     if s['mode'] == 'meta' and s['tick'] % 24 == 0 and any(m.get('working') if isinstance(m, dict) else m for m in s.get('agent_memory', {}).values()):
         # D20: a sol has ended; the agents consolidate their working memory into cited lessons at the next planning pass.
         event(s, 'Sol ended', f"Sol {s['tick'] // 24 - 1} complete; the agents consolidate its working memory into cited lessons (D20).")
-        s['planning_needed'] = not s['inference_stopped']
+        s['memory_consolidation_due'] = not s['inference_stopped']
     hours = s['spec']['tick_hours']
+    for a in s['assets']:
+        if battery(a) and a['available'] and a.get('generator_w'):
+            added = min(a['generator_w'] * hours, a['battery_wh'] - a['soc_wh'])
+            a['soc_wh'] += added
+            s['onboard_generated_wh'] = s.get('onboard_generated_wh', 0.0) + added
+    from .physics import advance as advance_physics
+    advance_physics(s, hours)
+    from .policies import execute as execute_policies
+    execute_policies(s)
     ops = s['spec']['ops_usd_per_tick']
     s['spent_usd'] += ops
     sol_index = (s['tick'] - 1) // 24
@@ -365,6 +427,11 @@ def advance(state, env=None):
     for j in [j for j in s['jobs'] if j['status'] == 'running']:
         for aid in j['assigned']:
             a = asset_by_id(s, aid)
+            if a.get('charging') or a.get('standby_until_tick',-1)>=s['tick']:
+                continue
+            if j['kind']=='survey':
+                elevation=sun_elevation_at(s,s['tick'])
+                if elevation is not None and elevation<=0:continue
             rate = a.get('failure_rate_per_h')
             if s.get('failures_enabled', True) and a['available'] and rate and draw(s.get('reliability_seed', s['spec']['package_hash']), s['tick'], aid) < -math.expm1(-rate * hours):
                 a['available'] = False
@@ -372,16 +439,19 @@ def advance(state, env=None):
                 event(s, a['name'] + ' failed', f"Random failure while working on {j['title'].lower()} (D14: rate {rate:.3g}/h, source stancliff2005).", j['id'])
     # Power loss or equipment failure holds work. Jobs (running or awaiting assurance) and chargers book power on the same
     # ledger (power_used_kw); while booked power exceeds supply, reservations are released until it fits.
-    for a in [a for a in s['assets'] if a.get('charging') and not a['available']]:
-        stop_charging(s, a, 'Unit unavailable.')
+    from .hazards import blockers
+    for a in [a for a in s['assets'] if a.get('charging') and (not a['available'] or blockers(s,a))]:
+        stop_charging(s, a, 'Unit unavailable.' if not a['available'] else '; '.join(blockers(s,a)))
     for j in sorted([j for j in s['jobs'] if j['status'] in ('running', 'review')], key=lambda j: s['priority'].index(j['id'])):
-        lost = [a for a in j['assigned'] if not asset_by_id(s, a)['available']]
-        if lost or s['power_used_kw'] > s['power_capacity_kw'] + 1e-9:
+        from .hazards import blockers
+        lost = [a for a in j['assigned'] if not asset_by_id(s, a)['available'] or blockers(s,asset_by_id(s,a))]
+        if lost or not power_known(j) or s['power_used_kw'] > s['power_capacity_kw'] + 1e-9:
             if j['status'] == 'review':
                 j.pop('authorization', None)
                 d = next((x for x in s['decisions'] if x['id'] == j['decision_id']), None)
                 if d: d['validation'] = 'withdrawn before assurance review: ' + ('equipment unavailable' if lost else 'power supply below booked demand')
-            release(s, j, 'blocked', 'Execution stopped: ' + ('equipment unavailable' if lost else 'power capacity below allocated demand'))
+            detail = '; '.join(f'{aid}: ' + ('equipment unavailable' if not asset_by_id(s,aid)['available'] else '; '.join(blockers(s,asset_by_id(s,aid)))) for aid in lost)
+            release(s, j, 'blocked', 'Execution stopped: ' + (detail if lost else 'power requirement unresolved' if not power_known(j) else 'power capacity below allocated demand'))
             event(s, j['title'] + ' stopped', j['reason'], j['id'])
             s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
     for a in [a for a in s['assets'] if a.get('charging')]:
@@ -399,10 +469,21 @@ def advance(state, env=None):
         if a['soc_wh'] >= a['battery_wh'] - 1e-9:
             a['soc_wh'] = a['battery_wh']
             stop_charging(s, a, 'Battery full.')
+            if a['id'] not in s.get('charging_policies',{}) or a['id'] not in busy_assets(s):
+                s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
     for j in s['jobs']:
         if j['status'] != 'running':
             continue
-        waiting = [a for a in j['assigned'] if asset_by_id(s, a).get('standby_until_tick', 0) > s['tick']]
+        from .procedures import execution_blockers
+        procedure_errors = execution_blockers(s, j)
+        from .water import blockers as water_blockers
+        procedure_errors.extend(water_blockers(s,j))
+        if procedure_errors:
+            release(s, j, 'blocked', '; '.join(procedure_errors))
+            event(s, j['title'] + ' stopped', j['reason'], j['id'])
+            s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
+            continue
+        waiting = [a for a in j['assigned'] if asset_by_id(s, a).get('standby_until_tick', -1) >= s['tick']]
         if waiting:
             j['reason'] = 'Standby until tick ' + str(max(asset_by_id(s, a)['standby_until_tick'] for a in waiting)) + ': ' + asset_by_id(s, waiting[0])['standby']['reason']
             continue
@@ -410,6 +491,7 @@ def advance(state, env=None):
             j['reason'] = ''
             event(s, j['title'] + ' resumed', 'Standby ended.', j['id'])
         units = [asset_by_id(s, a) for a in j['assigned']]
+        j['planned_charging_steps']=j.get('planned_charging_steps',0.0)+sum(a['id'] in s.get('charging_policies',{}) and (a.get('charging') or a['id'] in charged_now) for a in units)/len(units)
         # D19: the rover drives only in daylight (auto-navigation needs light; NASA). The published distance per sol is
         # kept: it is driven over that sol's daylight steps. Without a mission clock the rule cannot be evaluated.
         night = False
@@ -423,7 +505,7 @@ def advance(state, env=None):
                 continue
         if j['reason'].startswith('Night'):
             j['reason'] = ''
-        empty = [a for a in units if battery(a) and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]
+        empty = [a for a in units if battery(a) and not j.get('procedure') and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]
         for a in empty:
             if not a.get('low_flagged'):
                 a['low_flagged'] = True
@@ -442,14 +524,50 @@ def advance(state, env=None):
                 rate = rate * 24 / day  # a sol's distance over its daylight steps
                 j['day_rate_per_tick'] = rate
         amount = min(rate, j['target'] - j['done'])
-        for a in [a for a in working if battery(a)]:
-            a['soc_wh'] = max(0.0, a['soc_wh'] - amount / len(working) * a['energy_wh_per_kg'])
+        if j['kind']=='well-establishment':
+            from .water import condition
+            amount=min(rate,j['target']-j['done'])
+            if amount<=0:
+                release(s,j,'blocked','Well conditioning throughput is zero')
+                continue
+            condition(s,amount)
+        if j.get('procedure'):
+            from .procedures import bounded_hours
+            amount = bounded_hours(s, j, amount)
+        for a in [a for a in working if battery(a) and not j.get('procedure')]:
+            per_unit = a.get('energy_wh_per_unit', a.get('energy_wh_per_kg', 0.0))
+            if per_unit:
+                amount = min(amount, a['soc_wh'] * len(working) / per_unit)
+        if j['kind'] == 'water' and s.get('production'):
+            p = s['production']
+            amount = min(rate, j['target'] - j['done'],
+                         p['water_feed_remaining_kg'], max(0.0, p['water_storage_capacity_kg'] - p['water_stored_kg']))
+            if amount <= 0:
+                release(s, j, 'blocked', 'Water feed exhausted or storage full')
+                event(s, j['title'] + ' stopped', j['reason'], j['id'])
+                s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
+                continue
+            p['water_feed_remaining_kg'] -= amount
+            p['water_stored_kg'] += amount
+            if s.get('well'):s['well']['last_heat_tick']=s['tick']
+        for a in [a for a in working if battery(a) and not j.get('procedure')]:
+            a['soc_wh'] = max(0.0, a['soc_wh'] - amount / len(working) * a.get('energy_wh_per_unit', a.get('energy_wh_per_kg', 0.0)))
         if not power_known(j):
             energy = None
             s['energy_unestimated_hours'][j['id']] = s['energy_unestimated_hours'].get(j['id'], 0.0) + hours
         else:
             energy = demand_kw(s, j['assigned'], j) * hours
+            if j['kind'] in ('water','well-establishment'):
+                energy*=amount/rate
+        if j.get('procedure'):
+            from .procedures import stage_energy, apply_energy
+            energy, portions = stage_energy(j, amount)
+            apply_energy(s, j, energy)
+            j['procedure'].setdefault('execution', []).append({'tick': s['tick'], 'stages': portions, 'grid_energy_kwh': energy})
         j['done'] += amount
+        if j.get('procedure'):
+            from .procedures import update_kinematics
+            update_kinematics(s,j)
         j['progress'] = round(j['done'] / j['target'], 6)
         s['resources'][j['output']] += amount
         if energy is not None:
@@ -461,10 +579,18 @@ def advance(state, env=None):
         else:
             s['physical_ledger'].append({'tick': s['tick'], 'through_tick': s['tick'], 'sol_index': sol_index, 'ticks': 1, 'job_id': j['id'],
                                          'resource': j['output'], 'amount': amount, 'energy_kwh': energy, 'assets': list(j['assigned'])})
-        if j['done'] >= j['target'] - 1e-9:
-            j['done'] = j['target']; j['progress'] = 1.0; j['completed_tick'] = s['tick']
+        pack_full = j.get('procedure',{}).get('kind')=='battery-charge' and s['inventory'][j['procedure']['spare_id']]['soc_wh'] >= s['inventory'][j['procedure']['spare_id']]['capacity_wh']-1e-9
+        if j['done'] >= j['target'] - 1e-9 or pack_full:
+            if not pack_full:j['done'] = j['target']
+            j['progress'] = 1.0; j['completed_tick'] = s['tick']
             release(s, j, 'complete')
+            if j.get('procedure'):
+                from .procedures import complete
+                complete(s, j)
             s['milestones'][j['id']] = True
+            if j['kind']=='well-establishment':
+                from .water import complete as complete_well
+                complete_well(s,j)
             if 'grid_capacity_kw' in j.get('effect', {}):
                 s['power_capacity_kw'] = j['effect']['grid_capacity_kw']
                 s['power_commissioned'] = True
@@ -472,7 +598,9 @@ def advance(state, env=None):
             for d in s['decisions']:
                 if d['job_id'] == j['id'] and d['outcome'] is None:
                     d['outcome'] = {'completed_tick': s['tick'], 'resources': deepcopy(s['resources'])}
-            event(s, j['title'] + ' completed', f"{j['target']:.6g} {j['unit']} recorded by the simulator.", j['id'])
+                    if j['kind'] in ('water','well-establishment'):
+                        d['outcome'].update(well=deepcopy(s.get('well')),production=deepcopy(s.get('production')))
+            event(s, j['title'] + ' completed', f"{j['done']:.6g} {j['unit']} recorded by the simulator.", j['id'])
             s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
     # Plan vs actual: more than one step of work behind the authorized rate (for any reason: standby, batteries,
     # charging) asks the agents to replan, once per authorization.
@@ -480,7 +608,7 @@ def advance(state, env=None):
         d = next((x for x in s['decisions'] if x['id'] == j.get('decision_id')), None)
         if d:
             # Planned night pauses (D19) are not shortfalls.
-            expected = d['calculation']['rate_per_tick'] * (s['tick'] - j['run_since_tick'] - j.get('night_steps', 0) + j.get('night_steps_at_run', 0))
+            expected = d['calculation']['rate_per_tick'] * (s['tick'] - j['run_since_tick'] - j.get('night_steps', 0) + j.get('night_steps_at_run', 0) - j.get('planned_charging_steps',0.0) + j.get('planned_charging_at_run',0.0))
             actual = j['done'] - j.get('done_at_run', 0.0)
             if expected - actual > d['calculation']['rate_per_tick'] + 1e-9:
                 j['behind_flagged'] = True
@@ -489,18 +617,24 @@ def advance(state, env=None):
     for o in s.get('orders', []):
         if o['status'] == 'in transit' and s['tick'] >= o['arrival_tick']:
             o['status'] = 'delivered'
-            asset_by_id(s, o['asset_id'])['available'] = True
+            old = asset_by_id(s, o['asset_id'])
+            replacement = deepcopy(next(a for a in s['spec']['assets'] if a['id'] == o['asset_id']))
+            replacement['generation'] = old.get('generation', 0) + 1
+            replacement['delivered_by'] = o['id']
+            replacement['available'] = True
+            old.clear()
+            old.update(replacement)
             s['faults'].append({'tick': s['tick'], 'kind': 'equipment', 'asset_id': o['asset_id'], 'available': True, 'order': o['id']})
             event(s, 'Replacement delivered: ' + o['asset_name'], f"Order {o['id']} arrived ({o['arrival_utc'].split('T')[0]}).")
             s['planning_needed'] = s['mode'] == 'meta' and not s['inference_stopped']
-    if all(s['milestones'][k] for k in s['spec']['readiness']['jobs']) and not s['milestones']['ready']:
+    if not s.get('unfulfilled_payloads') and all(s['milestones'][k] for k in s['spec']['readiness']['jobs'] + s.get('additional_readiness_jobs', [])) and not s['milestones']['ready']:
         s['milestones']['ready'] = True
         s['readiness_tick'] = s['tick']
         # Readiness is a milestone, not the end of operations: added work, charging and failures continue afterwards.
         event(s, 'Readiness criteria met', s['spec']['readiness']['description'] + ' Operations continue. Simulation result, not engineering certification.')
     if s['mode'] == 'fixed-priority' and s['status'] == 'active':
         # The benchmark charges any battery that cannot supply the next step, when grid power allows.
-        for a in [a for a in s['assets'] if battery(a) and a['available'] and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]:
+        for a in [a for a in s['assets'] if battery(a) and not a.get('generator_w') and a['available'] and not a.get('charging') and a['soc_wh'] < step_energy_wh(s, a) - 1e-9]:
             try:charge(s, [a['id']], 'Battery below one step of work.', 'fixed-priority')
             except InvalidAction:pass
         for jid in s['priority']:
@@ -517,6 +651,9 @@ def advance(state, env=None):
         for j in s['jobs']:
             if j['status'] in ('pending', 'blocked'):
                 j['reason'] = '; '.join(reasons(s, j)) or 'Awaiting an agent work order'
+    from .water import check_continuity,assert_conservation
+    check_continuity(s)
+    assert_conservation(s)
     assert all(v >= -1e-9 for v in s['resources'].values())
     assert s['power_used_kw'] <= s['power_capacity_kw'] + 1e-9
     return s
@@ -525,8 +662,56 @@ def advance(state, env=None):
 def modify(state, changes):
     """Experiment changes. Each one is recorded; none changes the environment package."""
     s = deepcopy(state)
-    if set(changes) - {'priority', 'equipment', 'power_capacity_kw', 'planner'}:
-        raise InvalidAction('Unsupported change: ' + ', '.join(sorted(set(changes) - {'priority', 'equipment', 'power_capacity_kw', 'planner'})))
+    supported = {'priority', 'equipment', 'power_capacity_kw', 'planner', 'production', 'operating_spending_limit_usd', 'equipment_conditions', 'procedures', 'procedure_order', 'equipment_physics', 'component_faults'}
+    if set(changes) - supported:
+        raise InvalidAction('Unsupported change: ' + ', '.join(sorted(set(changes) - supported)))
+    if 'component_faults' in changes:
+        faults=changes['component_faults']
+        if not isinstance(faults,dict):raise InvalidAction('Component faults require an asset mapping')
+        for aid,fault in faults.items():
+            a=asset_by_id(s,aid)
+            if not isinstance(fault,dict) or set(fault)!={'component','basis','approved'} or fault['approved'] is not True or not isinstance(fault['component'],str) or not fault['component'].strip() or not isinstance(fault['basis'],str) or not fault['basis'].strip():
+                raise InvalidAction('A component-fault experiment needs an explicit component, basis and approval')
+            a.update(available=False,failed_component=fault['component'])
+            s['faults'].append({'tick':s['tick'],'kind':'component-fault-experiment','asset_id':aid,**fault,'classification':'operator-injected scenario, not telemetry'})
+    if 'procedures' in changes:
+        from .procedures import configure
+        configure(s, changes['procedures'])
+    if 'procedure_order' in changes:
+        from .procedures import create
+        order = changes['procedure_order']
+        if not isinstance(order, dict) or set(order) != {'profile_id', 'service_ids', 'spare_id', 'summary'}:
+            raise InvalidAction('Procedure order requires profile_id, service_ids, spare_id and summary')
+        create(s, **order, actor='experiment owner')
+    if 'equipment_physics' in changes:
+        from .physics import configure
+        configure(s, changes['equipment_physics'])
+    if 'equipment_conditions' in changes:
+        from .hazards import configure
+        configure(s,changes['equipment_conditions'])
+    if 'production' in changes:
+        values = changes['production']
+        allowed = {'water_feed_remaining_kg', 'water_storage_capacity_kg', 'rate_multiplier'}
+        if not isinstance(values, dict) or set(values) - allowed:
+            raise InvalidAction('Unsupported production setting')
+        for key, value in values.items():
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
+                raise InvalidAction('Production settings must be finite nonnegative numbers')
+            if key == 'rate_multiplier' and value > 1:
+                raise InvalidAction('Production can be derated from the published operating point; exceeding it needs a new specification')
+            if key == 'water_storage_capacity_kg' and value < s['production']['water_stored_kg']:
+                raise InvalidAction('Storage capacity cannot be below already stored water')
+            if key=='water_feed_remaining_kg' and s.get('well'):
+                s['production']['initial_feed_allocation_kg']+=float(value)-s['production'][key]
+            s['production'][key] = float(value)
+        s['production']['basis'] = 'Visitor-configured scenario allocation; not a new Mars observation'
+        from .water import require_establishment
+        require_establishment(s)
+    if 'operating_spending_limit_usd' in changes:
+        value = changes['operating_spending_limit_usd']
+        if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < s['spent_usd']):
+            raise InvalidAction('Operating allocation must be finite and cover expenditure already recorded')
+        s['operating_spending_limit_usd'] = value
     if 'priority' in changes:
         p = changes['priority']
         if not isinstance(p, list) or sorted(p) != sorted(s['priority']):
@@ -568,8 +753,21 @@ def sim_unix(s):
     return env['clock']['unix'] + (s['tick'] - env.get('applied_tick', s['tick'])) * s['spec']['tick_seconds']
 
 
+def effective_clock(s):
+    """Calculated mission time; never relabel the pinned environmental snapshot as a new observation."""
+    unix=sim_unix(s)
+    if unix is None or s['spec'].get('environment')!='mars':return None
+    from .conditions import mars_clock
+    clock=mars_clock(unix)
+    threshold=s['spec']['parameters'].get('mars.dusty_season_start_ls_deg')
+    if threshold:clock['dusty_season']=clock['ls_deg']>=threshold['value']
+    return clock
+
+
 def failed_without_order(s):
-    return [a['id'] for a in s['assets'] if not a['available']
+    from .procedures import locks
+    servicing = locks(s)
+    return [a['id'] for a in s['assets'] if not a['available'] and a['id'] not in servicing
             and not any(o['asset_id'] == a['id'] and o['status'] == 'in transit' for o in s.get('orders', []))]
 
 
@@ -590,11 +788,14 @@ def instantiate_job(s, template_id, actor, summary):
     s['priority'].append(jid)
     s['resources'][output] = 0.0
     s['milestones'][jid] = False
+    if job['kind']=='water':
+        from .water import require_establishment
+        require_establishment(s)
     event(s, 'New work created: ' + job['title'], summary + ' (' + actor + ')', jid)
     return jid
 
 
-BASIS_KINDS = ('weather-obs', 'weather-estimate', 'weather-check')
+BASIS_KINDS = ('weather-obs', 'weather-estimate', 'weather-check', 'climate-model')
 BASIS_KEYS = {'observation_id', 'kind', 'station', 'variable', 'value', 'record_hash', 'interpretation'}
 
 

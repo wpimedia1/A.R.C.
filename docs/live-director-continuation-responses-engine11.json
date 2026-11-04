@@ -1,0 +1,204 @@
+{
+  "checked_at": 1793813821.1673198,
+  "method": "Authenticated GET of existing Meta response IDs only; no inference request",
+  "key_fingerprint": "sha256:7aba5621ec50695c",
+  "credential_source": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\council-dashboard\\backend\\.env",
+  "stored_records": 7,
+  "attempted": 7,
+  "verified": 7,
+  "not_verified": 0,
+  "results": [
+    {
+      "record_id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:assessment:assurance",
+      "stored_response_id": "resp_6aeb6b5e1581d4f390ef47f3",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "84f571ba-e731-41b4-8a19-9ca4fc44223f",
+      "response_sha256": "67d9d3727796b1f05405e078c7e28173803154f489ecf031d91e03e75b99bc1d",
+      "provider_response_id": "resp_6aeb6b5e1581d4f390ef47f3",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 14811,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1506,
+        "output_tokens_details": {
+          "reasoning_tokens": 1187
+        },
+        "total_tokens": 16317
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:director",
+      "stored_response_id": "resp_6aeb6b7368426238b81b4f89",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "cc51be70-08a2-43ad-9c6a-4140b853f355",
+      "response_sha256": "1f29c3f4e87a7f94492c330c79c124566161334ee49d0ab2ee8372b82b739b9a",
+      "provider_response_id": "resp_6aeb6b7368426238b81b4f89",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 16222,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2764,
+        "output_tokens_details": {
+          "reasoning_tokens": 2522
+        },
+        "total_tokens": 18986
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:director:plan-after-tools",
+      "stored_response_id": "resp_6aeb6b77aa01f5f5803c4232",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "15330ef2-1800-433f-816e-7b2583c82f65",
+      "response_sha256": "9d7c26faa8c5f4b175466a93321b5c7644b44c4b0c02fb45be99fa00a5cdc39b",
+      "provider_response_id": "resp_6aeb6b77aa01f5f5803c4232",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 13945,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 304,
+        "output_tokens_details": {
+          "reasoning_tokens": 146
+        },
+        "total_tokens": 14249
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:survey-extension-2:0",
+      "stored_response_id": "resp_6aeb6b7e91a0e053525e4003",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "73cd34ba-65f1-45e7-8a7f-09c155cce5e6",
+      "response_sha256": "a8b89a03c337b51613a8d5539986d3681ff67e6fcc9aeb29b8692687625b5979",
+      "provider_response_id": "resp_6aeb6b7e91a0e053525e4003",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 15279,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 757,
+        "output_tokens_details": {
+          "reasoning_tokens": 676
+        },
+        "total_tokens": 16036
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:survey-extension-2:1",
+      "stored_response_id": "resp_6aeb6b8520e4b6148621410d",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "19b38516-6fc4-4229-9afd-3d7c0a775719",
+      "response_sha256": "43e036f0aff9bd2d0f6e28ad79bc7dc56b710ea8a9b6c764d9deed8e6f5f716b",
+      "provider_response_id": "resp_6aeb6b8520e4b6148621410d",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 15436,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 697,
+        "output_tokens_details": {
+          "reasoning_tokens": 592
+        },
+        "total_tokens": 16133
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:survey-extension-2:2",
+      "stored_response_id": "resp_6aeb6b901d1a6cf84ae348e9",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "dbe697cb-d88f-48fc-aab8-3cabefc406e4",
+      "response_sha256": "ebb32459c5d021cb8b165a6a885130a8df9458243d125197fe2e00534d201b4a",
+      "provider_response_id": "resp_6aeb6b901d1a6cf84ae348e9",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 15521,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1237,
+        "output_tokens_details": {
+          "reasoning_tokens": 1038
+        },
+        "total_tokens": 16758
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:assurance-review",
+      "stored_response_id": "resp_6aeb6ba90697e1d710704433",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "77827189-4d0c-49bc-a7c7-d5912fb4c556",
+      "response_sha256": "0d0835e4f27cf2f429dc5e99cd963fe8bd6726ff187cc928e40f75a7dfcd8d83",
+      "provider_response_id": "resp_6aeb6ba90697e1d710704433",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 15117,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2991,
+        "output_tokens_details": {
+          "reasoning_tokens": 2768
+        },
+        "total_tokens": 18108
+      },
+      "public_tool_calls_match": true
+    }
+  ],
+  "excluded_records": [],
+  "previous_checks": [],
+  "scope": "Historical identity/model/usage/public-tool-output comparison, not current-code planning acceptance or physical validity. A failed retrieval alone cannot establish fabrication."
+}

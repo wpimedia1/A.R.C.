@@ -1,0 +1,5 @@
+Three-minute proof-of-capability walkthrough of one recorded survey work order in A.R.C., a mission-planning simulator using Mars as its first environment. Shows a cited input, Wonder/Spark tool calls, explicit assurance conditions, simulator result and saved provider-response correlation.
+
+This is read-only inspection of a recorded accelerated software study, not live inference or real robot control. The 175.15 m target uses a published rover record. Local obstacle clearance and complete rover energy modeling remain unvalidated. No colonization-feasibility, physical-readiness or production-readiness claim is made.
+
+Evidence: mission `public`, revision 2021, tick 1976; decision D8; `live-mission-acceptance-engine11-final.json`; `live-responses-engine11.json`. Earlier MetroDesk deliberation/evidence patterns and existing Mars Council foundations are prior work; consult the contribution record for inherited versus new implementation. Attribution does not imply NASA or Meta endorsement.

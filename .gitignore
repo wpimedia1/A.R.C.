@@ -19,6 +19,7 @@
 **/node_modules.previous/
 **/package-lock.previous.json
 **/.test-runs/
+sources/web/
 
 .playwright-cli/
 output/

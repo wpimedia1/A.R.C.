@@ -156,6 +156,35 @@ def site_pixel(label, lat, lon_east):
     return line - 1, sample - 1
 
 
+def browse_site_crop(raw, coverage, span_m=1600):
+    """Georeferenced display window from an unannotated, full-RDR browse raster.
+
+    No tiling, patch filling or surface-height inference. Reject annotated rasters
+    whose dimensions do not match the PDS map grid. Display span is a view choice.
+    """
+    import io
+    from PIL import Image
+    with Image.open(io.BytesIO(raw)) as picture:
+        image=picture.convert('L');w,h=image.size
+        samples,lines=coverage['source_samples'],coverage['source_lines']
+        if abs(h-lines*w/samples)>1:
+            raise MediaError('Browse dimensions do not match the PDS grid; annotated images cannot be mapped as terrain')
+        scale=coverage['map_scale_m']
+        sx,sy=samples*scale/w,lines*scale/h
+        x=(coverage['source_sample']+.5)*w/samples-.5
+        y=(coverage['source_line']+.5)*h/lines-.5
+        box=(x-span_m/2/sx,y-span_m/2/sy,x+span_m/2/sx,y+span_m/2/sy)
+        if box[0]<0 or box[1]<0 or box[2]>w or box[3]>h:
+            raise MediaError('Site display window extends outside the pinned raster; no missing ground is filled')
+        result=image.transform((1024,1024),Image.Transform.EXTENT,box,resample=Image.Resampling.BILINEAR)
+        out=io.BytesIO();result.save(out,format='JPEG',quality=90)
+        transform={'version':'hirise-site-browse-window-2','source_size_px':[w,h],'crop_box_browse_px':list(box),
+                   'site_browse_pixel':[x,y],'span_m':span_m,'source_browse_m_per_px':[sx,sy],
+                   'display_size_px':[1024,1024],'resampling':'bilinear display resampling; no added physical resolution',
+                   'use':'Flat orbital image; source clipped/null pixels retained, not filled. No DEM or certified traversability.'}
+        return out.getvalue(),transform
+
+
 def fetch_file(url, path, transport=None):
     """Download a large file to disk once (streamed), then reuse it. Fails loud on any HTTP or size mismatch."""
     from pathlib import Path
@@ -250,6 +279,8 @@ def analyze_site(store, mid='public', transport=None):
     from .conditions import SITE
     from .package import load
     img = site_image(SITE['latitude'], SITE['longitude_east'], load()['values']['mars.mean_radius_km'], transport)
+    if not img.get('applies_to_site'):
+        raise MediaError('No verified site-covering image; SAM was not dispatched. '+img.get('site_relation','Coverage unknown'))
     label_raw, retrieved = fetch(img['label'], 2_000_000)
     label = label_raw.decode('ascii', errors='replace')
     full_samples = _label_value(label, 'LINE_SAMPLES')
@@ -338,7 +369,7 @@ def apply_site_analysis(s, img, record, vid):
 
 def site_analysis_due(store, mid='public'):
     s = store.snapshot(mid)['state']
-    if s['mode'] != 'meta' or s.get('site_imagery'):
+    if s['mode'] != 'meta' or s['status'] != 'active' or s.get('inference_stopped') or s.get('site_imagery'):
         return False
     # D13: orbital site characterization runs at genesis, before surface work.
     st = store.status('site-analysis')

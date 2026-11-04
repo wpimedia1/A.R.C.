@@ -1,0 +1,375 @@
+{
+ "id": "moon-south-pole-v1",
+ "environment": "moon",
+ "status": "Sourced construction study; no claim of field-qualified human colonization",
+ "sources": {
+  "rassor2016": {
+   "title": "Design of an Excavation Robot: Regolith Advanced Surface Systems Operations Robot (RASSOR) 2.0",
+   "authors": "Mueller, R. P.; Smith, J. D.; Schuler, J. M.; et al.",
+   "year": 2016,
+   "venue": "ASCE Earth & Space Conference (NTRS 20210011366)",
+   "url": "https://ntrs.nasa.gov/citations/20210011366",
+   "local_file": "sources/ASCE 2016 RASSOR 2 Final  6_8_2016.pdf"
+  },
+  "fsp2024": {
+   "title": "Fission Surface Power project (IAC 2024 manuscript)",
+   "authors": "NASA",
+   "year": 2024,
+   "venue": "IAC 2024 (NTRS 20240011694)",
+   "url": "https://ntrs.nasa.gov/api/citations/20240011694/downloads/IAC%202024%20Manuscript_FSP%20FINAL.pdf",
+   "local_file": "sources/IAC 2024 Manuscript_FSP FINAL.pdf"
+  },
+  "tp3079": {
+   "title": "Radiation Protection for Human Missions to the Moon and Mars (NASA TP-3079)",
+   "authors": "Simonsen, L. C.; Nealy, J. E.",
+   "year": 1991,
+   "url": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/WOTM/NASA_TP_3079.pdf"
+  },
+  "howard2023": {
+   "title": "Options for Offloading a 90-Ton Common Habitat from its Lander on the Surface of Mars",
+   "authors": "Howard, R. L.; Howe, A. S.; Kivijarv, J.; Yao, J.",
+   "year": 2023,
+   "venue": "AIAA ASCEND 2023",
+   "url": "https://ntrs.nasa.gov/api/citations/20220010430/downloads/Offloading%20a%2090-Ton%20Hab%20from%20its%20Lander%20on%20Mars.pdf",
+   "local_file": "sources/Offloading a 90-Ton Hab from its Lander on Mars.pdf"
+  },
+  "oleson2022": {
+   "title": "40 kW Fission Surface Power System (FSPS) Deployability",
+   "authors": "Oleson, S.; Turnbull, E.; Colozza, A.; et al.",
+   "year": 2022,
+   "venue": "NASA/TM-20220012395",
+   "url": "https://ntrs.nasa.gov/citations/20220012395",
+   "local_file": "sources/TM-20220012395.pdf"
+  },
+  "stancliff2005": {
+   "title": "Towards a Predictive Model of Mobile Robot Reliability",
+   "authors": "Stancliff, S.; Dolan, J.; Trebi-Ollennu, A. (CMU Robotics Institute / JPL)",
+   "year": 2005,
+   "venue": "CMU-RI-TR-05-38",
+   "url": "https://publications.ri.cmu.edu/storage/publications/pub_files/pub4/stancliff_stephen_b_2005_3/stancliff_stephen_b_2005_3.pdf"
+  },
+  "schuler2019": {
+   "title": "RASSOR, the reduced gravity excavator",
+   "authors": "Schuler, J. M.; Smith, J. D.; Mueller, R. P.; Nick, A. J.",
+   "year": 2019,
+   "venue": "Lunar ISRU 2019: Developing a New Space Economy (LPI contribution 5061)",
+   "url": "https://www.hou.usra.edu/meetings/lunarisru2019/pdf/5061.pdf"
+  }
+ },
+ "parameters": {
+  "power.fsp_output_kwe": {
+   "classification": "published",
+   "value": 40,
+   "unit": "kWe",
+   "source": "fsp2024",
+   "locator": "p.1",
+   "quote": "output power of 40kWe, designed for a 10-year life without the need for maintenance",
+   "retrieved": "2026-10-30",
+   "note": "Design is a lunar demonstration; NASA links it to the Mars surface power objective. Applied here as the reference Mars power unit."
+  },
+  "power.fsp_mass_max_kg": {
+   "classification": "published",
+   "value": 6000,
+   "unit": "kg",
+   "source": "fsp2024",
+   "locator": "p.1",
+   "quote": "The mass goal is under 6,000 kg (6 metric tons)",
+   "retrieved": "2026-10-30",
+   "note": "Mass goal, not as-built mass."
+  },
+  "excavator.mass_kg": {
+   "classification": "published",
+   "value": 66,
+   "unit": "kg",
+   "source": "rassor2016",
+   "locator": "abstract",
+   "quote": "RASSOR 2.0 is a planetary excavator, which has a mass of 66 kg",
+   "retrieved": "2026-10-30"
+  },
+  "excavator.min_rate_kg_per_day": {
+   "classification": "published",
+   "value": 2700,
+   "unit": "kg/day",
+   "source": "rassor2016",
+   "locator": "abstract",
+   "quote": "A single RASSOR 2.0 can excavate a minimum of 2.7 metric tons of regolith per day",
+   "retrieved": "2026-10-30",
+   "note": "Day = 24 h period of 16 h mining and 8 h recharging (same paper, p.3). Engine uses the 24 h average."
+  },
+  "habitat.diameter_m": {
+   "classification": "published",
+   "value": 8.4,
+   "unit": "m",
+   "source": "howard2023",
+   "locator": "p.2",
+   "quote": "The Common Habitat is 8.4 meters in diameter and 15.6 meters long",
+   "retrieved": "2026-10-30"
+  },
+  "habitat.length_m": {
+   "classification": "published",
+   "value": 15.6,
+   "unit": "m",
+   "source": "howard2023",
+   "locator": "p.2",
+   "quote": "The Common Habitat is 8.4 meters in diameter and 15.6 meters long",
+   "retrieved": "2026-10-30"
+  },
+  "habitat.trench_depth_m": {
+   "classification": "published",
+   "value": 1.58,
+   "unit": "m",
+   "source": "howard2023",
+   "locator": "p.11",
+   "quote": "placed in a trench roughly 1.58 meters deep",
+   "retrieved": "2026-10-30"
+  },
+  "regolith.density_g_cm3": {
+   "classification": "published",
+   "value": 1.5,
+   "unit": "g/cm3",
+   "source": "tp3079",
+   "locator": "p.21",
+   "quote": "if assuming a regolith density of 1.5 g/cm3",
+   "retrieved": "2026-10-30",
+   "range": {
+    "minimum": 1.0,
+    "maximum": 1.8,
+    "note": "Table 2, p.9"
+   }
+  },
+  "habitat.trench_mass_kg": {
+   "classification": "derived",
+   "unit": "kg",
+   "formula": "habitat.trench_depth_m*habitat.diameter_m*habitat.length_m*regolith.density_g_cm3*1000",
+   "inputs": [
+    "habitat.trench_depth_m",
+    "habitat.diameter_m",
+    "habitat.length_m",
+    "regolith.density_g_cm3"
+   ],
+   "note": "Rectangular trench one diameter wide."
+  },
+  "fsp.deploy.offload_days": {
+   "classification": "published",
+   "value": 2,
+   "unit": "day",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Landing and Offloading from Lander (powered by lander) 2 days 2 kW provided by lander",
+   "retrieved": "2026-10-31"
+  },
+  "fsp.deploy.transport_days": {
+   "classification": "published",
+   "value": 1,
+   "unit": "day",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Load/Transport/Deploy Power Gen at FSPS Site (powered by rover) 1 day",
+   "retrieved": "2026-10-31"
+  },
+  "fsp.deploy.startup_h": {
+   "classification": "published",
+   "value": 8,
+   "unit": "h",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Reactor Startup 8 h",
+   "retrieved": "2026-10-31"
+  },
+  "fsp.deploy.commissioning_h": {
+   "classification": "published",
+   "value": 24,
+   "unit": "h",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Reactor Commissioning 24 h",
+   "retrieved": "2026-10-31"
+  },
+  "fsp.deploy.cable_days": {
+   "classification": "published",
+   "value": 2,
+   "unit": "day",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "1 km Cable Deployment 2 days",
+   "retrieved": "2026-10-31"
+  },
+  "fsp.deploy.ctrl_pallet_h": {
+   "classification": "published",
+   "value": 8,
+   "unit": "h",
+   "source": "oleson2022",
+   "locator": "power mode timeline table (PDF p.29)",
+   "quote": "Ctrl Box Pallet Setup Ctrl Box Deploy- ment Reactor Startup Reactor Comm- issioning 1 km Cable Deployment Nominal Ops FSPS Idle Ops Duration 150 days 2 days 1 day 8 h 2 h 8 h 24 h 2 days",
+   "retrieved": "2026-10-31",
+   "note": "Durations in column order: transit 150 d, offload 2 d, site setup 1 d, ctrl box pallet setup 8 h, ctrl box deployment 2 h, startup 8 h, commissioning 24 h, cable 2 d."
+  },
+  "fsp.deploy.ctrl_box_h": {
+   "classification": "published",
+   "value": 2,
+   "unit": "h",
+   "source": "oleson2022",
+   "locator": "power mode timeline table (PDF p.29)",
+   "quote": "Ctrl Box Pallet Setup Ctrl Box Deploy- ment Reactor Startup Reactor Comm- issioning 1 km Cable Deployment Nominal Ops FSPS Idle Ops Duration 150 days 2 days 1 day 8 h 2 h 8 h 24 h 2 days",
+   "retrieved": "2026-10-31"
+  },
+  "fsp.deploy_total_h": {
+   "classification": "derived",
+   "unit": "h",
+   "formula": "(fsp.deploy.offload_days+fsp.deploy.transport_days+fsp.deploy.cable_days)*24+fsp.deploy.ctrl_pallet_h+fsp.deploy.ctrl_box_h+fsp.deploy.startup_h+fsp.deploy.commissioning_h",
+   "inputs": [
+    "fsp.deploy.offload_days",
+    "fsp.deploy.transport_days",
+    "fsp.deploy.cable_days",
+    "fsp.deploy.ctrl_pallet_h",
+    "fsp.deploy.ctrl_box_h",
+    "fsp.deploy.startup_h",
+    "fsp.deploy.commissioning_h"
+   ],
+   "note": "Lunar CONOPS for the 40 kW FSPS applied to Mars; Earth hours. Transit excluded."
+  },
+  "reliability.power_failures_per_h": {
+   "classification": "published",
+   "value": 0.000238,
+   "unit": "1/h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Power module, Overall",
+   "quote": "Overall 2.38E-004",
+   "retrieved": "2026-10-31"
+  },
+  "reliability.attitude_failures_per_h": {
+   "classification": "published",
+   "value": 3.39e-05,
+   "unit": "1/h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Attitude Sensing module, Overall",
+   "quote": "Overall 3.39E-005",
+   "retrieved": "2026-10-31"
+  },
+  "reliability.avionics_failures_per_h": {
+   "classification": "published",
+   "value": 0.00013,
+   "unit": "1/h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Avionics module, Overall",
+   "quote": "Overall 1.30E-004",
+   "retrieved": "2026-10-31"
+  },
+  "reliability.communication_failures_per_h": {
+   "classification": "published",
+   "value": 8.42e-05,
+   "unit": "1/h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Communication module, Overall",
+   "quote": "Overall 8.42E-005",
+   "retrieved": "2026-10-31"
+  },
+  "reliability.mobility_failures_per_h": {
+   "classification": "published",
+   "value": 5.07e-05,
+   "unit": "1/h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Mobility module, Overall",
+   "quote": "Overall 5.07E-005",
+   "retrieved": "2026-10-31"
+  },
+  "reliability.arm_failures_per_h": {
+   "classification": "published",
+   "value": 7.25e-05,
+   "unit": "1/h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Arm module, Overall",
+   "quote": "Overall 7.25E-005",
+   "retrieved": "2026-10-31"
+  },
+  "reliability.mast_failures_per_h": {
+   "classification": "published",
+   "value": 4.58e-05,
+   "unit": "1/h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Mast module, Overall",
+   "quote": "Overall 4.58E-005",
+   "retrieved": "2026-10-31"
+  },
+  "reliability.mobile_robot_failures_per_h": {
+   "classification": "derived",
+   "unit": "1/h",
+   "formula": "reliability.power_failures_per_h+reliability.attitude_failures_per_h+reliability.avionics_failures_per_h+reliability.communication_failures_per_h+reliability.mobility_failures_per_h+reliability.arm_failures_per_h+reliability.mast_failures_per_h",
+   "inputs": [
+    "reliability.power_failures_per_h",
+    "reliability.attitude_failures_per_h",
+    "reliability.avionics_failures_per_h",
+    "reliability.communication_failures_per_h",
+    "reliability.mobility_failures_per_h",
+    "reliability.arm_failures_per_h",
+    "reliability.mast_failures_per_h"
+   ],
+   "note": "Series system: the robot fails when any module fails (sum of module failure rates, Stancliff et al. eq. 7)."
+  },
+  "excavator.battery_wh": {
+   "classification": "published",
+   "value": 1410,
+   "unit": "Wh",
+   "source": "schuler2019",
+   "locator": "Table 1",
+   "quote": "Battery capacity 1410 Whr",
+   "retrieved": "2026-11-02"
+  },
+  "excavator.energy_wh_per_kg": {
+   "classification": "published",
+   "value": 0.761,
+   "unit": "Wh/kg",
+   "source": "schuler2019",
+   "locator": "Table 1",
+   "quote": "Energy/Delivered Regolith 0.761 Whr/kg",
+   "retrieved": "2026-11-02"
+  },
+  "excavator.mining_h_per_day": {
+   "classification": "published",
+   "value": 16,
+   "unit": "h",
+   "source": "rassor2016",
+   "locator": "p.3",
+   "quote": "Each 24 hour period will consist of 16 hours of mining operations and eight hours of recharging.",
+   "retrieved": "2026-11-02"
+  },
+  "excavator.recharge_h_per_day": {
+   "classification": "published",
+   "value": 8,
+   "unit": "h",
+   "source": "rassor2016",
+   "locator": "p.3",
+   "quote": "Each 24 hour period will consist of 16 hours of mining operations and eight hours of recharging.",
+   "retrieved": "2026-11-02"
+  },
+  "excavator.mining_rate_kg_h": {
+   "classification": "derived",
+   "unit": "kg/h",
+   "formula": "excavator.min_rate_kg_per_day/excavator.mining_h_per_day",
+   "inputs": [
+    "excavator.min_rate_kg_per_day",
+    "excavator.mining_h_per_day"
+   ],
+   "note": "Daily excavation delivered during the 16 mining hours."
+  },
+  "excavator.charge_kw": {
+   "classification": "derived",
+   "unit": "kW",
+   "formula": "excavator.min_rate_kg_per_day*excavator.energy_wh_per_kg/excavator.recharge_h_per_day/1000",
+   "inputs": [
+    "excavator.min_rate_kg_per_day",
+    "excavator.energy_wh_per_kg",
+    "excavator.recharge_h_per_day"
+   ],
+   "note": "Average charging power that returns one day of excavation energy within the 8 recharge hours."
+  }
+ },
+ "conflicts": {},
+ "operator_decisions": {
+  "construction_scope": {
+   "choice": "Lunar habitat-footprint excavation study",
+   "reason": "Owner authorized reasonable engineering construction studies on 2026-11-03. Financial estimates excluded; displayed time is Earth hours. No Mars weather, water or logistics is transplanted.",
+   "approved": true
+  }
+ }
+}

@@ -1,0 +1,576 @@
+{
+  "scope": "Deterministic fixed-priority fault experiments; not live Meta validation or evidence of planning superiority.",
+  "package_hash": "8d2cba815edf28cfbfa5d4aedbcc153d9a2fea36ef5d2a932a763f24b1e2ff4e",
+  "starting_tick": 159,
+  "clock_epoch_unix": 1793664000.0,
+  "cases": {
+    "nominal": {
+      "method": "fixed-priority seeded simulation ensemble; no model calls",
+      "input_hash": "d8577885ccee80193b858ed9a940bbf97a5e3a47450beb060ba8903593fbfc13",
+      "faults": [],
+      "horizon_ticks": 1200,
+      "results": [
+        {
+          "seed": "1",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10372.619731751782,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 211187.2120312529,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "1d2fafffe71dc2d5ef229d86ae52052defde8f6e521142b94dd9d89b08d68ad9",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "2",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10379.217164771313,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 218816.30671875304,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "57eb1fa573f2ef32bf49e3b0fb9ea153017ca99a32768629f028ec91a87c4330",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "3",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10424.34360662492,
+          "operations_usd": 22434224.890829626,
+          "failures": 0,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 277421.6250000042,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "27e3ed0e23c5c55c8fd48177d19dd43e00fc032d73d991dee81a9d71199c6248",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "4",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10319.840267595524,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 142005.19429687716,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "68daa871a765ff9259692c5b7d1ecf55f120fc03b7930ea59ee0b641f5f00be5",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "5",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10319.840267595524,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 141658.41726562715,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "0f133a124b166bc461386322a60a41182d69b59e814f691cb8b6032b049f9503",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        }
+      ],
+      "readiness_fraction": 0.0,
+      "mean_readiness_tick": null,
+      "mean_energy_kwh": 10363.172207667812
+    },
+    "power-loss": {
+      "method": "fixed-priority seeded simulation ensemble; no model calls",
+      "input_hash": "d8577885ccee80193b858ed9a940bbf97a5e3a47450beb060ba8903593fbfc13",
+      "faults": [
+        {
+          "after_ticks": 0,
+          "changes": {
+            "power_capacity_kw": 0
+          }
+        },
+        {
+          "after_ticks": 6,
+          "changes": {
+            "power_capacity_kw": 40.0
+          }
+        }
+      ],
+      "horizon_ticks": 1200,
+      "results": [
+        {
+          "seed": "1",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10372.619731751782,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 211187.2120312529,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "e9952fe1db47c018f3c7039649d6646267270b5bbe5e5f5d068736852ada2ff8",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "2",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10379.217164771313,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 218816.30671875304,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "92ef5437286c3b95566a7a27ee2cb3c0e3c5d9b659ed70b6ea14b71bb4bb51d6",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "3",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10424.34360662492,
+          "operations_usd": 22434224.890829626,
+          "failures": 0,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 277421.6250000042,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "36a89cc5bafccde875c765b4c4b733c932b0710e96f8f93be5a46aeec434a0e3",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "4",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10319.840267595524,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 142005.19429687716,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "0e15e43afbf76854d8c4b95bb6c6e717f2bb16a6de29cf40e488801fec47aa25",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "5",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10319.840267595524,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 141658.41726562715,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "a9fdfec239049ab587aa4efc4b84c1a16956df8656d91aa6a1352567c9d167dc",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        }
+      ],
+      "readiness_fraction": 0.0,
+      "mean_readiness_tick": null,
+      "mean_energy_kwh": 10363.172207667812
+    },
+    "delayed-excavation": {
+      "method": "fixed-priority seeded simulation ensemble; no model calls",
+      "input_hash": "d8577885ccee80193b858ed9a940bbf97a5e3a47450beb060ba8903593fbfc13",
+      "faults": [
+        {
+          "after_ticks": 0,
+          "changes": {
+            "equipment": {
+              "excavator-1": false,
+              "excavator-2": false
+            }
+          }
+        },
+        {
+          "after_ticks": 6,
+          "changes": {
+            "equipment": {
+              "excavator-1": true,
+              "excavator-2": true
+            }
+          }
+        }
+      ],
+      "horizon_ticks": 1200,
+      "results": [
+        {
+          "seed": "1",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10371.564142468656,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 209453.32687500285,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "02daa5e8d921df97f5e16fae703f7b23ac1212c4b641b72d46c28f15caebb773",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "2",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10421.704633417108,
+          "operations_usd": 22434224.890829626,
+          "failures": 0,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 276728.0709375042,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "d5128df9530f98f14ea208cd9eb86065066f0dbff09afca23830097757d2edc6",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "3",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10421.704633417108,
+          "operations_usd": 22434224.890829626,
+          "failures": 0,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 276728.0709375042,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "304734da55ce5404d2da53ba6b16f45099f2443cbe8fac85548132d1928aeeca",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "4",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10318.784678312399,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 140271.30914062713,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "ab6fc5c00af27524cd08ebe678b17f64c13294880650edf3f7f292f62bc6e30a",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "5",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10318.784678312399,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 139924.53210937712,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "c4175d8aa79c024a164cc5ed525b1b2e06ac81324862e139647f4908030852b3",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        }
+      ],
+      "readiness_fraction": 0.0,
+      "mean_readiness_tick": null,
+      "mean_energy_kwh": 10370.508553185535
+    },
+    "equipment-failure": {
+      "method": "fixed-priority seeded simulation ensemble; no model calls",
+      "input_hash": "d8577885ccee80193b858ed9a940bbf97a5e3a47450beb060ba8903593fbfc13",
+      "faults": [
+        {
+          "after_ticks": 0,
+          "changes": {
+            "equipment": {
+              "excavator-1": false
+            }
+          }
+        }
+      ],
+      "horizon_ticks": 1200,
+      "results": [
+        {
+          "seed": "1",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10318.520780991617,
+          "operations_usd": 22434224.890829626,
+          "failures": 0,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 138710.8125000021,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "4f7dd92433301b6660683c66ba82217fd2d0a5812954c9d6cea1b83ec7949f32",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "2",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10273.922133779573,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 79932.10570312593,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "3af0ca7d385b926eaed8baf3557b007723d49732da4f5ba85c72bf7e5031755c",
+          "blocked": {
+            "trench": "No compatible equipment is available",
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "3",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10318.520780991617,
+          "operations_usd": 22434224.890829626,
+          "failures": 0,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 138710.8125000021,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "a6c2a9fdbeecd27e1192cab58a31149db8dca2e279fd76d3290debdd7f1b0ad5",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "4",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10214.545236603784,
+          "operations_usd": 22434224.890829626,
+          "failures": 1,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 3120.9932812499997,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "f8ac3210af303b8d2c1a1b8571ffd8686b42f0fcc223fc59ec87b5e2509b1fb6",
+          "blocked": {
+            "trench": "No compatible equipment is available",
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        },
+        {
+          "seed": "5",
+          "ready": false,
+          "readiness_tick": null,
+          "elapsed_ticks": 1200,
+          "energy_kwh": 10318.520780991617,
+          "operations_usd": 22434224.890829626,
+          "failures": 0,
+          "resources": {
+            "power_commissioning_h": 162.0,
+            "drilled_m": 20.0,
+            "survey_m": 175.15,
+            "trench_kg": 138710.8125000021,
+            "shield_kg": 0.0,
+            "water_kg": 15701.0
+          },
+          "constraint_violations": [],
+          "inference_calls": 0,
+          "inference_usd": 0,
+          "state_hash": "a310315c5d4d4b4b9527feee1b16d9db572bb04c9f1f1c690e103788cf57b944",
+          "blocked": {
+            "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available"
+          }
+        }
+      ],
+      "readiness_fraction": 0.0,
+      "mean_readiness_tick": null,
+      "mean_energy_kwh": 10288.805942671643
+    }
+  },
+  "checked_at": 1793768158.3785012
+}

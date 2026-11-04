@@ -23,6 +23,9 @@ def approved_package(tmp_path, monkeypatch):
     target = tmp_path / 'packages'
     target.mkdir()
     (target / 'arcadia-mars-v1.json').write_text(json.dumps(pkg), encoding='utf-8')
+    for source in REAL_PACKAGES.glob('*.json'):
+        if source.name != 'arcadia-mars-v1.json':
+            (target / source.name).write_bytes(source.read_bytes())
     monkeypatch.setattr(package, 'PACKAGES', target)
     monkeypatch.setenv('MISSION_MODEL_MODE', 'fixed-priority')
     return target

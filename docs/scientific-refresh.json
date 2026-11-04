@@ -1,0 +1,54 @@
+{
+  "versions": {
+    "msl-weather": "msl-weather:62581c8183e0c56d",
+    "sicsa-outpost": "sicsa-outpost:f1ca3cc76810763a",
+    "nasa-dra": "nasa-dra:592bda3d069562f5",
+    "nasa-m2m": "nasa-m2m:71c1209404c7c93a",
+    "rems": "rems:e6e93ff6e5ccce88",
+    "swim": "swim:760202f154dcb2a6",
+    "swim-radar": "swim-radar:a3b62165bea033f3",
+    "mola-arcadia": "mola-arcadia:371bd6b8622af3fc"
+  },
+  "statuses": {
+    "msl-weather": {
+      "checked_at": 1793751399.8243961,
+      "status": "retrieved",
+      "version_id": "msl-weather:62581c8183e0c56d"
+    },
+    "sicsa-outpost": {
+      "checked_at": 1793751401.4785268,
+      "status": "retrieved",
+      "version_id": "sicsa-outpost:f1ca3cc76810763a"
+    },
+    "nasa-dra": {
+      "checked_at": 1793751409.1613214,
+      "status": "retrieved",
+      "version_id": "nasa-dra:592bda3d069562f5"
+    },
+    "nasa-m2m": {
+      "checked_at": 1793751443.4669585,
+      "status": "retrieved",
+      "version_id": "nasa-m2m:71c1209404c7c93a"
+    },
+    "rems": {
+      "checked_at": 1793751459.1224725,
+      "status": "retrieved",
+      "version_id": "rems:e6e93ff6e5ccce88"
+    },
+    "swim": {
+      "checked_at": 1793751463.250114,
+      "status": "retrieved",
+      "version_id": "swim:760202f154dcb2a6"
+    },
+    "swim-radar": {
+      "checked_at": 1793751466.3720117,
+      "status": "retrieved",
+      "version_id": "swim-radar:a3b62165bea033f3"
+    },
+    "mola-arcadia": {
+      "checked_at": 1793751518.3091595,
+      "status": "retrieved",
+      "version_id": "mola-arcadia:371bd6b8622af3fc"
+    }
+  }
+}

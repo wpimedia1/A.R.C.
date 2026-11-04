@@ -28,6 +28,7 @@ export default function MissionJourney({s,snap,data,select,navigate,mid}:{s:Stat
  const decision=s.decisions.find(d=>d.id===job.decision_id);
  const params=job.parameters.map(n=>({n,p:s.spec.parameters[n]}));
  return <div className="mission-journey">
+  <section className="mission-summary" aria-label="Mission briefing"><div><span className="eyebrow">MISSION SIMULATOR · THE OBJECTIVE · {s.jobs.filter(j=>j.status==='complete').length} / {s.jobs.length} WORK ORDERS COMPLETE</span><h1>Prepare an outpost before people arrive.</h1><p>{s.spec.readiness.description}</p><button className="text-link" onClick={()=>navigate('Evidence')}>Inspect the mission evidence <ArrowRight/></button></div><div className="briefing-facts"><p><strong>{s.status==='active'?'Authorized work':'Mission paused · authorized work'}</strong>{running.length?running.map(j=>j.title).join(' · '):'No running work orders'}</p><p><strong>What needs to happen next</strong>{s.jobs.find(j=>j.reason&&j.status!=='complete')?.reason||job.basis}</p><p><strong>Latest recorded decision</strong>{s.decisions.at(-1)?.summary||'No work has been authorized yet.'}</p></div></section>
   <MissionScene snap={snap} mid={mid}/>
   <section className="activity-feed" aria-label="Latest activity"><h2>What just happened</h2>
    <ol>{s.activity.slice(-10).reverse().map(a=><li key={a.id}><time>{solOf(a.tick)}</time><div><strong>{a.title}</strong><p>{a.detail}</p></div></li>)}</ol>

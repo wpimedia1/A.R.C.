@@ -65,7 +65,7 @@ def test_tiered_memory_consolidates_finished_sols_into_cited_lessons():
     s['planning_needed'] = False
     for _ in range(24):
         s = advance(s)
-    assert s['planning_needed'] and any(e['title'] == 'Sol ended' for e in s['activity'])
+    assert s['memory_consolidation_due'] and not s['planning_needed'] and any(e['title'] == 'Sol ended' for e in s['activity'])
     assert [e['cycle_id'] for e in due_for_consolidation(s, 'survey')] == ['c1']
     assert consolidation_input(s, 'survey')['finished_sols'] == [0]
     for bad in ({'lessons': [{'text': 'x', 'cites': []}]}, {'lessons': [{'text': 'x', 'cites': ['no-such-id']}]},

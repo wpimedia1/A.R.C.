@@ -1,0 +1,385 @@
+{
+  "checked_at": 1793810349.8843236,
+  "scope": "Engine 11 water-establishment integration in progress; engine-10 evidence preserved separately",
+  "git_head": "31e0e42ed4e4de1d8517e2e811320fdd974c6cad",
+  "changes_committed": false,
+  "windows_regression": {
+    "status": "pending final engine-11 rerun; earlier results are not current-code proof"
+  },
+  "docker_postgresql_regression": {
+    "status": "pending engine-11 image build"
+  },
+  "runtime_source_tree_matches_workspace": false,
+  "runtime_source_sha256": {
+    "agents.py": "bcc7464cf5d1b57ec0b0edf7d2d5346e6a68033e08cb4e54c6d75260f849d635",
+    "api.py": "6ba9e10275c9b83e29b8fb9b6cc705faea998d6dc17be823ef7c97f9162eaa06",
+    "cli.py": "782c05077602ac97e1e61e05cac47fafdae95943d3a2c1ad32882e415459c790",
+    "climate.py": "b8abc530c4a6b04d1ab23250a58aef591593d2cd8a50b1be76e619582fcd4420",
+    "conditions.py": "f5c2f27717e87d6feb520bfc7d163c6ed19922bddd90a679f037f23c646883e5",
+    "engine.py": "e1477f4513e41d3bf5f98ef1b3144b3491373565d393043875ace62b9ffe0a84",
+    "environments.py": "fa90b60401ddd13e6e8e3dfccb0a3c9e963799849cf3a5605e267171aa25ed5a",
+    "evaluation.py": "8295f6956e21d9c7e795e405e6d19e0e1358c942ef10ed4960514b9e3b2e5d55",
+    "evidence.py": "c8c2da753f706310fa934688f196ae33abccaf3f4f16a7c6a3733bbac9549308",
+    "hazards.py": "987cc56400e8ffc982bc9c05380064a8f756a27271891506aec0ecf34067ac46",
+    "inspection.py": "4ca0bf54ca1b21663e6d3e5f80ff7a4779ac3870bc1b09bf0a7a72d5173ac7c7",
+    "logistics.py": "27fde9c75d9769b35f35fcdeb0e6c5babcd8b7cb1bea7a6bef0052e1c1efe954",
+    "media.py": "9156832242558a1e01568025d4e8e2c803abbc18a96b4d96904857ea3837ff32",
+    "nowcast.py": "c5115e33989a1b42ba335957a2a87bb6fa4132f855caa3d6c56f295fa0d5f1aa",
+    "package.py": "f806c9ee91b3b5769cb0ef9b23f7c813a9459aea342da216e90053fd4fa98cb5",
+    "physics-references.json": "a1768d4246d15d0af1bab1dd51b8a9f6e350d52065a5a4e2b4eb7dbc18fbb506",
+    "physics.py": "7170183d37315ed2a47caea938832514ff6e0f46e24da13502761fc551a91e02",
+    "planner.py": "4a62b93eaab5bb65273b48c67e33a054f7aaf502d8ac3ccaa2e04fb51f189e1c",
+    "policies.py": "3d34d36a2e02d56f3acfe0ac22cbbc209a2c8fa04d72447faa914c99aa1dc0c5",
+    "procedures.py": "84a3593072f24ef7bebbb5d0c08821a74f2bac30854d4f6e3ece138922327da7",
+    "provider.py": "338a09c7d5945b4487500696585a6167c6f76ed2fbc542994a87114e13a395ee",
+    "region.py": "b703fddfb06cdeb48bdab2303ff8a21959c500190d094c02f0dece8a9cc9171c",
+    "robustness.py": "5603d1d7f1474645be333e019fba852e328db42cad2b55f1140023b2933665b3",
+    "route.py": "ba39f83fbbb12aa799a750b17edbd7c0fb92cc1eb95d208c4cb5702da51c381e",
+    "schedule.py": "e8b7d33acf9d3615d9537958aa82c27909e5e40b6687fcb28b3b162ab92a89a1",
+    "science.py": "6aa9a129fa27b06f727f3b095ae14cb9e7caebb36b8e967cb900e3f49dba6c4e",
+    "spec.py": "8074b9ddc02fa1088dafa9a510e5a21dfdd352c7ab0e4233b4e448e25ea83736",
+    "store.py": "ff09f67cbf3ef4b45816c40b1fbf9115cbf825652d166d760f9357985413e0df",
+    "telemetry.py": "5af3b7b3567143c80f891685c9fec60e95bbcc92a79c8d53835e4bca9ca8267e",
+    "terrain.py": "0a182f4f30b8859240086e1c13ba06dbc8558afc0f4b419939c1c31ffb7bb98a",
+    "verify_sources.py": "5babe8d6fd4a78bfb5f2310e7d5d9dfddb84ba42f0087a4f6af74ffd778c6eae",
+    "worker.py": "cb62f14392c4444444af3a158a2a86c4eb6f9c43b5186dd818d9cac5438037e3",
+    "__init__.py": "670bfd5d9cf660aca0498adaf088570fb7fbdcc823acf251b9822fc359e52781",
+    "packages/arcadia-mars-v1.json": "8d2cba815edf28cfbfa5d4aedbcc153d9a2fea36ef5d2a932a763f24b1e2ff4e",
+    "packages/earth-regolith-lab-v1.json": "39da562612a69560879a4ae07e907fd8a6549ae6d98a1db7e472daa658697fb2",
+    "packages/moon-south-pole-v1.json": "d3c386e68adab24dae39fa173bcb96438a9a3fcdf1cc14e3b5586e81dde69d6a"
+  },
+  "images": [
+    {
+      "tags": [
+        "meta_hackathon-api:latest"
+      ],
+      "id": "sha256:050e271f53e1d5892afe6ce787002ad8e98c7b10a630de92b8449abd0d720379",
+      "created": "2026-11-04T05:09:32.397014909Z"
+    },
+    {
+      "tags": [
+        "meta_hackathon-worker:latest"
+      ],
+      "id": "sha256:7d63dfaad63d15f2d866cecc866f6dadcd651a901d82baae97032228366d1133",
+      "created": "2026-11-04T05:09:32.397014909Z"
+    },
+    {
+      "tags": [
+        "meta_hackathon-tests:latest"
+      ],
+      "id": "sha256:b48b352a7bc22aa1c176a642633314c7c15dbdd26d4ddce8c3b631adb944732f",
+      "created": "2026-11-04T05:09:45.308645232Z"
+    }
+  ],
+  "source_quotes": {
+    "package_hash": "8d2cba815edf28cfbfa5d4aedbcc153d9a2fea36ef5d2a932a763f24b1e2ff4e",
+    "verified": 59,
+    "failed": 0,
+    "unchecked": 0,
+    "extraction_errors": [
+      {
+        "file": "sources\\web\\dust_gds_2021.pdf",
+        "pdf_page": 4,
+        "error": "LimitReachedError",
+        "message": "Reached maximum number of tokens per stream."
+      },
+      {
+        "file": "sources\\web\\dust_gds_2021.pdf",
+        "pdf_page": 5,
+        "error": "LimitReachedError",
+        "message": "Reached maximum number of tokens per stream."
+      },
+      {
+        "file": "sources\\web\\dust_gds_2021.pdf",
+        "pdf_page": 7,
+        "error": "LimitReachedError",
+        "message": "Reached maximum number of tokens per stream."
+      }
+    ],
+    "scope": "Checks quoted text only; does not certify interpretation, numeric transcription, engineering applicability or unextracted pages."
+  },
+  "scientific_refresh": {
+    "versions": {
+      "msl-weather": "msl-weather:62581c8183e0c56d",
+      "sicsa-outpost": "sicsa-outpost:f1ca3cc76810763a",
+      "nasa-dra": "nasa-dra:592bda3d069562f5",
+      "nasa-m2m": "nasa-m2m:71c1209404c7c93a",
+      "rems": "rems:e6e93ff6e5ccce88",
+      "swim": "swim:760202f154dcb2a6",
+      "swim-radar": "swim-radar:a3b62165bea033f3",
+      "mola-arcadia": "mola-arcadia:371bd6b8622af3fc"
+    },
+    "statuses": {
+      "msl-weather": {
+        "checked_at": 1793751399.8243961,
+        "status": "retrieved",
+        "version_id": "msl-weather:62581c8183e0c56d"
+      },
+      "sicsa-outpost": {
+        "checked_at": 1793751401.4785268,
+        "status": "retrieved",
+        "version_id": "sicsa-outpost:f1ca3cc76810763a"
+      },
+      "nasa-dra": {
+        "checked_at": 1793751409.1613214,
+        "status": "retrieved",
+        "version_id": "nasa-dra:592bda3d069562f5"
+      },
+      "nasa-m2m": {
+        "checked_at": 1793751443.4669585,
+        "status": "retrieved",
+        "version_id": "nasa-m2m:71c1209404c7c93a"
+      },
+      "rems": {
+        "checked_at": 1793751459.1224725,
+        "status": "retrieved",
+        "version_id": "rems:e6e93ff6e5ccce88"
+      },
+      "swim": {
+        "checked_at": 1793751463.250114,
+        "status": "retrieved",
+        "version_id": "swim:760202f154dcb2a6"
+      },
+      "swim-radar": {
+        "checked_at": 1793751466.3720117,
+        "status": "retrieved",
+        "version_id": "swim-radar:a3b62165bea033f3"
+      },
+      "mola-arcadia": {
+        "checked_at": 1793751518.3091595,
+        "status": "retrieved",
+        "version_id": "mola-arcadia:371bd6b8622af3fc"
+      }
+    }
+  },
+  "browser": {
+    "checked_at": "2026-11-04T05:06:19.887Z",
+    "view_runs": 14,
+    "page_errors": [],
+    "wcag_violations": 0,
+    "horizontal_overflow": [],
+    "viewports": [
+      390,
+      1440
+    ],
+    "scope": "Paused isolated PostgreSQL review copy; no worker or model calls"
+  },
+  "interactions": {
+    "scope": "Real localhost review copy; deterministic benchmark fork, no model calls",
+    "rover_view_selected": true,
+    "dialog_focus_trapped": true,
+    "focus_restored": true,
+    "public_revision_unchanged": true,
+    "fork_id": "e9cf71ab-d117-4dbf-9b40-4356ac1b604f",
+    "fork_mode": "fixed-priority",
+    "production_multiplier": 0.5,
+    "elapsed_ticks": 24,
+    "status": "paused",
+    "queued_ticks": 0,
+    "equivalent_baseline_elapsed_ticks": 24,
+    "provider_receipts": 0,
+    "errors": []
+  },
+  "original_database": {
+    "checked_at": 1793778610.5088243,
+    "original_database_unchanged": true,
+    "tables": 10,
+    "rows": 8824
+  },
+  "remaining_work": "docs/UNFINISHED-FEATURES.md",
+  "limits": [
+    "Unit tests include injected provider responses; not live model evidence.",
+    "No readiness within the 1200-step fixed-scheduler fault experiments.",
+    "Automated accessibility checks do not establish human usability or full assistive-technology compliance.",
+    "The repeated annotated-image artifact is repaired; orbital browse resolution remains approximately 4.51 m/pixel, with flat ground and illustrative equipment/layout. Full visual-quality acceptance remains open.",
+    "The actual Meta nominal study failed readiness; water remained held. Post-readiness execution is not verified."
+  ],
+  "repository_audit": {
+    "checked_at": 1793778689.351548,
+    "submission_file_count": 165,
+    "reachable_blob_count": 427,
+    "largest_reachable_blob_bytes": 4987176,
+    "largest_submission_file_bytes": 4987176,
+    "threshold_bytes": 100000000,
+    "oversized": [],
+    "credential_findings": [],
+    "secret_check_scope": "Exact configured credential values and private-key markers in submission files and all reachable Git blobs. Not a claim to detect every possible secret."
+  },
+  "weather_backtest_report": "docs/weather-backtest.json",
+  "ground_image_failure": {
+    "scope": "Explicit browser-only network fault injection; no fake image/measurement response",
+    "failure_visible": true,
+    "fallback_verification_basis": "Source review: null error/loading fallbacks, no PlainGround function"
+  },
+  "model_catalog": {
+    "checked_at": 1793753071.64683,
+    "method": "Authenticated GET model catalog only; no inference/generation request",
+    "endpoint": "https://api.meta.ai/v1/models",
+    "http_status": 200,
+    "key_fingerprint": "sha256:7aba5621ec50695c",
+    "credential_source": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\council-dashboard\\backend\\.env",
+    "response_sha256": "d67ea5009629364cef89a8095f4a2f118f977df5c05ffe22b1c8c622b4bf56b7",
+    "request_id": "bd27602d-8130-491a-9323-baf0326047cf",
+    "configured_model_ids": {
+      "muse-wonder-1.0": true,
+      "muse-spark-1.3": true,
+      "sam-3.1": true
+    },
+    "live_inference_verified": false
+  },
+  "historical_meta_authentication": {
+    "checked_at": 1793754490.7175903,
+    "method": "Authenticated GET of existing Meta response IDs only; no inference request",
+    "stored_records": 55,
+    "attempted": 52,
+    "verified": 51,
+    "not_verified": 1,
+    "records_without_retrievable_id": 3,
+    "report": "docs/historical-response-check.json",
+    "scope": "Historical provider matches do not validate new current-code generation or full mission execution. A 404 does not establish its cause."
+  },
+  "current_code_meta_generation_verified": false,
+  "independent_hirise_image": {
+    "version_id": "hirise-ground:88104f0d0c797c6d",
+    "product": "ESP_056974_2205",
+    "title": "HiRISE ESP_056974_2205 \u00b7 site imagery (not segmented)",
+    "page": "http://www.uahirise.org/ESP_056974_2205",
+    "browse": "https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.browse.jpg",
+    "label": "https://hirise.lpl.arizona.edu/PDS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.LBL",
+    "latitude": 40.0545,
+    "longitude_east": 190.2904,
+    "acquired": "2018-09-21",
+    "credit": "NASA/JPL-Caltech/UArizona",
+    "license": "Public domain (HiRISE image use policy); credit requested",
+    "site_relation": "contains the mission site",
+    "site_distance_km": 0.0,
+    "applies_to_site": true,
+    "footprint_index": "https://astrogeology.usgs.gov/pygeoapi/collections/mars/hirise-observation-footprints-equatorial/items",
+    "candidates_found": 1,
+    "search_errors": [],
+    "url": "https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.browse.jpg",
+    "display_kind": "unannotated-full-rdr-browse",
+    "browse_size_px": [
+      2048,
+      7381
+    ],
+    "image_url": "/api/v1/missions/public/evidence/ground.jpg",
+    "retrieved_at": 1793762220.054897,
+    "observation_time": "2018-09-21",
+    "classification": "observed orbital imagery",
+    "status": "site projection verified; no segmentation performed",
+    "supports": "Observed visual context at the scenario site, not certified traversability",
+    "coverage_verification": {
+      "method": "USGS footprint candidate plus PDS equirectangular pixel bounds",
+      "latitude": 40.05451,
+      "longitude_east": 190.28958,
+      "source_line": 33311.62391361222,
+      "source_sample": 9242.167820438743,
+      "source_lines": 66625,
+      "source_samples": 18485,
+      "label_url": "https://hirise.lpl.arizona.edu/PDS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.LBL",
+      "map_scale_m": 0.5,
+      "label_sha256": "ca26e0bbe028d513288312dd866a3cae251cd019bb4f7fdeab0dd29af5d9f64f",
+      "label_retrieved_at": 1793753570.6770542
+    },
+    "use": "Browse imagery only. No SAM detections, obstacle clearance, construction survey or local height field is implied.",
+    "resolution": "Site-centered 1600 m window of unannotated map browse; display resampling is not native HiRISE resolution or a terrain mesh",
+    "transformation_version": "hirise-ground-pds-site-browse-2",
+    "display_transform": {
+      "version": "hirise-site-browse-window-2",
+      "source_size_px": [
+        2048,
+        7381
+      ],
+      "crop_box_browse_px": [
+        846.2505380718715,
+        3512.7035513151486,
+        1200.7866484316226,
+        3867.2131197954486
+      ],
+      "site_browse_pixel": [
+        1023.518593251747,
+        3689.9583355552986
+      ],
+      "span_m": 1600,
+      "source_browse_m_per_px": [
+        4.512939453125,
+        4.513277333694622
+      ],
+      "display_size_px": [
+        1024,
+        1024
+      ],
+      "resampling": "bilinear display resampling; no added physical resolution",
+      "use": "Flat orbital image; source clipped/null pixels retained, not filled. No DEM or certified traversability."
+    },
+    "content_hash": "5f97c716e87108271ce3f986bb872d17e88e8a1e939a99693ba8cecc626b5274",
+    "hash_scope": "raw source bytes",
+    "source_id": "hirise-ground"
+  },
+  "review_api": {
+    "url": "http://127.0.0.1:8021/",
+    "mission_revision": 52,
+    "status": "paused",
+    "worker_started": false,
+    "credential_in_container": false
+  },
+  "ground_image_http": {
+    "status": 200,
+    "bytes": 179175,
+    "sha256": "e222ab3a35254fdee87666ceb4b06b26255f3737e5d6cb27fe4eb414cffd7ddc",
+    "headers": {
+      "cache-control": "no-store",
+      "x-source-version": "hirise-ground:88104f0d0c797c6d"
+    }
+  },
+  "current_code_meta_acceptance": {
+    "status": "pending for engine 11; prior 159 authenticated responses belong to engine 10",
+    "prior_report": "docs/live-acceptance-summary.json"
+  },
+  "acceptance_ui": {
+    "url": "http://127.0.0.1:8022/",
+    "host": "Windows, same OS as SQLite writer",
+    "read_only": true,
+    "database": "output/live-acceptance/run-vai_z7am/agent-loop.db",
+    "docker_viewer_stopped_after_cross_platform_sqlite_read_error": true,
+    "host_integrity_check": "ok",
+    "browser": {
+      "view_runs": 14,
+      "page_errors": [],
+      "wcag_violations": 0,
+      "overflow": false,
+      "post_status": 403,
+      "experiment_button_disabled": true
+    },
+    "status": "paused",
+    "tick": 1962,
+    "final_outcome": {
+      "checked_at": "2026-11-04T07:41:26.997Z",
+      "url": "http://127.0.0.1:8022/",
+      "tick": 1962,
+      "status": "paused",
+      "ready": false,
+      "displayed_assurance_hold": "Model output Assurance held: Hold water: local ice yield unmeasured - soil_ice_fraction uninstrumented, SWIM 3km consistency only, SHARAD site null, basis is design allocation; Rodwell start-up unvalidated, mass/cost unestimated; plus open no-site-imagery. Release rodwell-1, escalate to director.\nComputed Open condition (simulator): No orbital hazard imagery of the mission site has been analysed",
+      "visible_provider_receipts": 71,
+      "record_receipts": 71,
+      "pinned_sources": 45,
+      "source_pins_resolve": true,
+      "records_read_ms": 3849,
+      "read_only_post_status": 403,
+      "errors": []
+    }
+  },
+  "new_research_reference": {
+    "checked_at": "2026-11-04T07:50:02.323Z",
+    "review_revision": 52,
+    "status": "paused",
+    "source_version": "hoffman2018:be8ee5b9d465f1b4",
+    "source_hash": "ebee103ee0c190d0ed6e90616b47b70b5bfb15d05029541c11447e8d8d6d6af3",
+    "source_hash_visible": true,
+    "operational_mass_substitution": false,
+    "published_estimate_kg": 4771.2,
+    "source_url": "https://ntrs.nasa.gov/api/citations/20180007948/downloads/20180007948.pdf"
+  },
+  "current_engine": "engine-11-water-establishment"
+}

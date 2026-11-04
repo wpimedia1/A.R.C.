@@ -1,8 +1,8 @@
 # A.R.C. — Autonomous Robotic Colony
 
-**Autonomous Robotic Colony (A.R.C.)** is a Martian outpost simulation at Arcadia Planitia, run by Meta AI agents that reason over real Mars data: live DSN contacts, NASA weather history and HiRISE orbital imagery.
+**Autonomous Robotic Colony (A.R.C.)** is a persistent multi-agent planning and execution simulator. Its first mission package studies robotic outpost preparation in Arcadia Planitia. Mars is the first environment, not the platform boundary. Moon and Earth construction-study packages are available through the CLI; neither is a validated field model.
 
-A persistent simulation in which a team of Meta-model agents plans and authorizes the robotic preparation of a site in Arcadia Planitia, Mars. Every physical quantity comes from a cited environment package; the simulator validates every proposal before it executes; every model request is recorded with the provider's `response_id` so it can be matched in the Meta developer dashboard.
+A persistent simulation in which a team of Meta-model agents plans and authorizes the robotic preparation of a site in Arcadia Planitia, Mars. Published inputs, calculated values and scenario allocations are distinguished. The validator owns execution; agents cannot write resource balances. Request records retain returned provider identifiers when available. A stored receipt is not independent proof of use of the owner's account; compare it with the provider dashboard. Subsequent owner-authorized isolated acceptance independently matched 159 Meta responses. The long nominal study failed readiness with water held; full readiness and post-readiness operation remain unverified. See [current acceptance evidence](docs/live-acceptance-summary.json).
 
 **Status: not yet an accepted release.** Open items are listed in [docs/UNFINISHED-FEATURES.md](docs/UNFINISHED-FEATURES.md). Decisions, source conflicts and limits are in [docs/DECISIONS.md](docs/DECISIONS.md).
 
@@ -10,9 +10,9 @@ A persistent simulation in which a team of Meta-model agents plans and authorize
 
 | Part | Where | What it does |
 |---|---|---|
-| Environment package | `council-dashboard/backend/mission/packages/arcadia-mars-v1.json`, `mission/package.py` | 65 parameters from 24 sources, each published (source, page, quote), derived (formula, recomputed at load) or computed (IAPWS water density). Only parameters the simulation uses are kept. Refuses to load anything incomplete; the mission refuses to start while any operator decision is unapproved. |
+| Environment package | `council-dashboard/backend/mission/packages/arcadia-mars-v1.json`, `mission/package.py` | Published parameters carry source, locator and quotation; derived parameters carry formulas. NIST published water density replaces the removed IAPWS runtime dependency. Scenario initialization and equipment-model boundaries are disclosed separately. Refuses to load anything incomplete; the mission refuses to start while any operator decision is unapproved. |
 | Simulator | `mission/engine.py`, `mission/spec.py` | Fission power deployment → survey → habitat trench → regolith shielding, and Rodwell drilling → water production. Rates, power, targets and costs come only from the package. Power allocation, equipment availability and dependencies are enforced. |
-| Meta agents | `mission/planner.py`, `mission/agents.py`, `mission/provider.py` | Autonomous and onboard (D10). Independent assessments of one frozen observation (muse-spark-1.3), director reconciliation (muse-wonder-1.0), specialist tool loops in which every turn is self-contained (it carries the tool results so far; no `previous_response_id`), onboard assurance review. The director recharges excavator batteries from the fission grid (D18). Agents replan on job completion, faults, low batteries, work falling behind its authorized rate, new weather data, conjunction, season change and resume. Tools: inspect state/parameters/site evidence, estimate, submit work order, request replanning. No offline or fallback mode. |
+| Meta agents | `mission/planner.py`, `mission/agents.py`, `mission/provider.py` | Autonomous and onboard (D10). Independent assessments of one frozen observation (muse-spark-1.3), director reconciliation (muse-wonder-1.0), specialist tool loops in which every turn is self-contained (it carries the tool results so far; no `previous_response_id`), onboard assurance review. The director recharges excavator batteries from the fission grid (D18). Agents replan on job completion, faults, low batteries, work falling behind its authorized rate, new weather data, conjunction, season change and resume. Tools: inspect state/parameters/site evidence, estimate, submit work order, request replanning. Fixed-priority scheduling is an explicitly selected benchmark. A failed Meta request never silently substitutes that scheduler. |
 | Meta media | `mission/media.py` | **SAM 3.1** segments boulders and impact craters at genesis in a 512 m full-resolution (0.5 m/pixel) window of HiRISE ESP_056974_2205 centred on the mission site; the detections route the survey around hazards (D13). Every call is recorded with HTTP status, x-request-id and cost. |
 | Live Mars conditions | `mission/conditions.py`, `mission/worker.py` | Real Mars date, season and local time (Mars24), Earth–Mars distance, light time and solar conjunction (ERFA), and NASA DSN Now antenna activity read every minute, **including while the mission is paused**. The public mission runs in real Mars time. The agents run onboard (D10): live conditions inform them, but work never waits for Earth. |
 | Records | `mission/store.py`, `mission/inspection.py` | Append-only revisions, inference receipts (response_id, x-request-id, key fingerprint, usage, cost), decision trail with input snapshot and calculation, export. |
@@ -35,7 +35,7 @@ Requires Docker with Compose. From the repository root:
 2. `docker compose up --build -d database api worker`
 3. Open http://localhost:8020/.
 
-Set `MISSION_OPERATOR_TOKEN=<a secret you choose>` in `.env` in the repository root (git-ignored): only a Start request carrying it creates the mission. The app waits for the operator to press Start with that token; that creates the mission once (revision 1, the genesis record) in the `mission-db` volume; every later change is an appended revision. Without a key the worker stops planning and the interface shows the reason. To run without model calls, start with `MISSION_MODEL_MODE=fixed-priority docker compose up --build -d database api worker`: the interface labels it a fixed-priority benchmark. A mission recorded under another package or engine version came from a build that is no longer the tool: it is discarded on startup and Start begins a new genesis. Model receipts and spend stay in the append-only event log.
+Set `MISSION_OPERATOR_TOKEN=<a secret you choose>` in `.env` in the repository root (git-ignored): only a Start request carrying it creates the mission. The app waits for the operator to press Start with that token; that creates the mission once (revision 1, the genesis record) in the `mission-db` volume; every later change is an appended revision. Without a key the worker stops planning and the interface shows the reason. To run without model calls, start with `MISSION_MODEL_MODE=fixed-priority docker compose up --build -d database api worker`: the interface labels it a fixed-priority benchmark. A package or engine mismatch stops execution and preserves the existing mission, revisions and receipts. Review a backup and explicitly run `python -m mission.cli upgrade`; it appends a migration revision and leaves the mission paused for inspection before resume.
 
 Tests in Docker: `docker compose --profile test run --rm tests`.
 
@@ -50,9 +50,8 @@ docker compose -f compose.yaml -f compose.prod.yaml up -d --build
 ```
 
 - **Genesis** happens when the operator presses Start in the app (with `MISSION_OPERATOR_TOKEN`), not when the containers start: the mission record begins at that moment and is append-only from then on. Visitors cannot start it.
-- **Upgrades** that change the package or engine: A mission recorded under another package or engine version came from a build that is no longer the tool: it is discarded on startup and Start begins a new genesis. Model receipts and spend stay in the append-only event log.
+- **Upgrades** that change the package or engine: A package or engine mismatch stops execution and preserves the existing mission, revisions and receipts. Review a backup and explicitly run `python -m mission.cli upgrade`; it appends a migration revision and leaves the mission paused for inspection before resume.
 - Missing `DOMAIN`, `POSTGRES_PASSWORD`, `MODEL_API_KEY` or `MISSION_OPERATOR_TOKEN` stops the start with a message naming it. The API port is not exposed; only the HTTPS proxy is.
-- **Spending:** visitor experiments are limited to $0 of model calls by default (`MISSION_VISITOR_*_LIMIT_USD`); cap the public mission with `MISSION_PUBLIC_DAILY_LIMIT_USD` / `MISSION_PUBLIC_MONTHLY_LIMIT_USD`.
 - **Prebuilt image:** every push to `master`/`main` runs the test suite in Docker and publishes `ghcr.io/<owner>/<repo>:latest` (GitHub Actions, `.github/workflows/ci.yml`) for platforms that run images (API: default command; worker: `python -m mission.worker`; both need `DATABASE_URL` to PostgreSQL, worker needs `MODEL_API_KEY`).
 
 ## Versions
@@ -62,13 +61,13 @@ docker compose -f compose.yaml -f compose.prod.yaml up -d --build
 
 ## Start
 
-The deployed app waits: nothing runs and no model is called until the operator presses **Start mission** with the operator token. That press is genesis (`POST /api/v1/start` with header `X-Operator-Token`, once; pressing again changes nothing, decision D17). The mission then runs in real Mars time.
+Mission execution and inference wait until the operator presses **Start mission** with the operator token. That press is genesis (`POST /api/v1/start` with header `X-Operator-Token`, once; pressing again changes nothing, decision D17). The mission then runs in real Mars time.
 
 ## Verify
 
 From `council-dashboard/backend`:
 
-- `python -m pytest tests -q` — package validation, engine physics bookkeeping, tool validation, API permissions, planning failure paths. No mocked model transport.
+- `python -m pytest tests -q` — package validation, engine physics bookkeeping, tool validation, API permissions, planning failure paths. Some unit tests inject provider responses and failures; those tests are protocol/regression checks, not evidence of live model execution.
 - `python -m mission.package` — prints every parameter with its origin and any unapproved decision.
 - `python -m mission.verify_sources` — checks every published quote verbatim against the PDFs in `sources/`; writes `docs/source-verification.json`.
 - `python -m mission.cli benchmark` — deterministic fixed-priority baseline runs.
@@ -82,3 +81,7 @@ A report counts as evidence only after its `response_id`s are matched in the Met
 ## Built on
 
 MetroDesk (the author's earlier work) and the pre-existing Mars Council scaffold (commit `44bd845`) are prior work. See [docs/CONTRIBUTIONS.md](docs/CONTRIBUTIONS.md).
+
+Current repair evidence, limitations and setup/run bullets: [docs/REPAIR-GUIDE.md](docs/REPAIR-GUIDE.md). Public engineering references and applicability: [docs/ENGINEERING-REFERENCES.md](docs/ENGINEERING-REFERENCES.md).
+
+Engineering service/offload execution and physical-model configuration: [engineering procedures](docs/ENGINEERING-PROCEDURES.md). These are executable configured studies; no compatible hardware manifest is silently invented for the current mission.

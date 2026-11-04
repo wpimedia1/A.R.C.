@@ -1,0 +1,134 @@
+{
+  "checked_at": 1793769323.8823693,
+  "scope": "Actual Meta requests in isolated software experiments with real pinned evidence. No physical Mars equipment operation or engineering qualification claimed.",
+  "unique_current_responses_authenticated": 159,
+  "authentication_reports": [
+    "docs/live-responses-current.json",
+    "docs/live-responses-nominal.json",
+    "docs/live-responses-power-loss.json",
+    "docs/live-responses-delayed-excavation.json",
+    "docs/live-responses-equipment-failure.json"
+  ],
+  "initial_two_cycle_responses_are_subset_of_nominal": true,
+  "earlier_engine9_and_pre_fix_runs_not_included_in_count": true,
+  "nominal": {
+    "report": "docs/live-mission-acceptance.json",
+    "database": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\output\\live-acceptance\\run-vai_z7am\\agent-loop.db",
+    "provider_requests": 71,
+    "status": "not passed",
+    "final_tick": 1962,
+    "readiness_tick": null,
+    "completed_initial_jobs": [
+      "power",
+      "drill",
+      "survey",
+      "trench",
+      "shielding"
+    ],
+    "water_assurance": {
+      "tick": 1952,
+      "actor": "assurance / muse-spark-1.3",
+      "approved": false,
+      "reason": "Hold water: local ice yield unmeasured - soil_ice_fraction uninstrumented, SWIM 3km consistency only, SHARAD site null, basis is design allocation; Rodwell start-up unvalidated, mass/cost unestimated; plus open no-site-imagery. Release rodwell-1, escalate to director.",
+      "open_conditions": [
+        {
+          "id": "no-site-imagery",
+          "text": "No orbital hazard imagery of the mission site has been analysed"
+        }
+      ],
+      "acknowledged": []
+    },
+    "water_decision_id": "D8",
+    "director": {
+      "request_id": "3a9c05c6-ce41-42c7-89b0-92838905d183:director",
+      "summary": "Both resources and assurance agree to HOLD water; no disagreement. Power and drill are complete, but soil_ice_fraction is uninstrumented, SWIM 0.389 is 3-km regional consistency not yield, SHARAD site value is null, and Rodwell start-up, kWh/kg, mass and cost remain unvalidated/unestimated; the 15,701 kg basis is a design allocation only. Water stays blocked last. No water batch (would duplicate water and exceed storage/feed) or unsupported survey extension. Excavators at 571.9 Wh exceed the 131.9 Wh step; existing charging policy retained.",
+      "priority": [
+        "water"
+      ]
+    },
+    "post_readiness_verified": false,
+    "natural_random_failures": false,
+    "host_sqlite_integrity": "ok",
+    "charging_energy_kwh": 314.1895224304648,
+    "charging_orders": [
+      {
+        "id": "charging-policy-1",
+        "assets": [
+          "excavator-1",
+          "excavator-2"
+        ],
+        "actor": "director / muse-wonder-1.0",
+        "reason": "Standing order for routine validated fission-grid charging of configured excavators when a battery cannot support its next work interval. Batteries are currently full and grid is uncommissioned, so each execution must still validate commissioned power, availability and limits.",
+        "source_ids": [
+          "rassor2016",
+          "schuler2019",
+          "fsp2024"
+        ],
+        "source_versions": {
+          "rassor2016": "rassor2016:b673c0bf0efb81c3",
+          "schuler2019": "schuler2019:66177f8d43c91b28",
+          "fsp2024": "fsp2024:73135570a56b2eac"
+        },
+        "tick": 22,
+        "rule": "Charge when stored energy cannot supply one source-rated work interval; respect all existing grid/equipment validators"
+      }
+    ],
+    "charging_executions": 238
+  },
+  "controlled_fault_comparisons": {
+    "report": "docs/live-operational-scenarios-current.json",
+    "status": "all controlled runs completed",
+    "horizon_ticks": 8,
+    "natural_random_failures": false,
+    "cases": {
+      "nominal": {
+        "provider_requests": 14,
+        "status": "completed bounded run",
+        "elapsed_ticks": 8,
+        "baseline_elapsed_ticks": 8,
+        "meta_constraint_violations": [],
+        "baseline_constraint_violations": [],
+        "meta_ready": false,
+        "baseline_ready": false
+      },
+      "power-loss": {
+        "provider_requests": 28,
+        "status": "completed bounded run",
+        "elapsed_ticks": 8,
+        "baseline_elapsed_ticks": 8,
+        "meta_constraint_violations": [],
+        "baseline_constraint_violations": [],
+        "meta_ready": false,
+        "baseline_ready": false
+      },
+      "delayed-excavation": {
+        "provider_requests": 28,
+        "status": "completed bounded run",
+        "elapsed_ticks": 8,
+        "baseline_elapsed_ticks": 8,
+        "meta_constraint_violations": [],
+        "baseline_constraint_violations": [],
+        "meta_ready": false,
+        "baseline_ready": false
+      },
+      "equipment-failure": {
+        "provider_requests": 18,
+        "status": "completed bounded run",
+        "elapsed_ticks": 8,
+        "baseline_elapsed_ticks": 8,
+        "meta_constraint_violations": [],
+        "baseline_constraint_violations": [],
+        "meta_ready": false,
+        "baseline_ready": false
+      }
+    },
+    "superiority_demonstrated": false
+  },
+  "limits": [
+    "Readiness and post-readiness acceptance failed/not established; water stayed held by actual agents.",
+    "Eight-step controlled cases do not establish full fault recovery, long-run reliability or superiority.",
+    "Default mission has no validated manipulator, service/spare/offload manifest or full thermal calibration.",
+    "Source pins are frozen; these experiments do not create local instrument readings.",
+    "Final API record projection was optimized after generation; provider verification establishes the executed planner/engine revision, not every later API change."
+  ]
+}

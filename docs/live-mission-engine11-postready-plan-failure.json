@@ -1,0 +1,1699 @@
+{
+  "checked_at": 1793812600.1121006,
+  "duration_s": 713.4775400161743,
+  "status": "not passed",
+  "scope": "Real Meta calls on a pinned-evidence software mission; not actual Mars robot operation or hardware qualification",
+  "database": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\output\\live-acceptance\\run-eh7lirlp\\agent-loop.db",
+  "engine_version": "arcadia-mars-v1/engine-11-water-establishment",
+  "initial_tick": 176,
+  "final_tick": 1952,
+  "input_hash": "621ae44abce30655b9b5633a1316c51f799826b83b6a44c2af99ca44864feda8",
+  "configured_input_hash": "0a2a9cf29bdaa179b540133d26c907727eb98bba6c94c09a6c1795e64f92c5f7",
+  "state_hash": "4afd61560ec64a0db178f5e0c2487bdf533c91754dd1cd9206b2d02146e58c22",
+  "source_pins": {
+    "nasa-dra": "nasa-dra:592bda3d069562f5",
+    "nasa-m2m": "nasa-m2m:71c1209404c7c93a",
+    "swim": "swim:760202f154dcb2a6",
+    "mola": "mola:51e2ad3502c029d2",
+    "rems": "rems:e6e93ff6e5ccce88",
+    "kleinhenz2017": "kleinhenz2017:d36ee9a39ade86a3",
+    "rassor2016": "rassor2016:b673c0bf0efb81c3",
+    "fsp2024": "fsp2024:73135570a56b2eac",
+    "m2020launch": "m2020launch:9df73b798c347523",
+    "m2020landing": "m2020landing:6d5beb0f1e10d809",
+    "autonav2021": "autonav2021:499887d7c608a63e",
+    "nssdc_mars": "nssdc_mars:ebe980c6a23c9a16",
+    "tp3079": "tp3079:0effc401c43d7b12",
+    "howard2023": "howard2023:478a93766d19a01e",
+    "mank2021": "mank2021:58a94e048d7accd8",
+    "hoffman2016": "hoffman2016:ed43ad3e4e3f6a70",
+    "iapws": "iapws:c70474ee2e5bdaeb",
+    "proofwiki_gallon": "proofwiki_gallon:4a5452c7562c7b3e",
+    "oleson2022": "oleson2022:ee8e7f5d35b8a5f4",
+    "stolov2026": "stolov2026:87e557ba2a4a2518",
+    "nssdc_sun": "nssdc_sun:cef274113c6cbf3d",
+    "lasp2015": "lasp2015:752436b75835b99f",
+    "erfa": "erfa:5103e0d76f0bcdee",
+    "mars24": "mars24:e7887192f3095dc1",
+    "dust_gds_2021": "dust_gds_2021:29f45b0f9c46be00",
+    "stancliff2005": "stancliff2005:316299b0688fa87a",
+    "dsn_now": "dsn_now:a23222bf6151cc2c",
+    "usgs_hirise_footprints": "usgs_hirise_footprints:a4219aab4cb78375",
+    "schuler2019": "schuler2019:66177f8d43c91b28",
+    "nasa_night2022": "nasa_night2022:0e0add562fdff38e",
+    "redwater2019": "redwater2019:f0f7f064c5c47955",
+    "rover-components": "rover-components:33264826e4aa3766",
+    "rover-battery2021": "rover-battery2021:785a58def3ee7eff",
+    "nist-water": "nist-water:f3dfa05d5f5d622f",
+    "rad750-bae2025": "rad750-bae2025:bafa1d48c8362914",
+    "rad750-heritage-nasa": "rad750-heritage-nasa:69bdd5ec3aeb96b6",
+    "rad750-niac": "rad750-niac:e54416b2a090b20d",
+    "nist-gallon": "nist-gallon:60f9a154fa03fd4a",
+    "hoffman2018": "hoffman2018:f281ae35a89ebd84",
+    "arcadia-mars-v1": "arcadia-mars-v1:40af88f3a07249de",
+    "msl-weather": "msl-weather:62581c8183e0c56d",
+    "sicsa-outpost": "sicsa-outpost:f1ca3cc76810763a",
+    "swim-radar": "swim-radar:a3b62165bea033f3",
+    "mola-arcadia": "mola-arcadia:371bd6b8622af3fc",
+    "arcadia-climate": "arcadia-climate:b86b23c4eb87e2aa",
+    "hirise-ground": "hirise-ground:88104f0d0c797c6d"
+  },
+  "natural_random_failures": false,
+  "nominal_no_random_failures_explicit": true,
+  "readiness_tick": 1952,
+  "post_ready_resource_delta": {},
+  "post_ready_useful_operations": false,
+  "failure": "Planning stopped: Director must return one plan. Owner intervention required.",
+  "blocked": {
+    "survey-extension-1": ""
+  },
+  "cycles": [
+    {
+      "tick": 176,
+      "id": "73fcecad-d338-43f0-8e77-194d7645c28f",
+      "status": "Validated work is active or awaiting assurance"
+    },
+    {
+      "tick": 1145,
+      "id": "f05e6d9d-69e7-4680-9827-698662bc7677",
+      "status": "Validated work is active or awaiting assurance"
+    },
+    {
+      "tick": 1499,
+      "id": "a2f3dce4-080f-47bf-805b-16a27d0a18b3",
+      "status": "Validated work is active or awaiting assurance"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "power",
+      "status": "complete",
+      "done": 162.0,
+      "target": 162.0,
+      "unit": "h",
+      "completed_tick": 158
+    },
+    {
+      "id": "drill",
+      "status": "complete",
+      "done": 20.0,
+      "target": 20.0,
+      "unit": "m",
+      "completed_tick": 174
+    },
+    {
+      "id": "survey",
+      "status": "complete",
+      "done": 175.15,
+      "target": 175.15,
+      "unit": "m",
+      "completed_tick": 13
+    },
+    {
+      "id": "trench",
+      "status": "complete",
+      "done": 310564.8,
+      "target": 310564.8,
+      "unit": "kg",
+      "completed_tick": 1499
+    },
+    {
+      "id": "shielding",
+      "status": "complete",
+      "done": 104501.93802901088,
+      "target": 104501.93802901088,
+      "unit": "kg",
+      "completed_tick": 1952
+    },
+    {
+      "id": "well-establish",
+      "status": "complete",
+      "done": 16.202693763007137,
+      "target": 16.202693763007137,
+      "unit": "kg",
+      "completed_tick": 175
+    },
+    {
+      "id": "water",
+      "status": "complete",
+      "done": 15701.0,
+      "target": 15701.0,
+      "unit": "kg",
+      "completed_tick": 1145
+    },
+    {
+      "id": "survey-extension-1",
+      "status": "pending",
+      "done": 0.0,
+      "target": 175.15,
+      "unit": "m",
+      "completed_tick": null
+    }
+  ],
+  "provider_requests": [
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:assessment:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6105c3ed43d490e84478",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14151,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1246,
+        "output_tokens_details": {
+          "reasoning_tokens": 893
+        },
+        "total_tokens": 15397
+      },
+      "actual_usd": 0.02298425
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:assessment:power",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6112a9b5a70a5d7c455b",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14123,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1456,
+        "output_tokens_details": {
+          "reasoning_tokens": 1033
+        },
+        "total_tokens": 15579
+      },
+      "actual_usd": 0.02384175
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:assessment:resources",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb611fafeaf1d173b843e4",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14178,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1640,
+        "output_tokens_details": {
+          "reasoning_tokens": 1235
+        },
+        "total_tokens": 15818
+      },
+      "actual_usd": 0.0246925
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:assessment:survey",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb612fa5f51546e3ad47fc",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14123,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1595,
+        "output_tokens_details": {
+          "reasoning_tokens": 1169
+        },
+        "total_tokens": 15718
+      },
+      "actual_usd": 0.0244325
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:assessment:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6143b377dcc98d034bec",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14098,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2476,
+        "output_tokens_details": {
+          "reasoning_tokens": 2008
+        },
+        "total_tokens": 16574
+      },
+      "actual_usd": 0.0281455
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "response_id": "resp_6aeb61584bfc7e198cbe468f",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 17055,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2856,
+        "output_tokens_details": {
+          "reasoning_tokens": 2430
+        },
+        "total_tokens": 19911
+      },
+      "actual_usd": 0.12534
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:power:0",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb615efc324a4ff5cf4136",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15786,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 525,
+        "output_tokens_details": {
+          "reasoning_tokens": 329
+        },
+        "total_tokens": 16311
+      },
+      "actual_usd": 0.02196375
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:power:1",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb616827ba5a3a3bb546bd",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16239,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1342,
+        "output_tokens_details": {
+          "reasoning_tokens": 1144
+        },
+        "total_tokens": 17581
+      },
+      "actual_usd": 0.02600225
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:survey:0",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb616fb68528148ce54486",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15815,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 727,
+        "output_tokens_details": {
+          "reasoning_tokens": 578
+        },
+        "total_tokens": 16542
+      },
+      "actual_usd": 0.0228585
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:survey:1",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb61788bcfd14b98a54c49",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16051,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 999,
+        "output_tokens_details": {
+          "reasoning_tokens": 806
+        },
+        "total_tokens": 17050
+      },
+      "actual_usd": 0.0243095
+    },
+    {
+      "id": "233a836e-5c75-4f65-afc4-f708a96936dc:assurance-review",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6192fb9a10c01cce4058",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16423,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3388,
+        "output_tokens_details": {
+          "reasoning_tokens": 3143
+        },
+        "total_tokens": 19811
+      },
+      "actual_usd": 0.03492775
+    },
+    {
+      "id": "58495f5d-7f38-47f2-9850-6acdb01c9a02:assessment:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb619e9b892efa22854777",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14862,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1427,
+        "output_tokens_details": {
+          "reasoning_tokens": 1049
+        },
+        "total_tokens": 16289
+      },
+      "actual_usd": 0.02464225
+    },
+    {
+      "id": "58495f5d-7f38-47f2-9850-6acdb01c9a02:assessment:power",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb61a96b93ae17ab0d450a",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14929,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1278,
+        "output_tokens_details": {
+          "reasoning_tokens": 887
+        },
+        "total_tokens": 16207
+      },
+      "actual_usd": 0.02409275
+    },
+    {
+      "id": "58495f5d-7f38-47f2-9850-6acdb01c9a02:assessment:resources",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb61b48218e06cc0f3439f",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15017,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1269,
+        "output_tokens_details": {
+          "reasoning_tokens": 873
+        },
+        "total_tokens": 16286
+      },
+      "actual_usd": 0.0241645
+    },
+    {
+      "id": "58495f5d-7f38-47f2-9850-6acdb01c9a02:assessment:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb61c030fe9c212729490f",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14870,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1455,
+        "output_tokens_details": {
+          "reasoning_tokens": 1019
+        },
+        "total_tokens": 16325
+      },
+      "actual_usd": 0.02477125
+    },
+    {
+      "id": "58495f5d-7f38-47f2-9850-6acdb01c9a02:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "response_id": "resp_6aeb61cc82ce75b1ed46468c",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 17910,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1449,
+        "output_tokens_details": {
+          "reasoning_tokens": 1220
+        },
+        "total_tokens": 19359
+      },
+      "actual_usd": 0.10062
+    },
+    {
+      "id": "fc6dafd1-2442-4cb8-93b0-d8bb5d2669ab:consolidate:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb620eb6bef79282fe4656",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2551,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1058,
+        "output_tokens_details": {
+          "reasoning_tokens": 724
+        },
+        "total_tokens": 3609
+      },
+      "actual_usd": 0.00768525
+    },
+    {
+      "id": "fc6dafd1-2442-4cb8-93b0-d8bb5d2669ab:consolidate:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb622089d655ca987c42b3",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 1877,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2244,
+        "output_tokens_details": {
+          "reasoning_tokens": 1992
+        },
+        "total_tokens": 4121
+      },
+      "actual_usd": 0.01188325
+    },
+    {
+      "id": "fc6dafd1-2442-4cb8-93b0-d8bb5d2669ab:consolidate:director",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb622993c1551326224dee",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2354,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1164,
+        "output_tokens_details": {
+          "reasoning_tokens": 697
+        },
+        "total_tokens": 3518
+      },
+      "actual_usd": 0.0078895
+    },
+    {
+      "id": "fc6dafd1-2442-4cb8-93b0-d8bb5d2669ab:consolidate:power",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62396f71d27754024a39",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2227,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2019,
+        "output_tokens_details": {
+          "reasoning_tokens": 1634
+        },
+        "total_tokens": 4246
+      },
+      "actual_usd": 0.0113645
+    },
+    {
+      "id": "fc6dafd1-2442-4cb8-93b0-d8bb5d2669ab:consolidate:resources",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6246ef5adae6d3ef4949",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2048,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1531,
+        "output_tokens_details": {
+          "reasoning_tokens": 1266
+        },
+        "total_tokens": 3579
+      },
+      "actual_usd": 0.00906675
+    },
+    {
+      "id": "fc6dafd1-2442-4cb8-93b0-d8bb5d2669ab:consolidate:survey",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62579662fc158d314d22",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 1952,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2124,
+        "output_tokens_details": {
+          "reasoning_tokens": 1893
+        },
+        "total_tokens": 4076
+      },
+      "actual_usd": 0.011467
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:assessment:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62701d3030d029fa4e4f",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14589,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2119,
+        "output_tokens_details": {
+          "reasoning_tokens": 1785
+        },
+        "total_tokens": 16708
+      },
+      "actual_usd": 0.027242
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:assessment:resources",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6283ee06cbf6ad7442ca",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14668,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2500,
+        "output_tokens_details": {
+          "reasoning_tokens": 2141
+        },
+        "total_tokens": 17168
+      },
+      "actual_usd": 0.02896
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:assessment:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6290c30dfae690304ab8",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14592,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1464,
+        "output_tokens_details": {
+          "reasoning_tokens": 1072
+        },
+        "total_tokens": 16056
+      },
+      "actual_usd": 0.024462
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "response_id": "resp_6aeb629c45fee6dd8f2e402a",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16928,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1619,
+        "output_tokens_details": {
+          "reasoning_tokens": 1401
+        },
+        "total_tokens": 18547
+      },
+      "actual_usd": 0.100092
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:drill:0",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62a1e68f4df550504eae",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15799,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 493,
+        "output_tokens_details": {
+          "reasoning_tokens": 400
+        },
+        "total_tokens": 16292
+      },
+      "actual_usd": 0.021844
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:drill:1",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62a79787ea6c981c4f6b",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15878,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 706,
+        "output_tokens_details": {
+          "reasoning_tokens": 468
+        },
+        "total_tokens": 16584
+      },
+      "actual_usd": 0.022848
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:drill:2",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62b003e54a5502654b2c",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16593,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 977,
+        "output_tokens_details": {
+          "reasoning_tokens": 796
+        },
+        "total_tokens": 17570
+      },
+      "actual_usd": 0.0248935
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:trench:0",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62b6d4f140e40aa644a0",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15779,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 537,
+        "output_tokens_details": {
+          "reasoning_tokens": 460
+        },
+        "total_tokens": 16316
+      },
+      "actual_usd": 0.022006
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:trench:1",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62bef7358dbe5f364885",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15896,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 897,
+        "output_tokens_details": {
+          "reasoning_tokens": 795
+        },
+        "total_tokens": 16793
+      },
+      "actual_usd": 0.02368225
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:trench:2",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62ccceeb91e11ea34602",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15992,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1674,
+        "output_tokens_details": {
+          "reasoning_tokens": 1454
+        },
+        "total_tokens": 17666
+      },
+      "actual_usd": 0.0271045
+    },
+    {
+      "id": "b543be62-7d05-4704-8791-3ddf810e17b0:assurance-review",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb62df80f952b65eba4d88",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16432,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2350,
+        "output_tokens_details": {
+          "reasoning_tokens": 2068
+        },
+        "total_tokens": 18782
+      },
+      "actual_usd": 0.0305275
+    },
+    {
+      "id": "5cd2f953-b060-4d38-bc44-b8f1108fc392:consolidate:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6301019d3b6585364409",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 1942,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3848,
+        "output_tokens_details": {
+          "reasoning_tokens": 3334
+        },
+        "total_tokens": 5790
+      },
+      "actual_usd": 0.0187815
+    },
+    {
+      "id": "5cd2f953-b060-4d38-bc44-b8f1108fc392:consolidate:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6317d2bac8145d9b4369",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 1620,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3152,
+        "output_tokens_details": {
+          "reasoning_tokens": 2856
+        },
+        "total_tokens": 4772
+      },
+      "actual_usd": 0.015421
+    },
+    {
+      "id": "5cd2f953-b060-4d38-bc44-b8f1108fc392:consolidate:director",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb632eeaf84bdbcff04fff",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 1552,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3369,
+        "output_tokens_details": {
+          "reasoning_tokens": 2852
+        },
+        "total_tokens": 4921
+      },
+      "actual_usd": 0.01625825
+    },
+    {
+      "id": "5cd2f953-b060-4d38-bc44-b8f1108fc392:consolidate:resources",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63455d31efb069124a0c",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 1720,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3256,
+        "output_tokens_details": {
+          "reasoning_tokens": 2899
+        },
+        "total_tokens": 4976
+      },
+      "actual_usd": 0.015988
+    },
+    {
+      "id": "e15cd2ff-6891-4c7e-9bfa-f8dac5f4acc2:assessment:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb634ddf5e708465674e05",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14518,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 860,
+        "output_tokens_details": {
+          "reasoning_tokens": 528
+        },
+        "total_tokens": 15378
+      },
+      "actual_usd": 0.0218025
+    },
+    {
+      "id": "e15cd2ff-6891-4c7e-9bfa-f8dac5f4acc2:assessment:resources",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63572199144691ae4d93",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14613,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1159,
+        "output_tokens_details": {
+          "reasoning_tokens": 833
+        },
+        "total_tokens": 15772
+      },
+      "actual_usd": 0.023192
+    },
+    {
+      "id": "e15cd2ff-6891-4c7e-9bfa-f8dac5f4acc2:assessment:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6367afc074711bc84ea6",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14636,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1866,
+        "output_tokens_details": {
+          "reasoning_tokens": 1538
+        },
+        "total_tokens": 16502
+      },
+      "actual_usd": 0.0262255
+    },
+    {
+      "id": "e15cd2ff-6891-4c7e-9bfa-f8dac5f4acc2:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "response_id": "resp_6aeb6374b289243f7d974396",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16741,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1666,
+        "output_tokens_details": {
+          "reasoning_tokens": 1454
+        },
+        "total_tokens": 18407
+      },
+      "actual_usd": 0.100284
+    },
+    {
+      "id": "e15cd2ff-6891-4c7e-9bfa-f8dac5f4acc2:well-establish:0",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb637a5a99d68951944f2f",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15721,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 454,
+        "output_tokens_details": {
+          "reasoning_tokens": 356
+        },
+        "total_tokens": 16175
+      },
+      "actual_usd": 0.02158075
+    },
+    {
+      "id": "e15cd2ff-6891-4c7e-9bfa-f8dac5f4acc2:well-establish:1",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb638235536d3d2a4f4716",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15808,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 737,
+        "output_tokens_details": {
+          "reasoning_tokens": 543
+        },
+        "total_tokens": 16545
+      },
+      "actual_usd": 0.02289225
+    },
+    {
+      "id": "e15cd2ff-6891-4c7e-9bfa-f8dac5f4acc2:well-establish:2",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63903f1959ac23334116",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16189,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1459,
+        "output_tokens_details": {
+          "reasoning_tokens": 1248
+        },
+        "total_tokens": 17648
+      },
+      "actual_usd": 0.026437
+    },
+    {
+      "id": "e15cd2ff-6891-4c7e-9bfa-f8dac5f4acc2:assurance-review",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb639d8da5d8b5f8f64387",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15441,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1772,
+        "output_tokens_details": {
+          "reasoning_tokens": 1556
+        },
+        "total_tokens": 17213
+      },
+      "actual_usd": 0.02683225
+    },
+    {
+      "id": "90c79567-3540-468b-a48d-d260d0733686:assessment:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63a9f69d1f437fb64cf9",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14762,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1456,
+        "output_tokens_details": {
+          "reasoning_tokens": 1149
+        },
+        "total_tokens": 16218
+      },
+      "actual_usd": 0.0246405
+    },
+    {
+      "id": "90c79567-3540-468b-a48d-d260d0733686:assessment:resources",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63b2bf86bc52fee0432a",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14929,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 990,
+        "output_tokens_details": {
+          "reasoning_tokens": 723
+        },
+        "total_tokens": 15919
+      },
+      "actual_usd": 0.02286875
+    },
+    {
+      "id": "90c79567-3540-468b-a48d-d260d0733686:assessment:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63c5cb3aa6f3e8bf4315",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14829,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2510,
+        "output_tokens_details": {
+          "reasoning_tokens": 2198
+        },
+        "total_tokens": 17339
+      },
+      "actual_usd": 0.02920375
+    },
+    {
+      "id": "90c79567-3540-468b-a48d-d260d0733686:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "response_id": "resp_6aeb63d7009d443cd83145d1",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16895,
+        "input_tokens_details": {
+          "cached_tokens": 2548
+        },
+        "output_tokens": 2317,
+        "output_tokens_details": {
+          "reasoning_tokens": 2086
+        },
+        "total_tokens": 19212
+      },
+      "actual_usd": 0.1042376
+    },
+    {
+      "id": "90c79567-3540-468b-a48d-d260d0733686:water:0",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63dc6ff30f138fbe4a8f",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15973,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 500,
+        "output_tokens_details": {
+          "reasoning_tokens": 407
+        },
+        "total_tokens": 16473
+      },
+      "actual_usd": 0.02209125
+    },
+    {
+      "id": "90c79567-3540-468b-a48d-d260d0733686:water:1",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63e39d485ab95a4c44b3",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16053,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 809,
+        "output_tokens_details": {
+          "reasoning_tokens": 624
+        },
+        "total_tokens": 16862
+      },
+      "actual_usd": 0.0235045
+    },
+    {
+      "id": "90c79567-3540-468b-a48d-d260d0733686:water:2",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63f1b1ab144f46d84ad4",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16559,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1834,
+        "output_tokens_details": {
+          "reasoning_tokens": 1583
+        },
+        "total_tokens": 18393
+      },
+      "actual_usd": 0.02849325
+    },
+    {
+      "id": "90c79567-3540-468b-a48d-d260d0733686:assurance-review",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb63ffed26a6e072ee4b7d",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15412,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1580,
+        "output_tokens_details": {
+          "reasoning_tokens": 1370
+        },
+        "total_tokens": 16992
+      },
+      "actual_usd": 0.02598
+    },
+    {
+      "id": "73fcecad-d338-43f0-8e77-194d7645c28f:assessment:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb65c03273349b15e84c78",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15093,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1879,
+        "output_tokens_details": {
+          "reasoning_tokens": 1578
+        },
+        "total_tokens": 16972
+      },
+      "actual_usd": 0.026852
+    },
+    {
+      "id": "73fcecad-d338-43f0-8e77-194d7645c28f:assessment:resources",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb65c999263004677a4f29",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15291,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 856,
+        "output_tokens_details": {
+          "reasoning_tokens": 584
+        },
+        "total_tokens": 16147
+      },
+      "actual_usd": 0.02275175
+    },
+    {
+      "id": "73fcecad-d338-43f0-8e77-194d7645c28f:assessment:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb65d19f9ff85675654f60",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15109,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 828,
+        "output_tokens_details": {
+          "reasoning_tokens": 515
+        },
+        "total_tokens": 15937
+      },
+      "actual_usd": 0.02240525
+    },
+    {
+      "id": "73fcecad-d338-43f0-8e77-194d7645c28f:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "response_id": "resp_6aeb65defa2994a22cfb476a",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 17350,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1464,
+        "output_tokens_details": {
+          "reasoning_tokens": 1240
+        },
+        "total_tokens": 18814
+      },
+      "actual_usd": 0.09868
+    },
+    {
+      "id": "4beb1a9e-b3fd-40a9-9a83-ac2de45d99b7:consolidate:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb660ab0450b6853db4350",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 4067,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 5349,
+        "output_tokens_details": {
+          "reasoning_tokens": 4646
+        },
+        "total_tokens": 9416
+      },
+      "actual_usd": 0.027817
+    },
+    {
+      "id": "4beb1a9e-b3fd-40a9-9a83-ac2de45d99b7:consolidate:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6627a5023199aaed4ebe",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2984,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3493,
+        "output_tokens_details": {
+          "reasoning_tokens": 3070
+        },
+        "total_tokens": 6477
+      },
+      "actual_usd": 0.01857525
+    },
+    {
+      "id": "4beb1a9e-b3fd-40a9-9a83-ac2de45d99b7:consolidate:director",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6649dc485ad4bb2b4f6d",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3349,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 4043,
+        "output_tokens_details": {
+          "reasoning_tokens": 3426
+        },
+        "total_tokens": 7392
+      },
+      "actual_usd": 0.021369
+    },
+    {
+      "id": "4beb1a9e-b3fd-40a9-9a83-ac2de45d99b7:consolidate:resources",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6662ee8efa326208449b",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 4190,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3361,
+        "output_tokens_details": {
+          "reasoning_tokens": 2803
+        },
+        "total_tokens": 7551
+      },
+      "actual_usd": 0.01952175
+    },
+    {
+      "id": "f05e6d9d-69e7-4680-9827-698662bc7677:assessment:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb66bed1edca5f8b9e4462",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14449,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 719,
+        "output_tokens_details": {
+          "reasoning_tokens": 436
+        },
+        "total_tokens": 15168
+      },
+      "actual_usd": 0.021117
+    },
+    {
+      "id": "f05e6d9d-69e7-4680-9827-698662bc7677:assessment:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb66ca6b38916e3cf34934",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14613,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1353,
+        "output_tokens_details": {
+          "reasoning_tokens": 1047
+        },
+        "total_tokens": 15966
+      },
+      "actual_usd": 0.0240165
+    },
+    {
+      "id": "f05e6d9d-69e7-4680-9827-698662bc7677:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "response_id": "resp_6aeb66f50df3321b09834a70",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16349,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 4693,
+        "output_tokens_details": {
+          "reasoning_tokens": 4502
+        },
+        "total_tokens": 21042
+      },
+      "actual_usd": 0.159256
+    },
+    {
+      "id": "f81aeaf4-a828-463c-915a-db78a334303e:consolidate:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6718ef1d511124914ea0",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2232,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 4719,
+        "output_tokens_details": {
+          "reasoning_tokens": 3847
+        },
+        "total_tokens": 6951
+      },
+      "actual_usd": 0.02284575
+    },
+    {
+      "id": "f81aeaf4-a828-463c-915a-db78a334303e:consolidate:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb673560d73882b00640c1",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 1955,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3697,
+        "output_tokens_details": {
+          "reasoning_tokens": 3153
+        },
+        "total_tokens": 5652
+      },
+      "actual_usd": 0.018156
+    },
+    {
+      "id": "f81aeaf4-a828-463c-915a-db78a334303e:consolidate:director",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb67503f2806ace9d74130",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2230,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3499,
+        "output_tokens_details": {
+          "reasoning_tokens": 2756
+        },
+        "total_tokens": 5729
+      },
+      "actual_usd": 0.01765825
+    },
+    {
+      "id": "a2f3dce4-080f-47bf-805b-16a27d0a18b3:assessment:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6774aaef140620e64f12",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14463,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1248,
+        "output_tokens_details": {
+          "reasoning_tokens": 1000
+        },
+        "total_tokens": 15711
+      },
+      "actual_usd": 0.02338275
+    },
+    {
+      "id": "a2f3dce4-080f-47bf-805b-16a27d0a18b3:assessment:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb677e065907b36b5f4f66",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14685,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 928,
+        "output_tokens_details": {
+          "reasoning_tokens": 649
+        },
+        "total_tokens": 15613
+      },
+      "actual_usd": 0.02230025
+    },
+    {
+      "id": "a2f3dce4-080f-47bf-805b-16a27d0a18b3:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "response_id": "resp_6aeb678d1e1df8f23fd74b71",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16316,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1923,
+        "output_tokens_details": {
+          "reasoning_tokens": 1714
+        },
+        "total_tokens": 18239
+      },
+      "actual_usd": 0.103724
+    },
+    {
+      "id": "a2f3dce4-080f-47bf-805b-16a27d0a18b3:shielding:0",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6795a48836e403994c7c",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15495,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 683,
+        "output_tokens_details": {
+          "reasoning_tokens": 581
+        },
+        "total_tokens": 16178
+      },
+      "actual_usd": 0.0222715
+    },
+    {
+      "id": "a2f3dce4-080f-47bf-805b-16a27d0a18b3:shielding:1",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb679b280e5bb5a7bc4015",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15594,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 658,
+        "output_tokens_details": {
+          "reasoning_tokens": 581
+        },
+        "total_tokens": 16252
+      },
+      "actual_usd": 0.022289
+    },
+    {
+      "id": "a2f3dce4-080f-47bf-805b-16a27d0a18b3:shielding:2",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb67a52d805acbf70a42d8",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15731,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1054,
+        "output_tokens_details": {
+          "reasoning_tokens": 853
+        },
+        "total_tokens": 16785
+      },
+      "actual_usd": 0.02414325
+    },
+    {
+      "id": "a2f3dce4-080f-47bf-805b-16a27d0a18b3:assurance-review",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb67b860469acaf30f4f92",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 15136,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2192,
+        "output_tokens_details": {
+          "reasoning_tokens": 1994
+        },
+        "total_tokens": 17328
+      },
+      "actual_usd": 0.028236
+    },
+    {
+      "id": "d877b5a7-cb8b-416f-8189-b3eb465112b4:consolidate:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb67e05af7ba1ce1274c6e",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2546,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 4632,
+        "output_tokens_details": {
+          "reasoning_tokens": 3633
+        },
+        "total_tokens": 7178
+      },
+      "actual_usd": 0.0228685
+    },
+    {
+      "id": "d877b5a7-cb8b-416f-8189-b3eb465112b4:consolidate:construction",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb67f311ccaebd83724044",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2315,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2530,
+        "output_tokens_details": {
+          "reasoning_tokens": 2037
+        },
+        "total_tokens": 4845
+      },
+      "actual_usd": 0.01364625
+    },
+    {
+      "id": "d877b5a7-cb8b-416f-8189-b3eb465112b4:consolidate:director",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb6812ad901951e0cd474b",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 2308,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 3830,
+        "output_tokens_details": {
+          "reasoning_tokens": 3158
+        },
+        "total_tokens": 6138
+      },
+      "actual_usd": 0.0191625
+    },
+    {
+      "id": "06536ba1-7b73-4303-8261-d34f0e330392:assessment:assurance",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "response_id": "resp_6aeb685f120a4d4c67c04da4",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 14714,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1283,
+        "output_tokens_details": {
+          "reasoning_tokens": 956
+        },
+        "total_tokens": 15997
+      },
+      "actual_usd": 0.02384525
+    },
+    {
+      "id": "06536ba1-7b73-4303-8261-d34f0e330392:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "response_id": "resp_6aeb686dcea3768717514d9a",
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 16001,
+        "input_tokens_details": {
+          "cached_tokens": 2548
+        },
+        "output_tokens": 1914,
+        "output_tokens_details": {
+          "reasoning_tokens": 1726
+        },
+        "total_tokens": 17915
+      },
+      "actual_usd": 0.0926016
+    }
+  ],
+  "runtime_source_sha256": {
+    "agents.py": "bcc7464cf5d1b57ec0b0edf7d2d5346e6a68033e08cb4e54c6d75260f849d635",
+    "api.py": "6ba9e10275c9b83e29b8fb9b6cc705faea998d6dc17be823ef7c97f9162eaa06",
+    "cli.py": "02957637d6c6f857c0aeb18893a76cff40e2d48bac976ae0ec5a240899aba4be",
+    "climate.py": "b8abc530c4a6b04d1ab23250a58aef591593d2cd8a50b1be76e619582fcd4420",
+    "conditions.py": "f5c2f27717e87d6feb520bfc7d163c6ed19922bddd90a679f037f23c646883e5",
+    "engine.py": "66e8a7a612e03cf69634486cc310bc479a536cae2db4f17849f2147ca8e63282",
+    "environments.py": "fa90b60401ddd13e6e8e3dfccb0a3c9e963799849cf3a5605e267171aa25ed5a",
+    "evaluation.py": "8295f6956e21d9c7e795e405e6d19e0e1358c942ef10ed4960514b9e3b2e5d55",
+    "evidence.py": "c8c2da753f706310fa934688f196ae33abccaf3f4f16a7c6a3733bbac9549308",
+    "hazards.py": "987cc56400e8ffc982bc9c05380064a8f756a27271891506aec0ecf34067ac46",
+    "inspection.py": "4ca0bf54ca1b21663e6d3e5f80ff7a4779ac3870bc1b09bf0a7a72d5173ac7c7",
+    "logistics.py": "27fde9c75d9769b35f35fcdeb0e6c5babcd8b7cb1bea7a6bef0052e1c1efe954",
+    "media.py": "9156832242558a1e01568025d4e8e2c803abbc18a96b4d96904857ea3837ff32",
+    "nowcast.py": "c5115e33989a1b42ba335957a2a87bb6fa4132f855caa3d6c56f295fa0d5f1aa",
+    "package.py": "c055aeaafa5995e3c12940bd13d4d356112f512a10c7d73129f66edd97a553fc",
+    "physics-references.json": "a1768d4246d15d0af1bab1dd51b8a9f6e350d52065a5a4e2b4eb7dbc18fbb506",
+    "physics.py": "7170183d37315ed2a47caea938832514ff6e0f46e24da13502761fc551a91e02",
+    "planner.py": "66a672d8f56c07ee3f06c7edb2e169124922a533658d0882f373b37aab0451a3",
+    "policies.py": "3d34d36a2e02d56f3acfe0ac22cbbc209a2c8fa04d72447faa914c99aa1dc0c5",
+    "procedures.py": "84a3593072f24ef7bebbb5d0c08821a74f2bac30854d4f6e3ece138922327da7",
+    "provider.py": "338a09c7d5945b4487500696585a6167c6f76ed2fbc542994a87114e13a395ee",
+    "region.py": "b703fddfb06cdeb48bdab2303ff8a21959c500190d094c02f0dece8a9cc9171c",
+    "robustness.py": "5603d1d7f1474645be333e019fba852e328db42cad2b55f1140023b2933665b3",
+    "route.py": "ba39f83fbbb12aa799a750b17edbd7c0fb92cc1eb95d208c4cb5702da51c381e",
+    "schedule.py": "e8b7d33acf9d3615d9537958aa82c27909e5e40b6687fcb28b3b162ab92a89a1",
+    "science.py": "0b0da10dc7b179f590bc616bcdef1c2e80583b2bb5d7d8cf510307a93be32197",
+    "spec.py": "d824825d5d58c4332a7f183f53b45afbf7faa68f92c761baa27aab6f05782984",
+    "store.py": "6bc25ee569ceef73bd381b8c60a8b13f3a8d46bcf82e65447a6cb06d8b8cce4f",
+    "telemetry.py": "5af3b7b3567143c80f891685c9fec60e95bbcc92a79c8d53835e4bca9ca8267e",
+    "terrain.py": "0a182f4f30b8859240086e1c13ba06dbc8558afc0f4b419939c1c31ffb7bb98a",
+    "verify_sources.py": "5babe8d6fd4a78bfb5f2310e7d5d9dfddb84ba42f0087a4f6af74ffd778c6eae",
+    "water.py": "3ca185fc6a863abfe5252fe2202750b8a52fe39174795595defa4d3eedc22d32",
+    "worker.py": "cb62f14392c4444444af3a158a2a86c4eb6f9c43b5186dd818d9cac5438037e3",
+    "__init__.py": "670bfd5d9cf660aca0498adaf088570fb7fbdcc823acf251b9822fc359e52781",
+    "packages/arcadia-mars-v1.json": "bf35d82f77f1b55f5b8a7a7d047962ca13d8a4d45ad97f363a80b2ebdbac8ba3",
+    "packages/earth-regolith-lab-v1.json": "39da562612a69560879a4ae07e907fd8a6549ae6d98a1db7e472daa658697fb2",
+    "packages/moon-south-pole-v1.json": "d3c386e68adab24dae39fa173bcb96438a9a3fcdf1cc14e3b5586e81dde69d6a"
+  },
+  "limits": [
+    "Default D4 assumes preplaced habitat; no compatible repair/swap/offload or thermal calibration manifest was invented.",
+    "Pinned evidence/experiment conditions are frozen. This is not a public real-time operations soak."
+  ]
+}

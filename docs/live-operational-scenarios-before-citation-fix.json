@@ -1,0 +1,1573 @@
+{
+  "scope": "Real Meta calls versus fixed-priority on controlled fault experiments; no claim of actual Mars equipment operation or superiority",
+  "engine_version": "arcadia-mars-v1/engine-10-standing-orders",
+  "input_hash": "4cd951493e5f2039ed29f3609ed2685000c0dc3eb444bbe771bcb1ef8b8f0810",
+  "source_pins": {
+    "nasa-dra": "nasa-dra:592bda3d069562f5",
+    "nasa-m2m": "nasa-m2m:71c1209404c7c93a",
+    "swim": "swim:760202f154dcb2a6",
+    "mola": "mola:51e2ad3502c029d2",
+    "rems": "rems:e6e93ff6e5ccce88",
+    "kleinhenz2017": "kleinhenz2017:d36ee9a39ade86a3",
+    "rassor2016": "rassor2016:b673c0bf0efb81c3",
+    "fsp2024": "fsp2024:73135570a56b2eac",
+    "m2020launch": "m2020launch:9df73b798c347523",
+    "m2020landing": "m2020landing:6d5beb0f1e10d809",
+    "autonav2021": "autonav2021:499887d7c608a63e",
+    "nssdc_mars": "nssdc_mars:ebe980c6a23c9a16",
+    "tp3079": "tp3079:0effc401c43d7b12",
+    "howard2023": "howard2023:478a93766d19a01e",
+    "mank2021": "mank2021:58a94e048d7accd8",
+    "hoffman2016": "hoffman2016:ed43ad3e4e3f6a70",
+    "iapws": "iapws:c70474ee2e5bdaeb",
+    "proofwiki_gallon": "proofwiki_gallon:4a5452c7562c7b3e",
+    "oleson2022": "oleson2022:ee8e7f5d35b8a5f4",
+    "stolov2026": "stolov2026:87e557ba2a4a2518",
+    "nssdc_sun": "nssdc_sun:cef274113c6cbf3d",
+    "lasp2015": "lasp2015:752436b75835b99f",
+    "erfa": "erfa:5103e0d76f0bcdee",
+    "mars24": "mars24:e7887192f3095dc1",
+    "dust_gds_2021": "dust_gds_2021:29f45b0f9c46be00",
+    "stancliff2005": "stancliff2005:316299b0688fa87a",
+    "dsn_now": "dsn_now:a23222bf6151cc2c",
+    "usgs_hirise_footprints": "usgs_hirise_footprints:a4219aab4cb78375",
+    "schuler2019": "schuler2019:66177f8d43c91b28",
+    "nasa_night2022": "nasa_night2022:0e0add562fdff38e",
+    "arcadia-mars-v1": "arcadia-mars-v1:8d2cba815edf28cf",
+    "msl-weather": "msl-weather:62581c8183e0c56d",
+    "sicsa-outpost": "sicsa-outpost:f1ca3cc76810763a",
+    "swim-radar": "swim-radar:a3b62165bea033f3",
+    "mola-arcadia": "mola-arcadia:371bd6b8622af3fc",
+    "redwater2019": "redwater2019:f0f7f064c5c47955",
+    "rover-components": "rover-components:33264826e4aa3766",
+    "rover-battery2021": "rover-battery2021:785a58def3ee7eff",
+    "nist-water": "nist-water:f3dfa05d5f5d622f",
+    "rad750-bae2025": "rad750-bae2025:bafa1d48c8362914",
+    "rad750-heritage-nasa": "rad750-heritage-nasa:69bdd5ec3aeb96b6",
+    "rad750-niac": "rad750-niac:e54416b2a090b20d",
+    "nist-gallon": "nist-gallon:60f9a154fa03fd4a",
+    "arcadia-climate": "arcadia-climate:b86b23c4eb87e2aa",
+    "hirise-ground": "hirise-ground:88104f0d0c797c6d"
+  },
+  "clock_epoch_unix": 1793739234.174964,
+  "seed": "controlled-acceptance-1",
+  "natural_random_failures": false,
+  "horizon_ticks": 8,
+  "cases": {
+    "nominal": {
+      "status": "completed bounded run",
+      "failure": null,
+      "database": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\output\\live-acceptance\\run-z0norcc2\\agent-loop.db",
+      "input_hash": "4cd951493e5f2039ed29f3609ed2685000c0dc3eb444bbe771bcb1ef8b8f0810",
+      "fault_schedule": {},
+      "duration_s": 237.47636461257935,
+      "planning_passes": 1,
+      "meta": {
+        "ready": false,
+        "readiness_tick": null,
+        "elapsed_ticks": 8,
+        "resources": {
+          "power_commissioning_h": 162.0,
+          "drilled_m": 10.357073999999999,
+          "survey_m": 175.14999999999995,
+          "trench_kg": 2774.216250000001,
+          "shield_kg": 0.0,
+          "water_kg": 0.0
+        },
+        "grid_energy_kwh": 123.2985,
+        "scenario_operations_usd": 149561.49927219748,
+        "constraint_violations": [],
+        "blocked": {
+          "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available",
+          "water": "Waiting for drill the rodwell through the overburden; No compatible equipment is available"
+        }
+      },
+      "fixed_priority": {
+        "ready": false,
+        "readiness_tick": null,
+        "elapsed_ticks": 8,
+        "resources": {
+          "power_commissioning_h": 162.0,
+          "drilled_m": 9.06243975,
+          "survey_m": 175.14999999999995,
+          "trench_kg": 2427.4392187500007,
+          "shield_kg": 0.0,
+          "water_kg": 0.0
+        },
+        "grid_energy_kwh": 107.8861875,
+        "scenario_operations_usd": 149561.49927219748,
+        "constraint_violations": [],
+        "blocked": {
+          "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available",
+          "water": "Waiting for drill the rodwell through the overburden; No compatible equipment is available"
+        }
+      },
+      "provider_requests": [
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:consolidate:assurance",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab5e003bfa807e46a42ec",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 5221,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2645,
+            "output_tokens_details": {
+              "reasoning_tokens": 2063
+            },
+            "total_tokens": 7866
+          },
+          "actual_usd": 0.0177675
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:consolidate:construction",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab5fa529594dfc15343f6",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4619,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 3138,
+            "output_tokens_details": {
+              "reasoning_tokens": 2725
+            },
+            "total_tokens": 7757
+          },
+          "actual_usd": 0.01911025
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:consolidate:power",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab60b673746b3e9bf4faf",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4785,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2061,
+            "output_tokens_details": {
+              "reasoning_tokens": 1799
+            },
+            "total_tokens": 6846
+          },
+          "actual_usd": 0.0147405
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:consolidate:resources",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab62c7898621d53dd4b35",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4693,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 3975,
+            "output_tokens_details": {
+              "reasoning_tokens": 3650
+            },
+            "total_tokens": 8668
+          },
+          "actual_usd": 0.02276
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:consolidate:survey",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab63c208583cf04d547c6",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4927,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1922,
+            "output_tokens_details": {
+              "reasoning_tokens": 1595
+            },
+            "total_tokens": 6849
+          },
+          "actual_usd": 0.01432725
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:assessment:construction",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab64ecd6d795c6fe34edc",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13595,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1868,
+            "output_tokens_details": {
+              "reasoning_tokens": 1549
+            },
+            "total_tokens": 15463
+          },
+          "actual_usd": 0.02493275
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:assessment:resources",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab662c668a678a4d04efe",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13513,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2356,
+            "output_tokens_details": {
+              "reasoning_tokens": 1963
+            },
+            "total_tokens": 15869
+          },
+          "actual_usd": 0.02690425
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:assessment:assurance",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab67136989819afaf4c2a",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13668,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1677,
+            "output_tokens_details": {
+              "reasoning_tokens": 1323
+            },
+            "total_tokens": 15345
+          },
+          "actual_usd": 0.02421225
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:director",
+          "model": "muse-wonder-1.0",
+          "status": "received",
+          "response_id": "resp_6aeab684438630bd733f44d9",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15099,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2315,
+            "output_tokens_details": {
+              "reasoning_tokens": 1965
+            },
+            "total_tokens": 17414
+          },
+          "actual_usd": 0.106696
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:drill:0",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab68b21b3b25a6caa4d55",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14405,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 824,
+            "output_tokens_details": {
+              "reasoning_tokens": 513
+            },
+            "total_tokens": 15229
+          },
+          "actual_usd": 0.02150825
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:drill:1",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab696efae640a0b5d477a",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15199,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1238,
+            "output_tokens_details": {
+              "reasoning_tokens": 1039
+            },
+            "total_tokens": 16437
+          },
+          "actual_usd": 0.02426025
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:trench:0",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab69c8297cc741c324561",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14433,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 544,
+            "output_tokens_details": {
+              "reasoning_tokens": 389
+            },
+            "total_tokens": 14977
+          },
+          "actual_usd": 0.02035325
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:trench:1",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab6a40f8de1ecc8cb48a9",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14646,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 931,
+            "output_tokens_details": {
+              "reasoning_tokens": 723
+            },
+            "total_tokens": 15577
+          },
+          "actual_usd": 0.02226425
+        },
+        {
+          "id": "97d1627d-9da2-4117-8475-b9293dc87d25:assurance-review",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab6b5fbb7e947a6914353",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14799,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1967,
+            "output_tokens_details": {
+              "reasoning_tokens": 1715
+            },
+            "total_tokens": 16766
+          },
+          "actual_usd": 0.0268585
+        }
+      ]
+    },
+    "power-loss": {
+      "status": "failed",
+      "failure": "Planning stopped: Bounded model context exceeded 100 KB after shortening background evidence (110455 bytes; largest parts: unavailable). Owner intervention required.",
+      "database": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\output\\live-acceptance\\run-o1ui757s\\agent-loop.db",
+      "input_hash": "4cd951493e5f2039ed29f3609ed2685000c0dc3eb444bbe771bcb1ef8b8f0810",
+      "fault_schedule": {
+        "0": {
+          "power_capacity_kw": 0
+        },
+        "6": {
+          "power_capacity_kw": 40.0
+        }
+      },
+      "duration_s": 233.76403164863586,
+      "planning_passes": 1,
+      "meta": {
+        "ready": false,
+        "readiness_tick": null,
+        "elapsed_ticks": 0,
+        "resources": {
+          "power_commissioning_h": 162.0,
+          "drilled_m": 0.0,
+          "survey_m": 175.14999999999995,
+          "trench_kg": 0.0,
+          "shield_kg": 0.0,
+          "water_kg": 0.0
+        },
+        "grid_energy_kwh": 0.0,
+        "scenario_operations_usd": 0.0,
+        "constraint_violations": [],
+        "blocked": {
+          "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available",
+          "water": "Waiting for drill the rodwell through the overburden; No compatible equipment is available"
+        }
+      },
+      "fixed_priority": {
+        "ready": false,
+        "readiness_tick": null,
+        "elapsed_ticks": 0,
+        "resources": {
+          "power_commissioning_h": 162.0,
+          "drilled_m": 0.0,
+          "survey_m": 175.14999999999995,
+          "trench_kg": 0.0,
+          "shield_kg": 0.0,
+          "water_kg": 0.0
+        },
+        "grid_energy_kwh": 0.0,
+        "scenario_operations_usd": 0.0,
+        "constraint_violations": [],
+        "blocked": {
+          "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available",
+          "water": "Waiting for drill the rodwell through the overburden; No compatible equipment is available"
+        }
+      },
+      "provider_requests": [
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:consolidate:assurance",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab6c78abefb3ca04540d8",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 5221,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2183,
+            "output_tokens_details": {
+              "reasoning_tokens": 1864
+            },
+            "total_tokens": 7404
+          },
+          "actual_usd": 0.015804
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:consolidate:construction",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab6d69d3b24922c09453f",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4619,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1796,
+            "output_tokens_details": {
+              "reasoning_tokens": 1388
+            },
+            "total_tokens": 6415
+          },
+          "actual_usd": 0.01340675
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:consolidate:power",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab6efe5733c582e4d48b1",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4785,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2956,
+            "output_tokens_details": {
+              "reasoning_tokens": 2559
+            },
+            "total_tokens": 7741
+          },
+          "actual_usd": 0.01854425
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:consolidate:resources",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab6ff622239ceb85045ea",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4693,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1949,
+            "output_tokens_details": {
+              "reasoning_tokens": 1489
+            },
+            "total_tokens": 6642
+          },
+          "actual_usd": 0.0141495
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:consolidate:survey",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab713e5af39190ae246a2",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4927,
+            "input_tokens_details": {
+              "cached_tokens": 4849
+            },
+            "output_tokens": 2302,
+            "output_tokens_details": {
+              "reasoning_tokens": 1978
+            },
+            "total_tokens": 7229
+          },
+          "actual_usd": 0.01060835
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:assessment:construction",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab723e70cdf8d402146ef",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13593,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1934,
+            "output_tokens_details": {
+              "reasoning_tokens": 1603
+            },
+            "total_tokens": 15527
+          },
+          "actual_usd": 0.02521075
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:assessment:resources",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab73949db78f32faf471b",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13648,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2617,
+            "output_tokens_details": {
+              "reasoning_tokens": 2280
+            },
+            "total_tokens": 16265
+          },
+          "actual_usd": 0.02818225
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:assessment:assurance",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab753deb450a8a0de4460",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13453,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 3120,
+            "output_tokens_details": {
+              "reasoning_tokens": 2652
+            },
+            "total_tokens": 16573
+          },
+          "actual_usd": 0.03007625
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:director",
+          "model": "muse-wonder-1.0",
+          "status": "received",
+          "response_id": "resp_6aeab78ab260c2615a4842bf",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15182,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 5282,
+            "output_tokens_details": {
+              "reasoning_tokens": 5083
+            },
+            "total_tokens": 20464
+          },
+          "actual_usd": 0.166368
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:drill:0",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab78f597ed9a481024214",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14479,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 467,
+            "output_tokens_details": {
+              "reasoning_tokens": 371
+            },
+            "total_tokens": 14946
+          },
+          "actual_usd": 0.0200835
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:drill:1",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab79922693aa15a1c4075",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14566,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1458,
+            "output_tokens_details": {
+              "reasoning_tokens": 1217
+            },
+            "total_tokens": 16024
+          },
+          "actual_usd": 0.024404
+        },
+        {
+          "id": "7194e6d4-84c6-4685-b77c-4ec1604f432f:drill:2",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab7a00cbc0b53722e469a",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15281,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 643,
+            "output_tokens_details": {
+              "reasoning_tokens": 581
+            },
+            "total_tokens": 15924
+          },
+          "actual_usd": 0.021834
+        }
+      ]
+    },
+    "delayed-excavation": {
+      "status": "completed bounded run",
+      "failure": null,
+      "database": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\output\\live-acceptance\\run-i3syocwe\\agent-loop.db",
+      "input_hash": "4cd951493e5f2039ed29f3609ed2685000c0dc3eb444bbe771bcb1ef8b8f0810",
+      "fault_schedule": {
+        "0": {
+          "equipment": {
+            "excavator-1": false,
+            "excavator-2": false
+          }
+        },
+        "6": {
+          "equipment": {
+            "excavator-1": true,
+            "excavator-2": true
+          }
+        }
+      },
+      "duration_s": 458.5053403377533,
+      "planning_passes": 2,
+      "meta": {
+        "ready": false,
+        "readiness_tick": null,
+        "elapsed_ticks": 8,
+        "resources": {
+          "power_commissioning_h": 162.0,
+          "drilled_m": 10.357073999999999,
+          "survey_m": 175.14999999999995,
+          "trench_kg": 693.5540625000001,
+          "shield_kg": 0.0,
+          "water_kg": 0.0
+        },
+        "grid_energy_kwh": 123.2985,
+        "scenario_operations_usd": 149561.49927219748,
+        "constraint_violations": [],
+        "blocked": {
+          "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available",
+          "water": "Waiting for drill the rodwell through the overburden; No compatible equipment is available"
+        }
+      },
+      "fixed_priority": {
+        "ready": false,
+        "readiness_tick": null,
+        "elapsed_ticks": 8,
+        "resources": {
+          "power_commissioning_h": 162.0,
+          "drilled_m": 9.06243975,
+          "survey_m": 175.14999999999995,
+          "trench_kg": 346.77703125000005,
+          "shield_kg": 0.0,
+          "water_kg": 0.0
+        },
+        "grid_energy_kwh": 107.8861875,
+        "scenario_operations_usd": 149561.49927219748,
+        "constraint_violations": [],
+        "blocked": {
+          "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available",
+          "water": "Waiting for drill the rodwell through the overburden; No compatible equipment is available"
+        }
+      },
+      "provider_requests": [
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:consolidate:assurance",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab7b0b0b94fdd0062439f",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 5221,
+            "input_tokens_details": {
+              "cached_tokens": 5105
+            },
+            "output_tokens": 1968,
+            "output_tokens_details": {
+              "reasoning_tokens": 1628
+            },
+            "total_tokens": 7189
+          },
+          "actual_usd": 0.00927475
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:consolidate:construction",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab7c9614ffb3166b44110",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4619,
+            "input_tokens_details": {
+              "cached_tokens": 4593
+            },
+            "output_tokens": 3360,
+            "output_tokens_details": {
+              "reasoning_tokens": 2903
+            },
+            "total_tokens": 7979
+          },
+          "actual_usd": 0.015001450000000001
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:consolidate:power",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab7dd8211b252c2844e0e",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4785,
+            "input_tokens_details": {
+              "cached_tokens": 4721
+            },
+            "output_tokens": 2527,
+            "output_tokens_details": {
+              "reasoning_tokens": 2166
+            },
+            "total_tokens": 7312
+          },
+          "actual_usd": 0.011527899999999999
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:consolidate:resources",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab7ef7d6c791cdcdd4932",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4693,
+            "input_tokens_details": {
+              "cached_tokens": 4593
+            },
+            "output_tokens": 1971,
+            "output_tokens_details": {
+              "reasoning_tokens": 1664
+            },
+            "total_tokens": 6664
+          },
+          "actual_usd": 0.009190700000000001
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:consolidate:survey",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab8036e9687cb97134d44",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4927,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2323,
+            "output_tokens_details": {
+              "reasoning_tokens": 1981
+            },
+            "total_tokens": 7250
+          },
+          "actual_usd": 0.0160315
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:assessment:construction",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab81aa3537bc41ae44ed7",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13685,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2743,
+            "output_tokens_details": {
+              "reasoning_tokens": 2374
+            },
+            "total_tokens": 16428
+          },
+          "actual_usd": 0.028764
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:assessment:logistics",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab8250059f69fca7d4d1a",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13280,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1280,
+            "output_tokens_details": {
+              "reasoning_tokens": 929
+            },
+            "total_tokens": 14560
+          },
+          "actual_usd": 0.02204
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:assessment:resources",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab831c9a864e7f2344e84",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13556,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1535,
+            "output_tokens_details": {
+              "reasoning_tokens": 1193
+            },
+            "total_tokens": 15091
+          },
+          "actual_usd": 0.02346875
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:assessment:assurance",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab83fcd299a0f53744906",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13513,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1745,
+            "output_tokens_details": {
+              "reasoning_tokens": 1358
+            },
+            "total_tokens": 15258
+          },
+          "actual_usd": 0.0243075
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:director",
+          "model": "muse-wonder-1.0",
+          "status": "received",
+          "response_id": "resp_6aeab850623c78de50cf4193",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15464,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1897,
+            "output_tokens_details": {
+              "reasoning_tokens": 1654
+            },
+            "total_tokens": 17361
+          },
+          "actual_usd": 0.099796
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:drill:0",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab8570d6143d6d527467a",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14400,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 867,
+            "output_tokens_details": {
+              "reasoning_tokens": 554
+            },
+            "total_tokens": 15267
+          },
+          "actual_usd": 0.02168475
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:drill:1",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab860f8095855afd24d2d",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15194,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 957,
+            "output_tokens_details": {
+              "reasoning_tokens": 769
+            },
+            "total_tokens": 16151
+          },
+          "actual_usd": 0.02305975
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:trench:0",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab8683bb275df68c241ba",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14576,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1047,
+            "output_tokens_details": {
+              "reasoning_tokens": 891
+            },
+            "total_tokens": 15623
+          },
+          "actual_usd": 0.02266975
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:trench:1",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab8783cb5668192824404",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14818,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1973,
+            "output_tokens_details": {
+              "reasoning_tokens": 1778
+            },
+            "total_tokens": 16791
+          },
+          "actual_usd": 0.02690775
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:assurance-review",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab88665e2d40f5b164ef6",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14328,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1714,
+            "output_tokens_details": {
+              "reasoning_tokens": 1521
+            },
+            "total_tokens": 16042
+          },
+          "actual_usd": 0.0251945
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:logistics",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab89174e8bc69702f405c",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13442,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1513,
+            "output_tokens_details": {
+              "reasoning_tokens": 1112
+            },
+            "total_tokens": 14955
+          },
+          "actual_usd": 0.02323275
+        },
+        {
+          "id": "47ecb2ae-fe9a-46cb-a6fc-e7ad16462f90:conflict-director",
+          "model": "muse-wonder-1.0",
+          "status": "received",
+          "response_id": "resp_6aeab8a6646cbe8e99744ee4",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13968,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1987,
+            "output_tokens_details": {
+              "reasoning_tokens": 1761
+            },
+            "total_tokens": 15955
+          },
+          "actual_usd": 0.095612
+        },
+        {
+          "id": "f2ef4b41-fd42-4c19-80fb-bc3a8639f15b:assessment:construction",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab8b68df0785c8c314e4d",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14736,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1660,
+            "output_tokens_details": {
+              "reasoning_tokens": 1354
+            },
+            "total_tokens": 16396
+          },
+          "actual_usd": 0.025475
+        },
+        {
+          "id": "f2ef4b41-fd42-4c19-80fb-bc3a8639f15b:assessment:resources",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab8c23ca76f7976a64b2e",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14617,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1721,
+            "output_tokens_details": {
+              "reasoning_tokens": 1376
+            },
+            "total_tokens": 16338
+          },
+          "actual_usd": 0.0255855
+        },
+        {
+          "id": "f2ef4b41-fd42-4c19-80fb-bc3a8639f15b:assessment:assurance",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab8d5dc56ff09c2c34e17",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14479,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2447,
+            "output_tokens_details": {
+              "reasoning_tokens": 2053
+            },
+            "total_tokens": 16926
+          },
+          "actual_usd": 0.0284985
+        },
+        {
+          "id": "f2ef4b41-fd42-4c19-80fb-bc3a8639f15b:director",
+          "model": "muse-wonder-1.0",
+          "status": "received",
+          "response_id": "resp_6aeab90ea00c702c347e4289",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 16571,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 5873,
+            "output_tokens_details": {
+              "reasoning_tokens": 5499
+            },
+            "total_tokens": 22444
+          },
+          "actual_usd": 0.183744
+        },
+        {
+          "id": "f2ef4b41-fd42-4c19-80fb-bc3a8639f15b:trench:0",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab9164f89c64b95954223",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15781,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 997,
+            "output_tokens_details": {
+              "reasoning_tokens": 842
+            },
+            "total_tokens": 16778
+          },
+          "actual_usd": 0.0239635
+        },
+        {
+          "id": "f2ef4b41-fd42-4c19-80fb-bc3a8639f15b:trench:1",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab9363735ce40654a4ffa",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15994,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 4109,
+            "output_tokens_details": {
+              "reasoning_tokens": 3893
+            },
+            "total_tokens": 20103
+          },
+          "actual_usd": 0.03745575
+        },
+        {
+          "id": "f2ef4b41-fd42-4c19-80fb-bc3a8639f15b:assurance-review",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab96a14ee1f85529543d4",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15052,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6302,
+            "output_tokens_details": {
+              "reasoning_tokens": 6100
+            },
+            "total_tokens": 21354
+          },
+          "actual_usd": 0.0455985
+        }
+      ]
+    },
+    "equipment-failure": {
+      "status": "completed bounded run",
+      "failure": null,
+      "database": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\output\\live-acceptance\\run-inqq4wek\\agent-loop.db",
+      "input_hash": "4cd951493e5f2039ed29f3609ed2685000c0dc3eb444bbe771bcb1ef8b8f0810",
+      "fault_schedule": {
+        "0": {
+          "equipment": {
+            "excavator-1": false
+          }
+        }
+      },
+      "duration_s": 258.97207260131836,
+      "planning_passes": 1,
+      "meta": {
+        "ready": false,
+        "readiness_tick": null,
+        "elapsed_ticks": 8,
+        "resources": {
+          "power_commissioning_h": 162.0,
+          "drilled_m": 10.357073999999999,
+          "survey_m": 175.14999999999995,
+          "trench_kg": 1387.1081250000004,
+          "shield_kg": 0.0,
+          "water_kg": 0.0
+        },
+        "grid_energy_kwh": 123.2985,
+        "scenario_operations_usd": 149561.49927219748,
+        "constraint_violations": [],
+        "blocked": {
+          "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available",
+          "water": "Waiting for drill the rodwell through the overburden; No compatible equipment is available"
+        }
+      },
+      "fixed_priority": {
+        "ready": false,
+        "readiness_tick": null,
+        "elapsed_ticks": 8,
+        "resources": {
+          "power_commissioning_h": 162.0,
+          "drilled_m": 9.06243975,
+          "survey_m": 175.14999999999995,
+          "trench_kg": 1213.7196093750003,
+          "shield_kg": 0.0,
+          "water_kg": 0.0
+        },
+        "grid_energy_kwh": 107.8861875,
+        "scenario_operations_usd": 149561.49927219748,
+        "constraint_violations": [],
+        "blocked": {
+          "shielding": "Waiting for excavate the habitat trench; No compatible equipment is available",
+          "water": "Waiting for drill the rodwell through the overburden; No compatible equipment is available"
+        }
+      },
+      "provider_requests": [
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:consolidate:assurance",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab98089aaab849df44197",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 5221,
+            "input_tokens_details": {
+              "cached_tokens": 5105
+            },
+            "output_tokens": 2930,
+            "output_tokens_details": {
+              "reasoning_tokens": 2444
+            },
+            "total_tokens": 8151
+          },
+          "actual_usd": 0.01336325
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:consolidate:construction",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab98ec95b43febce345c9",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4619,
+            "input_tokens_details": {
+              "cached_tokens": 4593
+            },
+            "output_tokens": 1853,
+            "output_tokens_details": {
+              "reasoning_tokens": 1602
+            },
+            "total_tokens": 6472
+          },
+          "actual_usd": 0.0085967
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:consolidate:power",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab9a7d142797b817a4669",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4785,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 3352,
+            "output_tokens_details": {
+              "reasoning_tokens": 2982
+            },
+            "total_tokens": 8137
+          },
+          "actual_usd": 0.02022725
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:consolidate:resources",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab9b559e83c1216864d42",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4693,
+            "input_tokens_details": {
+              "cached_tokens": 4593
+            },
+            "output_tokens": 1890,
+            "output_tokens_details": {
+              "reasoning_tokens": 1574
+            },
+            "total_tokens": 6583
+          },
+          "actual_usd": 0.00884645
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:consolidate:survey",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab9c99f84bacafa234208",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 4927,
+            "input_tokens_details": {
+              "cached_tokens": 4849
+            },
+            "output_tokens": 2635,
+            "output_tokens_details": {
+              "reasoning_tokens": 2316
+            },
+            "total_tokens": 7562
+          },
+          "actual_usd": 0.0120236
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:assessment:construction",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab9db68bc35fb5533446e",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13471,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1510,
+            "output_tokens_details": {
+              "reasoning_tokens": 1175
+            },
+            "total_tokens": 14981
+          },
+          "actual_usd": 0.02325625
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:assessment:logistics",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab9ec68553dbf820743ff",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13248,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2007,
+            "output_tokens_details": {
+              "reasoning_tokens": 1676
+            },
+            "total_tokens": 15255
+          },
+          "actual_usd": 0.02508975
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:assessment:resources",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeab9f7a2c8695f85e949c8",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13532,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1381,
+            "output_tokens_details": {
+              "reasoning_tokens": 1047
+            },
+            "total_tokens": 14913
+          },
+          "actual_usd": 0.02278425
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:assessment:assurance",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeaba0751de38a61bfa4535",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13609,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1913,
+            "output_tokens_details": {
+              "reasoning_tokens": 1520
+            },
+            "total_tokens": 15522
+          },
+          "actual_usd": 0.0251415
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:director",
+          "model": "muse-wonder-1.0",
+          "status": "received",
+          "response_id": "resp_6aeaba22840d440d9c5c4d77",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15374,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 3061,
+            "output_tokens_details": {
+              "reasoning_tokens": 2721
+            },
+            "total_tokens": 18435
+          },
+          "actual_usd": 0.122716
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:drill:0",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeaba297b2aade2b19c4b3d",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14371,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1052,
+            "output_tokens_details": {
+              "reasoning_tokens": 734
+            },
+            "total_tokens": 15423
+          },
+          "actual_usd": 0.02243475
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:drill:1",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeaba313d916b70c9384dea",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15165,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 941,
+            "output_tokens_details": {
+              "reasoning_tokens": 759
+            },
+            "total_tokens": 16106
+          },
+          "actual_usd": 0.0229555
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:trench:0",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeaba3710fda7fed9d047e3",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14336,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 589,
+            "output_tokens_details": {
+              "reasoning_tokens": 439
+            },
+            "total_tokens": 14925
+          },
+          "actual_usd": 0.02042325
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:trench:1",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeaba43cca9ff6885a747ba",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14538,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1900,
+            "output_tokens_details": {
+              "reasoning_tokens": 1649
+            },
+            "total_tokens": 16438
+          },
+          "actual_usd": 0.0262475
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:trench:2",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeaba51ab464916dc4f4579",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 15374,
+            "input_tokens_details": {
+              "cached_tokens": 14449
+            },
+            "output_tokens": 2187,
+            "output_tokens_details": {
+              "reasoning_tokens": 1953
+            },
+            "total_tokens": 17561
+          },
+          "actual_usd": 0.01261835
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:assurance-review",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeaba611fca2d4136e143b7",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 14809,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 2183,
+            "output_tokens_details": {
+              "reasoning_tokens": 1903
+            },
+            "total_tokens": 16992
+          },
+          "actual_usd": 0.027789
+        },
+        {
+          "id": "010a3cc9-3a0c-4960-b780-5470a3e16802:logistics",
+          "model": "muse-spark-1.3",
+          "status": "received",
+          "response_id": "resp_6aeaba6efbf94a996803483b",
+          "http_status": 200,
+          "usage": {
+            "input_tokens": 13195,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 1707,
+            "output_tokens_details": {
+              "reasoning_tokens": 1492
+            },
+            "total_tokens": 14902
+          },
+          "actual_usd": 0.0237485
+        }
+      ]
+    }
+  },
+  "expected_cases": [
+    "nominal",
+    "power-loss",
+    "delayed-excavation",
+    "equipment-failure"
+  ],
+  "status": "failed cases present",
+  "limits": [
+    "Short controlled horizon is not full-mission readiness or long-duration reliability validation.",
+    "Faults are operator-injected scenarios; original observations and source versions remain unchanged."
+  ],
+  "checked_at": 1793768046.32714
+}

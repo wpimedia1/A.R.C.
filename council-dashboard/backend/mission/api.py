@@ -46,6 +46,7 @@ def create_app(store=None):
     @app.middleware('http')
     async def boundaries(request, call_next):
         if request.method not in ('GET','HEAD','OPTIONS'):
+            if os.getenv('ACCEPTANCE_READ_ONLY')=='1':return Response('This isolated acceptance view is read-only; use the review app for experiments',403)
             origin=request.headers.get('origin')
             # Same-origin means the page was served by this host (localhost or 127.0.0.1), or the configured public origin.
             allowed={str(request.base_url).rstrip('/')}|({os.getenv('PUBLIC_ORIGIN').rstrip('/')} if os.getenv('PUBLIC_ORIGIN') else set())
@@ -83,7 +84,8 @@ def create_app(store=None):
 
     @app.get('/api/v1/missions/{mid}/records')
     def compact_records(mid:str,request:Request):
-        result=store.export(mid,owner(request))
+        from .inspection import records
+        result=records(store,mid,owner(request))
         sources={key:{k:v for k,v in source.items() if k not in ('raw_content_hex','content')} for key,source in result['sources'].items()}
         for source in sources.values():
             source['age_seconds']=time.time()-source['retrieved_at'] if source.get('retrieved_at') else None
@@ -133,7 +135,8 @@ def create_app(store=None):
         with Session(store.engine) as db:
             r=db.scalar(select(Revision).where(Revision.mission_id==mid,Revision.revision==n))
             if not r:raise HTTPException(404,'No such revision')
-            return {'revision':r.revision,'at':r.created,'operation':r.operation,'state':r.state}
+            from .engine import effective_clock
+            return {'revision':r.revision,'at':r.created,'operation':r.operation,'state':r.state,'simulation_clock':effective_clock(r.state)}
 
     @app.get('/api/v1/missions/{mid}/operations')
     def operations(mid:str,request:Request):
@@ -178,7 +181,7 @@ def create_app(store=None):
         try: live=store.environment(now, None); error=None
         except Exception as exc: live=None; error=f'{type(exc).__name__}: {exc}'[:400]
         return {'now':live,'error':error,'conditions_status':store.status('conditions'),'dsn':store.status('dsn'),
-                'applied':applied,'mission_status':status,'observations':observations}
+                'worker':store.status('worker'),'applied':applied,'mission_status':status,'observations':observations}
 
     @app.get('/api/v1/environment/weather')
     def weather():
@@ -188,27 +191,37 @@ def create_app(store=None):
         return {'stations':summary(store,load()['values']['mars.sol_s']),'feeds':store.status('weather-feeds')}
 
     @app.get('/api/v1/site/ground.jpg')
-    def ground_texture():
-        # Ground texture for the 3D scene: centre crop of the HiRISE image nearest the mission site (or the reference image).
-        import io
-        from PIL import Image
-        from .media import HIRISE
+    @app.get('/api/v1/missions/{mid}/evidence/ground.jpg')
+    def ground_texture(request:Request,mid:str='public',version:str|None=None):
+        # Require pinned imagery covering the site. A remote reference image must not impersonate local ground.
         from .science import fetch
         from .store import SourceVersion
-        s=store.snapshot('public')['state']
-        url,product=HIRISE['browse'],HIRISE['product']
+        s=store.snapshot(mid,owner(request))['state']
         si=s.get('site_imagery')
-        if si:
-            with store.transaction() as db:
-                v=db.get(SourceVersion,s['source_pins'].get(si['source_id'],''))
-                if v:url,product=v.record.get('browse',url),v.record.get('product',product)  # browse JPEG, never the full-resolution JP2
+        independent=s['source_pins'].get('hirise-ground')
+        if not independent and (not si or not si.get('applies_to_site')):
+            raise HTTPException(404,'No site-covering imagery is pinned; no reference ground substituted')
+        selected=independent or s['source_pins'].get(si['source_id'],'')
+        if version is not None and version!=selected:raise HTTPException(409,'Evidence pin changed; refresh the mission snapshot before rendering')
+        version=selected
+        with store.transaction() as db:
+            v=db.get(SourceVersion,version)
+            record=v.record if v else {}
+            url=record.get('browse')
+            product=v.record.get('product') if v else None
+        if not record.get('applies_to_site'):raise HTTPException(404,'Pinned imagery does not cover the site')
+        if not url:raise HTTPException(404,'Pinned site imagery has no browse image; no reference ground substituted')
         try:raw,_=fetch(url,60_000_000)
         except Exception as exc:raise HTTPException(502,f'HiRISE image unavailable: {type(exc).__name__}: {exc}')
-        with Image.open(io.BytesIO(raw)) as im:
-            im=im.convert('L');w,h=im.size;side=min(w,h,1600)
-            crop=im.crop(((w-side)//2,(h-side)//2,(w+side)//2,(h+side)//2)).resize((1024,1024))
-            out=io.BytesIO();crop.save(out,format='JPEG',quality=85)
-        return Response(out.getvalue(),media_type='image/jpeg',headers={'Cache-Control':'public, max-age=86400','X-Source-URL':url,'X-Product':product})
+        if independent and hashlib.sha256(raw).hexdigest()!=record.get('content_hash'):
+            raise HTTPException(502,'HiRISE image differs from the pinned source; no replacement ground shown')
+        if record.get('display_kind')!='unannotated-full-rdr-browse':
+            raise HTTPException(409,'Pinned browse is not a verified map raster; inspect the source image in Evidence or adopt the corrected source version')
+        from .media import browse_site_crop,MediaError
+        try:cropped,transform=browse_site_crop(raw,record['coverage_verification'])
+        except (MediaError,KeyError,ValueError) as exc:raise HTTPException(502,'Site image mapping unavailable: '+str(exc))
+        return Response(cropped,media_type='image/jpeg',headers={'Cache-Control':'no-cache','X-Source-URL':url,'X-Product':product or 'unspecified','X-Source-Version':version,
+            'X-Source-Raw-SHA256':record['content_hash'],'X-Image-Transform':json.dumps(transform,separators=(',',':'))})
 
     @app.get('/api/v1/site/segmented.jpg')
     def segmented_image():
@@ -222,6 +235,27 @@ def create_app(store=None):
             b64=(v.record.get('image_source') or {}).get('segmented_jpeg_b64') if v else None
         if not b64:raise HTTPException(404,'The segmented image is the browse JPEG; see image_url')
         return Response(base64.b64decode(b64),media_type='image/jpeg',headers={'Cache-Control':'public, max-age=86400'})
+
+    @app.get('/api/v1/missions/{mid}/evidence/swim.png')
+    def swim_image(mid:str,request:Request):
+        # API and worker use separate filesystems. Serve the mission's pinned image from shared evidence,
+        # not a PNG written into the worker's private frontend directory.
+        from .store import SourceVersion
+        from .science import fetch,SWIM_BROWSE
+        s=store.snapshot(mid,owner(request))['state']
+        vid=s['source_pins'].get('swim')
+        if not vid:raise HTTPException(404,'No SWIM product is pinned to this mission')
+        with store.transaction() as db:
+            version=db.get(SourceVersion,vid);record=deepcopy_or_none(version.record) if version else None
+        if not record:raise HTTPException(404,'Pinned SWIM source version is missing')
+        expected=record.get('browse_hash')
+        if not expected:raise HTTPException(409,'Pinned SWIM source has no browse-image hash')
+        try:
+            raw=bytes.fromhex(record['browse_png_hex']) if record.get('browse_png_hex') else fetch(SWIM_BROWSE,15_000_000)[0]
+        except Exception as exc:raise HTTPException(502,f'Pinned SWIM image unavailable: {type(exc).__name__}')
+        if not raw.startswith(b'\x89PNG\r\n\x1a\n') or hashlib.sha256(raw).hexdigest()!=expected:
+            raise HTTPException(502,'SWIM image differs from the pinned hash; no replacement image shown')
+        return Response(raw,media_type='image/png',headers={'Cache-Control':'private, max-age=86400','X-Source-Version':vid,'X-Content-SHA256':expected})
 
     @app.get('/api/v1/missions/{mid}/export')
     def records(mid:str,request:Request): return store.export(mid,owner(request))

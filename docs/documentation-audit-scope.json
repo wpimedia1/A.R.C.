@@ -1,0 +1,291 @@
+{
+  "audit_date": "2026-11-04",
+  "scope": [
+    {
+      "path": "README.md",
+      "bytes": 9934
+    },
+    {
+      "path": "council-dashboard/README.md",
+      "bytes": 409
+    },
+    {
+      "path": "design-qa.md",
+      "bytes": 3310
+    },
+    {
+      "path": "docs/CAPABILITY-DELTA.md",
+      "bytes": 24820
+    },
+    {
+      "path": "docs/CONTRIBUTIONS.md",
+      "bytes": 6306
+    },
+    {
+      "path": "docs/DECISIONS.md",
+      "bytes": 9901
+    },
+    {
+      "path": "docs/DEMONSTRATION-SCRIPT.md",
+      "bytes": 3824
+    },
+    {
+      "path": "docs/ENGINEERING-PROCEDURES.md",
+      "bytes": 12167
+    },
+    {
+      "path": "docs/ENGINEERING-REFERENCES.md",
+      "bytes": 7042
+    },
+    {
+      "path": "docs/OPERATIONS.md",
+      "bytes": 2089
+    },
+    {
+      "path": "docs/PROJECT-OVERVIEW.md",
+      "bytes": 22673
+    },
+    {
+      "path": "docs/REPAIR-GUIDE.md",
+      "bytes": 16341
+    },
+    {
+      "path": "docs/STATUS.md",
+      "bytes": 6945
+    },
+    {
+      "path": "docs/SUBMISSION-VIDEO-PACKAGE.md",
+      "bytes": 23140
+    },
+    {
+      "path": "docs/UNFINISHED-FEATURES.md",
+      "bytes": 26004
+    },
+    {
+      "path": "docs/WATER-MODEL-REVIEW.md",
+      "bytes": 3029
+    },
+    {
+      "path": "docs/submission-video/NARRATION.txt",
+      "bytes": 2384
+    },
+    {
+      "path": "docs/submission-video/README.md",
+      "bytes": 1204
+    },
+    {
+      "path": "docs/submission-video/YOUTUBE-DESCRIPTION.txt",
+      "bytes": 1004
+    },
+    {
+      "path": "output/demo/drawer-action.txt",
+      "bytes": 317
+    },
+    {
+      "path": "output/demo/drawer-image.txt",
+      "bytes": 305
+    },
+    {
+      "path": "output/demo/media-probe.txt",
+      "bytes": 1258
+    },
+    {
+      "path": "output/demo/recording-setup.txt",
+      "bytes": 274
+    },
+    {
+      "path": "output/demo/recording-size.txt",
+      "bytes": 92
+    },
+    {
+      "path": "output/demo/recording-start-page.txt",
+      "bytes": 249
+    },
+    {
+      "path": "output/demo/resize.txt",
+      "bytes": 93
+    },
+    {
+      "path": "output/demo/work-snapshot.txt",
+      "bytes": 277
+    },
+    {
+      "path": "output/submission-final-silent/CAPTIONS.srt",
+      "bytes": 3286
+    },
+    {
+      "path": "output/submission-final-silent/current-snapshot.txt",
+      "bytes": 110
+    },
+    {
+      "path": "output/submission-final-silent/media-probe.txt",
+      "bytes": 1016
+    },
+    {
+      "path": "output/submission-final-silent/NARRATION.txt",
+      "bytes": 2044
+    },
+    {
+      "path": "output/submission-final-silent/PROJECT/CAPTIONS.srt",
+      "bytes": 3286
+    },
+    {
+      "path": "output/submission-final-silent/PROJECT/concat.txt",
+      "bytes": 352
+    },
+    {
+      "path": "output/submission-final-silent/PROJECT/NARRATION.txt",
+      "bytes": 2044
+    },
+    {
+      "path": "output/submission-final-silent/PROJECT/requirements-video.txt",
+      "bytes": 32
+    },
+    {
+      "path": "output/submission-keynote/DELIVERY/CAPTIONS.srt",
+      "bytes": 3792
+    },
+    {
+      "path": "output/submission-keynote/DELIVERY/concat.txt",
+      "bytes": 521
+    },
+    {
+      "path": "output/submission-keynote/DELIVERY/NARRATION.txt",
+      "bytes": 2573
+    },
+    {
+      "path": "output/submission-keynote/DELIVERY/NARRATION_TIMED.txt",
+      "bytes": 3069
+    }
+  ],
+  "frozen_application_sha256": {
+    ".github/workflows/ci.yml": "a6ea93c48846a5f617f7c6ec0086c55511840be759e14515291b696c44156676",
+    ".gitignore": "2d505a691bf154c9a5a56e318cd71357d7f4995618f102df980a7531356f6999",
+    "compose.prod.yaml": "1f2f8e9a3725c9b617e70d7db87698784cbdf01025ee538ccca4ccca5ff1d666",
+    "compose.yaml": "ccd41c75325645640f1293bb8e09a6058635a6ac9118228fd028aaca00d6b5eb",
+    "council-dashboard/backend/.env.example": "2dc41561d496a7c0f7ad7d12ae26b1cd9738a8c22192a5f980bbbff5019300b5",
+    "council-dashboard/backend/.gitignore": "ea57f49045de7d06387b4b80254280234aada2ade3920df2c95d3c07cea503e7",
+    "council-dashboard/backend/killport.py": "9e06c3a7b3bcf0e144de22a5f0c42e79e198108ba09ec33aa13ca5388ecd6678",
+    "council-dashboard/backend/mission/__init__.py": "670bfd5d9cf660aca0498adaf088570fb7fbdcc823acf251b9822fc359e52781",
+    "council-dashboard/backend/mission/agents.py": "bcc7464cf5d1b57ec0b0edf7d2d5346e6a68033e08cb4e54c6d75260f849d635",
+    "council-dashboard/backend/mission/api.py": "6ba9e10275c9b83e29b8fb9b6cc705faea998d6dc17be823ef7c97f9162eaa06",
+    "council-dashboard/backend/mission/cli.py": "02957637d6c6f857c0aeb18893a76cff40e2d48bac976ae0ec5a240899aba4be",
+    "council-dashboard/backend/mission/climate.py": "b8abc530c4a6b04d1ab23250a58aef591593d2cd8a50b1be76e619582fcd4420",
+    "council-dashboard/backend/mission/conditions.py": "f5c2f27717e87d6feb520bfc7d163c6ed19922bddd90a679f037f23c646883e5",
+    "council-dashboard/backend/mission/engine.py": "66e8a7a612e03cf69634486cc310bc479a536cae2db4f17849f2147ca8e63282",
+    "council-dashboard/backend/mission/environments.py": "fa90b60401ddd13e6e8e3dfccb0a3c9e963799849cf3a5605e267171aa25ed5a",
+    "council-dashboard/backend/mission/evaluation.py": "8295f6956e21d9c7e795e405e6d19e0e1358c942ef10ed4960514b9e3b2e5d55",
+    "council-dashboard/backend/mission/evidence.py": "c8c2da753f706310fa934688f196ae33abccaf3f4f16a7c6a3733bbac9549308",
+    "council-dashboard/backend/mission/experiment_worker.py": "b502da73a4bd43851f40bcf6b4c247f432d7251fc79b930c28ed1a5ee02ecb2c",
+    "council-dashboard/backend/mission/hazards.py": "987cc56400e8ffc982bc9c05380064a8f756a27271891506aec0ecf34067ac46",
+    "council-dashboard/backend/mission/inspection.py": "4ca0bf54ca1b21663e6d3e5f80ff7a4779ac3870bc1b09bf0a7a72d5173ac7c7",
+    "council-dashboard/backend/mission/logistics.py": "27fde9c75d9769b35f35fcdeb0e6c5babcd8b7cb1bea7a6bef0052e1c1efe954",
+    "council-dashboard/backend/mission/media.py": "9156832242558a1e01568025d4e8e2c803abbc18a96b4d96904857ea3837ff32",
+    "council-dashboard/backend/mission/nowcast.py": "c5115e33989a1b42ba335957a2a87bb6fa4132f855caa3d6c56f295fa0d5f1aa",
+    "council-dashboard/backend/mission/package.py": "c055aeaafa5995e3c12940bd13d4d356112f512a10c7d73129f66edd97a553fc",
+    "council-dashboard/backend/mission/packages/arcadia-mars-v1.json": "bf35d82f77f1b55f5b8a7a7d047962ca13d8a4d45ad97f363a80b2ebdbac8ba3",
+    "council-dashboard/backend/mission/packages/earth-regolith-lab-v1.json": "39da562612a69560879a4ae07e907fd8a6549ae6d98a1db7e472daa658697fb2",
+    "council-dashboard/backend/mission/packages/moon-south-pole-v1.json": "d3c386e68adab24dae39fa173bcb96438a9a3fcdf1cc14e3b5586e81dde69d6a",
+    "council-dashboard/backend/mission/physics-references.json": "a1768d4246d15d0af1bab1dd51b8a9f6e350d52065a5a4e2b4eb7dbc18fbb506",
+    "council-dashboard/backend/mission/physics.py": "7170183d37315ed2a47caea938832514ff6e0f46e24da13502761fc551a91e02",
+    "council-dashboard/backend/mission/planner.py": "21824ce123e487f4502d9266b044cd079a748279d999d821fb9862399ed9e9da",
+    "council-dashboard/backend/mission/policies.py": "3d34d36a2e02d56f3acfe0ac22cbbc209a2c8fa04d72447faa914c99aa1dc0c5",
+    "council-dashboard/backend/mission/procedures.py": "84a3593072f24ef7bebbb5d0c08821a74f2bac30854d4f6e3ece138922327da7",
+    "council-dashboard/backend/mission/provider.py": "338a09c7d5945b4487500696585a6167c6f76ed2fbc542994a87114e13a395ee",
+    "council-dashboard/backend/mission/region.py": "b703fddfb06cdeb48bdab2303ff8a21959c500190d094c02f0dece8a9cc9171c",
+    "council-dashboard/backend/mission/robustness.py": "5603d1d7f1474645be333e019fba852e328db42cad2b55f1140023b2933665b3",
+    "council-dashboard/backend/mission/route.py": "ba39f83fbbb12aa799a750b17edbd7c0fb92cc1eb95d208c4cb5702da51c381e",
+    "council-dashboard/backend/mission/schedule.py": "e8b7d33acf9d3615d9537958aa82c27909e5e40b6687fcb28b3b162ab92a89a1",
+    "council-dashboard/backend/mission/science.py": "0b0da10dc7b179f590bc616bcdef1c2e80583b2bb5d7d8cf510307a93be32197",
+    "council-dashboard/backend/mission/spec.py": "d824825d5d58c4332a7f183f53b45afbf7faa68f92c761baa27aab6f05782984",
+    "council-dashboard/backend/mission/store.py": "f56795a86b9c6040f0d56cbffcd7a6c43bb8756797387d47c1064e8049bc359d",
+    "council-dashboard/backend/mission/telemetry.py": "5af3b7b3567143c80f891685c9fec60e95bbcc92a79c8d53835e4bca9ca8267e",
+    "council-dashboard/backend/mission/terrain.py": "0a182f4f30b8859240086e1c13ba06dbc8558afc0f4b419939c1c31ffb7bb98a",
+    "council-dashboard/backend/mission/verify_sources.py": "5babe8d6fd4a78bfb5f2310e7d5d9dfddb84ba42f0087a4f6af74ffd778c6eae",
+    "council-dashboard/backend/mission/water.py": "3ca185fc6a863abfe5252fe2202750b8a52fe39174795595defa4d3eedc22d32",
+    "council-dashboard/backend/mission/worker.py": "cb62f14392c4444444af3a158a2a86c4eb6f9c43b5186dd818d9cac5438037e3",
+    "council-dashboard/backend/requirements-mission.txt": "720123d1ab9bcdfc164c930e46d95690472a7c12ce8e319ff5cff2debac302d5",
+    "council-dashboard/backend/tests/conftest.py": "855a3d59ea8f9f1a48b97ff95f232c4337bacf9403cf63ce17001fdf2b423d4c",
+    "council-dashboard/backend/tests/data/dsn-now-2026-10-31.xml": "b9d336b31f719e9674073e2c51a301dd998ab60b8272f9624bb4e19cbfbab5bd",
+    "council-dashboard/backend/tests/test_api.py": "911ff96c2165b50785f3bcc2246e3d710fa8fad5723b7397c49eda391cb888f3",
+    "council-dashboard/backend/tests/test_climate.py": "1e22638e2c888f161226f66caef42451acc9e7032c6d01140626ca23ce1687df",
+    "council-dashboard/backend/tests/test_conditions.py": "bf8b3e6c53c03bbea747dbb4363096c8052cbab4f4145d646bcbf5de29a48785",
+    "council-dashboard/backend/tests/test_engine.py": "c69c40a54ce14b7cebd07fbae9915e5a63f128a3447670653774a017b6394d14",
+    "council-dashboard/backend/tests/test_experiment_worker.py": "40f2f9d7d9863cdb5e775631659cfbc7bcc0c9db87c988ad906e9229cade5934",
+    "council-dashboard/backend/tests/test_media.py": "13fd444e39b9a63fed24544c2b9a9f4d9b20c6f77fcbfd0695d13f5a88b3b2f7",
+    "council-dashboard/backend/tests/test_nowcast.py": "9f02054700065b76ac422c7bec3d330d482f07a2c2e4b5d0cf87011b974c2751",
+    "council-dashboard/backend/tests/test_package.py": "5accb0d9390870f21c5aade3ff0653d1ef389fc7ebd1920fe612af039dae9ced",
+    "council-dashboard/backend/tests/test_planning.py": "51468cd5b84636b138325a07930729fd3fcaa1a2dc4fbea30bef702da6bb3e19",
+    "council-dashboard/backend/tests/test_procedures.py": "92acf486e9c202b1d80cbfc92b65ef08f274850ad5a43add1c958f0e9673facd",
+    "council-dashboard/backend/tests/test_repairs.py": "610cdb317994a3ec5e280e8e5c30179d6d18c0fdf50314c39bcacfec725b7454",
+    "council-dashboard/backend/tests/test_science.py": "8e8507455cda5a05f5b33f381855209aeeda17af8da9c53e0f307f9e9e384ad0",
+    "council-dashboard/backend/tests/test_standing_orders.py": "02d4b5603d87dc326f3cb605ce0eed49cd402aa3171234c98218cb3aaee574a4",
+    "council-dashboard/backend/tests/test_store.py": "da70bb91d7b41af032843d046213b80e192c46f28cadc3592a15df26d7c66323",
+    "council-dashboard/backend/tests/test_telemetry.py": "69c758a4c73d7922b65494899c562fe2ca61e326079b545d5671a6137bce6c31",
+    "council-dashboard/backend/tests/test_tools.py": "a1d2b05b34bcf2ddff9a1702544c92085ffdef6e6808756786837867d1d13649",
+    "council-dashboard/backend/tests/test_water.py": "6dfadc6cf14cc54baf6572e69d2e06ad18d963cd764ebc87125156c7ce1a848d",
+    "council-dashboard/backend/waitfor.py": "5815167a04cea3a053f8f2739608e8c89c9f0c1b8e9fc6a8c801103d0366660d",
+    "council-dashboard/frontend/.env.local.example": "a6c06be72b19d666b4bb5254a6843fb3b82236f9bcc57daeb55424e557c62a45",
+    "council-dashboard/frontend/app/globals.css": "b26e1edfbc486839932bceab8b8423a9e01e532000b0e0cb964d085d78a3531f",
+    "council-dashboard/frontend/app/journey.css": "6bc9647a22737fa3108782ce9eb7e9dd5993ef228b7907a8ac14e3bfc8e589b6",
+    "council-dashboard/frontend/app/layout.js": "ae88c118d0fe9bc503d0634019bbb31d107a42d80d51f03b6044891b206bce6e",
+    "council-dashboard/frontend/app/page.tsx": "9f6b69852942dfb61445838c0e26fb6620da06112b6381c78eb31e2fa494cb0f",
+    "council-dashboard/frontend/components/AgentCycle.tsx": "972bba2dd5bcbb5b6afe5cfcd9be13cffb554677327d786cbe9b9d9df1d548c9",
+    "council-dashboard/frontend/components/ClimateEvidence.tsx": "60bdccc3c0e8888f94f8c7bbb0f2661b8e275196c17d074646e99cb8abc10a04",
+    "council-dashboard/frontend/components/Evaluation.tsx": "688fc6f885758bfaa9dea3d7aa161ff0a3021825326a127af12d67d971eefdef",
+    "council-dashboard/frontend/components/EventLog.tsx": "0f456ab75ceb19f90b53fd333d58406e05be6f9cdfc4f86df00c85e42d6fbdbc",
+    "council-dashboard/frontend/components/ExperimentControls.tsx": "b4cb2af17c6e16b389ea86f34830cfa63bc30308272b93dcb47e48672a273074",
+    "council-dashboard/frontend/components/Explain.tsx": "8bfca2e03e31d7df7fcb5ddf968ecbef8ac82bdd13e36e0129d17096bba149cc",
+    "council-dashboard/frontend/components/IceMap.tsx": "620d6b69117a7878146975387b131b8d03e8b0144972ab4b98f28f75347ef0ac",
+    "council-dashboard/frontend/components/LiveMars.tsx": "87ded2965b888c324800dc0712ba6d18a6f7aa95b17a8ba457f962eeb9326ebf",
+    "council-dashboard/frontend/components/LiveStrip.tsx": "c0ddf86908499c987427e3a6f32cc176b994bfdd03aaa51fb8d160a86820eaa6",
+    "council-dashboard/frontend/components/MissionJourney.tsx": "a75ff061f45edfe3a25a3eec7b8f82322c09a33be01b76d47abdce782691568e",
+    "council-dashboard/frontend/components/MissionScene.tsx": "1db5692f91d4cb982b3d89c0b2f3161710ebd51cba2646ba62978d00a4299aa9",
+    "council-dashboard/frontend/components/OperationsPanels.tsx": "10541cbee5b1fd8b3a24bee12f398fdc9f017e85176df81794417718b415683f",
+    "council-dashboard/frontend/components/ProcedureOperations.tsx": "e440b3c863813433eadc0d843781f45384863f0fdf5c5bc48d97dfa314d17fac",
+    "council-dashboard/frontend/components/RegionAtlas.tsx": "0ed928a9beb600be97fbab882b5efb7ea3136f5afabbb63b37315ea9e4d010e0",
+    "council-dashboard/frontend/components/Schedule.tsx": "2537d1ef92c04d612ea4373ea51b23824e57e54057980d2094d66524f684caab",
+    "council-dashboard/frontend/components/SiteImagery.tsx": "9b48004e6000b4514111aff6b6da5593c6618309253ccc9d7ef22c2328379ec7",
+    "council-dashboard/frontend/components/WaterOperations.tsx": "f94acca9a9620f0349f05b474456acb17b8ecce44ce84e1a346f2da00a8da474",
+    "council-dashboard/frontend/components/Weather.tsx": "0c7030e0c967e8c51a392c28514a9c61ea33ba403bb61947dac92f48028da288",
+    "council-dashboard/frontend/components/WeatherHistory.tsx": "298eed7705767fe63c3ae42582c6d138b4ed16f0e26dd1fb9a95bd1105beb15c",
+    "council-dashboard/frontend/lib/mission.ts": "c7ac2f60bc971fd46208586449e376dda6416609394f358a18631a99e2a33634",
+    "council-dashboard/frontend/next-env.d.ts": "f4e8976c19fc926644d72610bf1058bd6bf52add97e46a02bc0b912a751625c0",
+    "council-dashboard/frontend/next.config.js": "5ec3fb556a60ffa46655b18ba1a8554b9e1c8599ba585c9e83a055475f98e9cd",
+    "council-dashboard/frontend/package-lock.json": "7f6f7ebf597b66e414556ac7ffeb23741c7e4fc3ddf50e2e37f9cfcff6539839",
+    "council-dashboard/frontend/package.json": "07703a0769f89c56cbff20b83250d2ede5f61a4c666756aa40e3ef8b2b5ccbc9",
+    "council-dashboard/frontend/public/draco/draco_decoder.js": "8625489da79a805f4f2a7d511c3e52d8b4085608a9d2a4d5f4f9de5db0aea04f",
+    "council-dashboard/frontend/public/draco/draco_decoder.wasm": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac",
+    "council-dashboard/frontend/public/draco/draco_wasm_wrapper.js": "8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6",
+    "council-dashboard/frontend/public/icon.svg": "dc5bf9817e66e6c075347b9e3ce8dcff07b887aae57a45c328ace92865692911",
+    "council-dashboard/frontend/public/models/kenney/LICENSE.txt": "bd4e050e69d41351282c4d53f943cd4d80a80b968593e60653ba5292637941b7",
+    "council-dashboard/frontend/public/models/kenney/hangar_roundB.glb": "66dfd1e692f3951a0a4ceaf167f72e9d02e145c285ee53ebddc33fc3dea1c435",
+    "council-dashboard/frontend/public/models/kenney/machine_barrelLarge.glb": "3c156127373395cd45bfb7772936c56b06e4bcf33101da7a5030f17e5d8acae5",
+    "council-dashboard/frontend/public/models/kenney/machine_generatorLarge.glb": "bbfa33a2e7c7eff7d9ee12f64255249b7e2f5d4b2ada2d681aa35cf38ba599bc",
+    "council-dashboard/frontend/public/models/kenney/pipe_cornerRound.glb": "27a93f4c6069c21c577eac57415455b6ad04316267fb7bdcb8ae8cf7cf29cd40",
+    "council-dashboard/frontend/public/models/kenney/platform_large.glb": "aa1fba20818bc1d623953794146d9f9ff0e0f025463b013e325b373deb9be6c4",
+    "council-dashboard/frontend/public/models/kenney/rock_largeA.glb": "13b2bf393fcd7ca8c73d8a2a731da0be6c2c2b4e67ef0ae826e816c0d8733f2f",
+    "council-dashboard/frontend/public/models/kenney/rocks_smallA.glb": "4c56d53f1da96654ed02041c0cb493c30de266f0d273d528e5ac92b92e6edb8b",
+    "council-dashboard/frontend/public/models/kenney/rover.glb": "9784549775017e540ab84e6fc0eb8a1902dbeff9ba4285cecb97c086d2937fa5",
+    "council-dashboard/frontend/public/models/kenney/structure_detailed.glb": "e0bbdfca04b9e645f0b7feec5a7a5096dc6701b744b42103fe437db06b345a4b",
+    "council-dashboard/frontend/public/models/perseverance.glb": "10db7c03a5e63a5a3b3e7baa6243aa4918ba045fa8ff0a731d0217491adc727f",
+    "council-dashboard/frontend/tsconfig.json": "144283968f05540d95560199956c6effb75fd403766f78e69bd8f5140d6e5c3d",
+    "council-dashboard/start.bat": "5a4040416ce4ac56e53d7bc08ada72b09f64af445c49b2d76fc7ec374d92ca38",
+    "council-dashboard/stop.bat": "7e3a3b1587d2a3d23ae6559ed175a82778a93fada449cdbe10287b962b437c5c",
+    "deploy/Caddyfile": "79e10e8e7015a246f51a3424a0d2220344490f5848fab20add6eb13cc6bb48fb",
+    "deploy/env.example": "6f5c1ea1f63b45b9e3fc68f78816f2f285603777e265670a37936deb8227db02",
+    "tools/acceptance_support.py": "c4143e7bc9531c22604428b7abffc83131362365d5014534884ecd1050e7b61e",
+    "tools/archive_sources.py": "326a8ebf5074d70616c4b75d1ce77f2448e92566bc0821ae5ad4195051bbedba",
+    "tools/audit_repository.py": "6255d99e0a82247a360799aface7c77a4d5b61afabd1a569d72ead1738bf7efd",
+    "tools/continue_mission_acceptance.py": "c91282302bda7700afde1f89db3a0f1c6c9789e372ab34e4b62da0a6d03d2db0",
+    "tools/create_local_review.py": "2f13b7d87c02de2b56a078f09d93f4a75203fbcedfa036381f1ae4eda59f5d1f",
+    "tools/prepare_mission_study.py": "85b25da760bc07d22aa6a075225893fbc578163303a8d3efce94ba3d9fcea842",
+    "tools/verify_agent_loop.py": "93fbea36dbedf4194ec853a5359cd0cd3df2bfa844054cd1237ae0620bc6f843",
+    "tools/verify_live_integrations.py": "17599e89df1c0147480d7033a26d5be2889a7ab374f84aa78d3492d0f0533be5",
+    "tools/verify_live_stack.py": "8d0b90c9a00f5b38b249e15d054e0452b17ed749af621343531619aa9d6fb668",
+    "tools/verify_operational_scenarios.py": "d4406c1934ea1fc10995be43a2f29ca130f8e9743052ffc410be2c0f79b57ec2",
+    "tools/verify_postgres.py": "d46e5795042c3acd084372a54e981ea1f70b883444f313af7ee2b4afccf1824e",
+    "tools/verify_stack_run.py": "bd8810e1ce665b33a78ab9c9049952db0fc8fcf57c0de82e99cff0fca8a8a00a",
+    "tools/verify_stored_responses.py": "dbc78d0e4b8c87244fa1a79a8c48fcd651977af5f64c2da3787bf8eb5d0a4c5b"
+  }
+}

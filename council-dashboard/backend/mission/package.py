@@ -22,25 +22,6 @@ class PackageError(ValueError):
     pass
 
 
-def _computed(function, args):
-    """Physical properties from IAPWS R10-06 (ice Ih) and IAPWS-95 (water) via the iapws package."""
-    try:
-        from iapws._iapws import _Ice
-        from iapws import IAPWS95
-    except ImportError as exc:
-        raise PackageError('Computed parameters require the iapws package (pip install iapws)') from exc
-    p_atm, t_triple, p_triple = 0.101325, 273.16, 0.000611657
-    if function == 'ice_enthalpy_rise':
-        return _Ice(args['t_to_k'], p_atm)['h'] - _Ice(args['t_from_k'], p_atm)['h']
-    if function == 'fusion_enthalpy':
-        return IAPWS95(T=t_triple, x=0).h - _Ice(t_triple, p_triple)['h']
-    if function == 'sublimation_enthalpy':
-        return IAPWS95(T=t_triple, x=1).h - _Ice(t_triple, p_triple)['h']
-    if function == 'liquid_density':
-        return IAPWS95(T=args['t_k'], x=0).rho / 1000
-    raise PackageError('Unknown computed function ' + function)
-
-
 def _evaluate(formula, values):
     # Parameter names contain dots; map each to a safe identifier before parsing.
     names = sorted(values, key=len, reverse=True)
@@ -91,24 +72,12 @@ def load(package_id='arcadia-mars-v1', overrides=None):
                 if not rng or not rng['minimum'] <= overrides[name] <= rng['maximum']:
                     raise PackageError(f'{name}: override {overrides[name]} outside the recorded range')
                 values[name] = float(overrides[name])
-        elif p.get('classification') not in ('derived', 'computed'):
-            raise PackageError(f'{name}: classification must be published, derived or computed')
-    pending = {n: p for n, p in params.items() if p['classification'] in ('derived', 'computed')}
+        elif p.get('classification') != 'derived':
+            raise PackageError(f'{name}: classification must be published or derived')
+    pending = {n: p for n, p in params.items() if p['classification'] == 'derived'}
     while pending:
         progressed = False
         for name, p in list(pending.items()):
-            if p['classification'] == 'computed':
-                if p.get('source') not in sources or not p.get('function') or not isinstance(p.get('args'), dict):
-                    raise PackageError(f'{name}: computed parameter needs source, function and args')
-                refs = [v for v in p['args'].values() if isinstance(v, str)]
-                if any(r not in params for r in refs):
-                    raise PackageError(f'{name}: args reference unknown parameters')
-                if all(r in values for r in refs):
-                    args = {k: (values[v] if isinstance(v, str) else v) for k, v in p['args'].items()}
-                    values[name] = float(_computed(p['function'], args))
-                    del pending[name]
-                    progressed = True
-                continue
             missing = DERIVED_FIELDS - set(p)
             if missing:
                 raise PackageError(f'{name}: derived parameter missing {sorted(missing)}')
@@ -128,6 +97,9 @@ def load(package_id='arcadia-mars-v1', overrides=None):
         if c.get('selected') is not None and c['selected'] not in c['parameters']:
             raise PackageError(f'Conflict {cid} selected value is not one of its parameters')
     decisions = pkg.get('operator_decisions') or {}
+    for name,p in params.items():
+        if p.get('model_assumption') and p['model_assumption'] not in decisions:
+            raise PackageError(f'{name}: model assumption must resolve to a recorded operator decision')
     unapproved = sorted(k for k, d in decisions.items() if not d.get('approved'))
     return {'id': pkg['id'], 'environment': pkg['environment'], 'hash': hashlib.sha256(raw).hexdigest(),
             'values': values, 'parameters': params, 'sources': sources, 'decisions': decisions,

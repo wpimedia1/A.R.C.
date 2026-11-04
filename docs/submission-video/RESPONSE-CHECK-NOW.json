@@ -1,0 +1,54 @@
+{
+  "checked_at": 1793819588.7059376,
+  "method": "Authenticated GET of four existing response IDs; no generation",
+  "credential_fingerprint": "sha256:7aba5621ec50695c",
+  "attempted": 4,
+  "verified": 4,
+  "scope": "Identity/model/usage/public tool corroboration only; no billing, engineering or new planning claim",
+  "results": [
+    {
+      "response_id": "resp_6aeb686dcea3768717514d9a",
+      "model_in_record": "muse-wonder-1.0",
+      "http_status": 200,
+      "provider_payload_sha256": "094c33d509559243133a2024f4fc96db1153cc599046f93b8eaa66ff86c6a5af",
+      "request_id": "05ef9008-2ba9-4fa6-85dd-5e8c13124160",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "public_tool_calls_match": true
+    },
+    {
+      "response_id": "resp_6aeb698faa3119a06cb54a8f",
+      "model_in_record": "muse-wonder-1.0",
+      "http_status": 200,
+      "provider_payload_sha256": "ab86fd6611afc130fbdf9f76cc3c245d69215c113673d2c69f7c6808fa9a8592",
+      "request_id": "16cb907a-4cfe-4fb3-80c7-80b346765621",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "public_tool_calls_match": true
+    },
+    {
+      "response_id": "resp_6aeb69ae8dac53841e334690",
+      "model_in_record": "muse-spark-1.3",
+      "http_status": 200,
+      "provider_payload_sha256": "24b99e13d5564fd18ea246267658018d00ba2721bbf0bcfedcc7f8a319e1ad5b",
+      "request_id": "57d75a01-1aa2-4e39-8f3f-5a2801cadb40",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "public_tool_calls_match": true
+    },
+    {
+      "response_id": "resp_6aeb69c60b1701040a524919",
+      "model_in_record": "muse-spark-1.3",
+      "http_status": 200,
+      "provider_payload_sha256": "2df7c954285f3174a3f65bc6273a72e06ed64e61396760fd1442bc8f7a6d19ea",
+      "request_id": "2c9ba6c9-7fc4-4a85-84fa-07d7a59388ee",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "public_tool_calls_match": true
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 - Docker (cloud host): see "Deploy" in the README (`compose.prod.yaml`, HTTPS, required secrets).
 - Local Windows launcher without Docker: `council-dashboard/start.bat` (API on 127.0.0.1:8000 plus worker); stop with `stop.bat`.
 - Nothing runs until the operator presses **Start mission** in the app with the operator token (genesis, D17). Docker reads `MISSION_OPERATOR_TOKEN` from `.env` in the repository root; the local launcher reads it from `council-dashboard/backend/.env`.
-- Upgrades: A mission recorded under another package or engine version came from a build that is no longer the tool: it is discarded on startup and Start begins a new genesis. Model receipts and spend stay in the append-only event log.
+- Upgrades: Version mismatches preserve all records and stop execution. Back up first; `python -m mission.cli upgrade` adopts the new specification, appends a migration revision and pauses. Inspect it before `resume`. Never delete the database to upgrade.
 - Operator commands (inside Docker: `docker compose exec worker python -m mission.cli <action>`):
   - `replan`: clear a planning stop and ask the agents to plan again.
   - `pause` / `resume`: pause or resume the public mission.

@@ -20,9 +20,9 @@ services:
       COOKIE_SECURE: "false"
       PUBLIC_ORIGIN: http://127.0.0.1:8020
       MISSION_MODEL_MODE: ${MISSION_MODEL_MODE:-meta}
-      # Visitor experiments may not spend Meta credits unless the owner raises these limits (USD).
-      MISSION_VISITOR_DAILY_LIMIT_USD: ${MISSION_VISITOR_DAILY_LIMIT_USD:-0}
-      MISSION_VISITOR_MONTHLY_LIMIT_USD: ${MISSION_VISITOR_MONTHLY_LIMIT_USD:-0}
+      # Optional operator settings. Blank values do not stop agent execution.
+      MISSION_VISITOR_DAILY_LIMIT_USD: ${MISSION_VISITOR_DAILY_LIMIT_USD:-}
+      MISSION_VISITOR_MONTHLY_LIMIT_USD: ${MISSION_VISITOR_MONTHLY_LIMIT_USD:-}
       # Only the operator can start the public mission: set MISSION_OPERATOR_TOKEN in .env next to this file.
       MISSION_OPERATOR_TOKEN: ${MISSION_OPERATOR_TOKEN:-}
     depends_on:
@@ -37,8 +37,8 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://mission:local-development-only@database/mission
       MISSION_MODEL_MODE: ${MISSION_MODEL_MODE:-meta}
-      MISSION_VISITOR_DAILY_LIMIT_USD: ${MISSION_VISITOR_DAILY_LIMIT_USD:-0}
-      MISSION_VISITOR_MONTHLY_LIMIT_USD: ${MISSION_VISITOR_MONTHLY_LIMIT_USD:-0}
+      MISSION_VISITOR_DAILY_LIMIT_USD: ${MISSION_VISITOR_DAILY_LIMIT_USD:-}
+      MISSION_VISITOR_MONTHLY_LIMIT_USD: ${MISSION_VISITOR_MONTHLY_LIMIT_USD:-}
     depends_on:
       database: {condition: service_healthy}
   tests:

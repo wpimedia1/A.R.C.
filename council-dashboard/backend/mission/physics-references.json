@@ -1,0 +1,35 @@
+{
+  "thermal-balance": {
+    "url": "https://www.nasa.gov/smallsat-institute/sst-soa/thermal-control/",
+    "version": "Retrieved 2026-11-03 America/New_York",
+    "supports": "Energy balance with absorbed inputs, internal dissipation, conduction and radiative rejection; not equipment calibration",
+    "retrieved_at": 1793760530.315072,
+    "content_hash": "593109af3f51cdfbc73699322d3539017dd56045ff4d5372a8fdd13c78424026",
+    "http_status": 200,
+    "hash_scope": "raw HTTP response bytes",
+    "final_url": "https://www.nasa.gov/smallsat-institute/sst-soa/thermal-control/"
+  },
+  "stefan-boltzmann": {
+    "url": "https://physics.nist.gov/cuu/Constants/Table/allascii.txt",
+    "version": "CODATA 2022",
+    "value": 5.670374419e-08,
+    "unit": "W m^-2 K^-4",
+    "supports": "Rounded tabulated Stefan-Boltzmann constant; exact SI definition has further digits",
+    "passage": "Stefan-Boltzmann constant                                   5.670 374 419... e-8     (exact)                  W m^-2 K^-4",
+    "retrieved_at": 1793760530.7305832,
+    "content_hash": "77fb90e66c40db3e6eb16630bc9c88e4c7c8beddbe5e71be406f2f26e3f67e67",
+    "http_status": 200,
+    "hash_scope": "raw HTTP response bytes",
+    "final_url": "https://physics.nist.gov/cuu/Constants/Table/allascii.txt"
+  },
+  "heavy-offload-concept": {
+    "url": "https://ntrs.nasa.gov/api/citations/20220010430/downloads/Offloading%20a%2090-Ton%20Hab%20from%20its%20Lander%20on%20Mars.pdf",
+    "version": "2023 ASCEND",
+    "supports": "Concept and design constraints only; no integrated heavy-payload duration or hardware performance is inferred",
+    "retrieved_at": 1793760532.902718,
+    "content_hash": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+    "http_status": 200,
+    "hash_scope": "raw HTTP response bytes",
+    "final_url": "https://ntrs.nasa.gov/api/citations/20220010430/downloads/Offloading%20a%2090-Ton%20Hab%20from%20its%20Lander%20on%20Mars.pdf"
+  }
+}

@@ -53,12 +53,11 @@ def test_measured_estimated_checked_loop(tmp_path):
 def test_backtest_on_real_rems_history_is_calibrated():
     """Real Curiosity REMS daily summaries (NASA public feed, cached). Skipped when the cache is absent."""
     import os
-    path = '/tmp/claude-0/marslog/data/msl/weather.json'
-    if not os.path.exists(path):
-        pytest.skip('REMS cache not present')
-    rows = json.load(open(path))
-    obs = sorted([{'station': 'msl', 'sol': r['sol'], 'terrestrial_date': r['terrestrial_date'], 'ls': r['ls'],
-                   'values': {'air_min_c': r['min_temp_c'], 'air_max_c': r['max_temp_c'], 'pressure_pa': r['pressure_pa']}} for r in rows], key=lambda o: o['sol'])
+    from pathlib import Path
+    path = Path(os.getenv('MISSION_REMS_HISTORY', str(Path(__file__).resolve().parents[1] / 'data/science/rems-feed.json')))
+    if not path.exists():
+        pytest.skip('Real NASA REMS feed cache absent; set MISSION_REMS_HISTORY or download to data/science/rems-feed.json')
+    obs = sorted(nc.parse_feed(json.loads(path.read_text(encoding='utf-8')), 'msl'), key=lambda o: o['sol'])
     by = {o['sol']: o for o in obs}
     hits = total = 0
     for cut in range(3600, 4900, 100):

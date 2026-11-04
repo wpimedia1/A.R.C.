@@ -1,0 +1,78 @@
+{
+  "version_id": "hirise-ground:88104f0d0c797c6d",
+  "product": "ESP_056974_2205",
+  "title": "HiRISE ESP_056974_2205 \u00b7 site imagery (not segmented)",
+  "page": "http://www.uahirise.org/ESP_056974_2205",
+  "browse": "https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.browse.jpg",
+  "label": "https://hirise.lpl.arizona.edu/PDS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.LBL",
+  "latitude": 40.0545,
+  "longitude_east": 190.2904,
+  "acquired": "2018-09-21",
+  "credit": "NASA/JPL-Caltech/UArizona",
+  "license": "Public domain (HiRISE image use policy); credit requested",
+  "site_relation": "contains the mission site",
+  "site_distance_km": 0.0,
+  "applies_to_site": true,
+  "footprint_index": "https://astrogeology.usgs.gov/pygeoapi/collections/mars/hirise-observation-footprints-equatorial/items",
+  "candidates_found": 1,
+  "search_errors": [],
+  "url": "https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.browse.jpg",
+  "display_kind": "unannotated-full-rdr-browse",
+  "browse_size_px": [
+    2048,
+    7381
+  ],
+  "image_url": "/api/v1/missions/public/evidence/ground.jpg",
+  "retrieved_at": 1793762220.054897,
+  "observation_time": "2018-09-21",
+  "classification": "observed orbital imagery",
+  "status": "site projection verified; no segmentation performed",
+  "supports": "Observed visual context at the scenario site, not certified traversability",
+  "coverage_verification": {
+    "method": "USGS footprint candidate plus PDS equirectangular pixel bounds",
+    "latitude": 40.05451,
+    "longitude_east": 190.28958,
+    "source_line": 33311.62391361222,
+    "source_sample": 9242.167820438743,
+    "source_lines": 66625,
+    "source_samples": 18485,
+    "label_url": "https://hirise.lpl.arizona.edu/PDS/RDR/ESP/ORB_056900_056999/ESP_056974_2205/ESP_056974_2205_RED.LBL",
+    "map_scale_m": 0.5,
+    "label_sha256": "ca26e0bbe028d513288312dd866a3cae251cd019bb4f7fdeab0dd29af5d9f64f",
+    "label_retrieved_at": 1793753570.6770542
+  },
+  "use": "Browse imagery only. No SAM detections, obstacle clearance, construction survey or local height field is implied.",
+  "resolution": "Site-centered 1600 m window of unannotated map browse; display resampling is not native HiRISE resolution or a terrain mesh",
+  "transformation_version": "hirise-ground-pds-site-browse-2",
+  "display_transform": {
+    "version": "hirise-site-browse-window-2",
+    "source_size_px": [
+      2048,
+      7381
+    ],
+    "crop_box_browse_px": [
+      846.2505380718715,
+      3512.7035513151486,
+      1200.7866484316226,
+      3867.2131197954486
+    ],
+    "site_browse_pixel": [
+      1023.518593251747,
+      3689.9583355552986
+    ],
+    "span_m": 1600,
+    "source_browse_m_per_px": [
+      4.512939453125,
+      4.513277333694622
+    ],
+    "display_size_px": [
+      1024,
+      1024
+    ],
+    "resampling": "bilinear display resampling; no added physical resolution",
+    "use": "Flat orbital image; source clipped/null pixels retained, not filled. No DEM or certified traversability."
+  },
+  "content_hash": "5f97c716e87108271ce3f986bb872d17e88e8a1e939a99693ba8cecc626b5274",
+  "hash_scope": "raw source bytes",
+  "source_id": "hirise-ground"
+}

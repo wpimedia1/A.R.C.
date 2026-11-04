@@ -1,0 +1,747 @@
+{
+ "checked_at": 1793750882.1044254,
+ "package": "arcadia-mars-v1",
+ "package_hash": "8d2cba815edf28cfbfa5d4aedbcc153d9a2fea36ef5d2a932a763f24b1e2ff4e",
+ "method": "pypdf text extraction; lowercase; non-alphanumeric runs collapsed to one space; quote must be a substring of one page",
+ "verified": 59,
+ "failed": 0,
+ "unchecked": 0,
+ "files": {
+  "sources\\web\\lasp2015.html": "75b4b9db917d149971d0703076edcfbc22f4b506aca068bbd3b0994da4ab756c",
+  "sources\\web\\m2020launch.html": "f380538e05ee9772e1a92082b0abf01cc7bd096a1e2f719824e5d39eac612e41",
+  "sources\\web\\m2020landing.html": "f06a1033b5d256099188efd97ca9d95512f254b499ffcfa8694531b95e0b1061",
+  "sources/s44461-026-00013-y.pdf": "a99e38a9f13de909179253f0870fad935ca32797316d06f61329cb816973da45",
+  "sources\\web\\nssdc_mars.html": "366b0ce9b69cbee370be904956748af954468a41b93dc71a796a986519aa8d74",
+  "sources\\web\\schuler2019.pdf": "a1159b0caeae82be22bdff8e8406681f43a6047fa99bf11c7c07d41fe615afdb",
+  "sources/ASCE 2016 RASSOR 2 Final  6_8_2016.pdf": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+  "sources/TM-20220012395.pdf": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+  "sources/Offloading a 90-Ton Hab from its Lander on Mars.pdf": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+  "sources\\web\\mank2021.html": "ed0395f37ea620f7f98b3a4c8099e169570b1729c3c87ad3ce3fb9dd0ed819f2",
+  "sources\\web\\dust_gds_2021.pdf": "5494db721ed105efed527d9fd9a96773b790d9186c6d729bdb05342db81658d0",
+  "sources/IAC 2024 Manuscript_FSP FINAL.pdf": "0fc007bc88e9576010bb0e26f8be74baace1dc621ecfdf8c127d74271c58ddd9",
+  "sources\\web\\rad750-heritage-nasa.pdf": "fa857274d3bd46b2bc51be87f2d37f7ee0ce51d7eaab0932e11034983c26fcdf",
+  "sources\\web\\rad750-niac.pdf": "ac01469b25d733016691654b0bd84c021936f961e1db7cf6f689119c5c6aa59a",
+  "sources\\web\\redwater2019.pdf": "8a41855a11d8a9bb40c40108f70a5c7f3bf89490c9df65a32a150e8217db25e8",
+  "sources\\web\\tp3079.pdf": "fa7ffc42b3a7ce82954386ba6141653ac492972bbe5c514b2e3fb55f0902d156",
+  "sources\\web\\stancliff2005.pdf": "c3ef7e48d361b5c2a2392ef40b606b9b422295ac79b8224a68ee2902477f059b",
+  "sources/mars_ice_drilling_assessment_v6_for_public_release.pdf": "631b474d279a787904c58c8bbe3f8830b0eeb1e9faa04d382af283e606827890",
+  "sources\\web\\rover-battery2021.pdf": "57cfc474add8f1725b317914de90e7f9e260d8f608bfa701eb6cb7d75a50facf",
+  "sources\\web\\rover-components.html": "b98668e89a3cff15d397221e4e23d24c7a4e0e2f7b8f3495bbaa43702ce6612f",
+  "sources\\web\\autonav2021.html": "84d76e4ce0e2cfb221b6c2e3d0acd389428fedf1e3a2d7526b647d68e54258a5",
+  "sources\\web\\nssdc_sun.html": "bcc186a518298636340e7975bf5a32da660cd656b90081f2e7c8aa7ec2b6561a",
+  "sources\\web\\nist-gallon.pdf": "33f7d841ce981f978eb7d0e6dff93bcafda1ea0ed60a83b6f9d233fdf7b57666",
+  "sources\\web\\nist-water.pdf": "7e6a625599d5cc128548694bc57d9d865d88b86b01fd0bf7932d64aa0b3e2a7a",
+  "sources/An-ISRU-propellant-production-system-for-a-fully-fueled-Mars-Ascent-Vehicle-AIAA-2017-0423.pdf": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e"
+ },
+ "results": [
+  {
+   "parameter": "comms.conjunction_sun_sep_deg",
+   "source": "lasp2015",
+   "locator": "paragraph describing the June 2015 commanding moratorium",
+   "quote": "During that period, the sun will be within two degrees of Mars in Earthâ€™s sky.",
+   "file_sha256": "75b4b9db917d149971d0703076edcfbc22f4b506aca068bbd3b0994da4ab756c",
+   "archived_copy": "sources\\web\\lasp2015.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "cost.prime_mission_earth_days",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "At least one Mars year (about 687 Earth days)",
+   "file_sha256": "f380538e05ee9772e1a92082b0abf01cc7bd096a1e2f719824e5d39eac612e41",
+   "archived_copy": "sources\\web\\m2020launch.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "cost.rover_build_launch_usd",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "NASA has invested approximately $2.4 billion to build and launch",
+   "file_sha256": "f380538e05ee9772e1a92082b0abf01cc7bd096a1e2f719824e5d39eac612e41",
+   "archived_copy": "sources\\web\\m2020launch.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "cost.rover_prime_ops_usd",
+   "source": "m2020landing",
+   "locator": "Quick facts",
+   "quote": "The estimate to land and operate the rover during its prime mission is approximately $300 million.",
+   "file_sha256": "f06a1033b5d256099188efd97ca9d95512f254b499ffcfa8694531b95e0b1061",
+   "archived_copy": "sources\\web\\m2020landing.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "drill.rop_min_mm_s",
+   "source": "stolov2026",
+   "locator": "Table 4, p.13",
+   "quote": "Rate of penetration 0.35â€“3 mm/s Estimated range from testing",
+   "file_sha256": "a99e38a9f13de909179253f0870fad935ca32797316d06f61329cb816973da45",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "earth.semimajor_axis_1e6_km",
+   "source": "nssdc_mars",
+   "locator": "Orbital parameters, Semimajor axis (Earth column)",
+   "quote": "Semimajor axis (10 6 km) 227.956 149.598 1.524",
+   "file_sha256": "366b0ce9b69cbee370be904956748af954468a41b93dc71a796a986519aa8d74",
+   "archived_copy": "sources\\web\\nssdc_mars.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.battery_wh",
+   "source": "schuler2019",
+   "locator": "Table 1",
+   "quote": "Battery capacity 1410 Whr",
+   "file_sha256": "a1159b0caeae82be22bdff8e8406681f43a6047fa99bf11c7c07d41fe615afdb",
+   "archived_copy": "sources\\web\\schuler2019.pdf",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.energy_wh_per_kg",
+   "source": "schuler2019",
+   "locator": "Table 1",
+   "quote": "Energy/Delivered Regolith 0.761 Whr/kg",
+   "file_sha256": "a1159b0caeae82be22bdff8e8406681f43a6047fa99bf11c7c07d41fe615afdb",
+   "archived_copy": "sources\\web\\schuler2019.pdf",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.mass_kg",
+   "source": "rassor2016",
+   "locator": "abstract",
+   "quote": "RASSOR 2.0 is a planetary excavator, which has a mass of 66 kg",
+   "file_sha256": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.min_rate_kg_per_day",
+   "source": "rassor2016",
+   "locator": "abstract",
+   "quote": "A single RASSOR 2.0 can excavate a minimum of 2.7 metric tons of regolith per day",
+   "file_sha256": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.mining_h_per_day",
+   "source": "rassor2016",
+   "locator": "p.3",
+   "quote": "Each 24 hour period will consist of 16 hours of mining operations and eight hours of recharging.",
+   "file_sha256": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+   "found_on_pdf_pages": [
+    3
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "excavator.recharge_h_per_day",
+   "source": "rassor2016",
+   "locator": "p.3",
+   "quote": "Each 24 hour period will consist of 16 hours of mining operations and eight hours of recharging.",
+   "file_sha256": "cb8d21ce9572ea93524df87a2e23544f0331ed94343fbe7b562a9bfecacfe54f",
+   "found_on_pdf_pages": [
+    3
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.cable_days",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "1 km Cable Deployment 2 days",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.commissioning_h",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Reactor Commissioning 24 h",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.ctrl_box_h",
+   "source": "oleson2022",
+   "locator": "power mode timeline table (PDF p.29)",
+   "quote": "Ctrl Box Pallet Setup Ctrl Box Deploy- ment Reactor Startup Reactor Comm- issioning 1 km Cable Deployment Nominal Ops FSPS Idle Ops Duration 150 days 2 days 1 day 8 h 2 h 8 h 24 h 2 days",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    29
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.ctrl_pallet_h",
+   "source": "oleson2022",
+   "locator": "power mode timeline table (PDF p.29)",
+   "quote": "Ctrl Box Pallet Setup Ctrl Box Deploy- ment Reactor Startup Reactor Comm- issioning 1 km Cable Deployment Nominal Ops FSPS Idle Ops Duration 150 days 2 days 1 day 8 h 2 h 8 h 24 h 2 days",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    29
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.offload_days",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Landing and Offloading from Lander (powered by lander) 2 days 2 kW provided by lander",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.startup_h",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Reactor Startup 8 h",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "fsp.deploy.transport_days",
+   "source": "oleson2022",
+   "locator": "Table 3.6 (p.22 printed / PDF p.28)",
+   "quote": "Load/Transport/Deploy Power Gen at FSPS Site (powered by rover) 1 day",
+   "file_sha256": "52d22b3e3ae7630e13078f9144793cc4e78d897d9c1599a05e20d0a949af5f83",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "habitat.diameter_m",
+   "source": "howard2023",
+   "locator": "p.2",
+   "quote": "The Common Habitat is 8.4 meters in diameter and 15.6 meters long",
+   "file_sha256": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "habitat.length_m",
+   "source": "howard2023",
+   "locator": "p.2",
+   "quote": "The Common Habitat is 8.4 meters in diameter and 15.6 meters long",
+   "file_sha256": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "habitat.mass_kg",
+   "source": "howard2023",
+   "locator": "p.2",
+   "quote": "The current control mass allocation for the habitat is 90 tons",
+   "file_sha256": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "habitat.trench_depth_m",
+   "source": "howard2023",
+   "locator": "p.11",
+   "quote": "placed in a trench roughly 1.58 meters deep",
+   "file_sha256": "8c3dafa063460d38decc91d41eac9534dc35f6cc08c824ebed4ab000567d7ebd",
+   "found_on_pdf_pages": [
+    11
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "ice.overburden_max_m",
+   "source": "mank2021",
+   "locator": "abstract",
+   "quote": "covered by at most 20 m of overburden",
+   "file_sha256": "ed0395f37ea620f7f98b3a4c8099e169570b1729c3c87ad3ce3fb9dd0ed819f2",
+   "archived_copy": "sources\\web\\mank2021.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "mars.day_length_h",
+   "source": "nssdc_mars",
+   "locator": "Length of day",
+   "quote": "Length of day (hrs) 24.6597",
+   "file_sha256": "366b0ce9b69cbee370be904956748af954468a41b93dc71a796a986519aa8d74",
+   "archived_copy": "sources\\web\\nssdc_mars.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "mars.dusty_season_start_ls_deg",
+   "source": "dust_gds_2021",
+   "locator": "Section 4, PDF page 2",
+   "quote": "We consider the dusty season as the time interval from L s ~ 135° to 360° in each Martian year.",
+   "file_sha256": "5494db721ed105efed527d9fd9a96773b790d9186c6d729bdb05342db81658d0",
+   "archived_copy": "sources\\web\\dust_gds_2021.pdf",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "mars.gm_1e6_km3_s2",
+   "source": "nssdc_mars",
+   "locator": "Bulk parameters, GM",
+   "quote": "GM (x 10 6 km 3/s 2) 0.042828",
+   "file_sha256": "366b0ce9b69cbee370be904956748af954468a41b93dc71a796a986519aa8d74",
+   "archived_copy": "sources\\web\\nssdc_mars.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "mars.mean_radius_km",
+   "source": "nssdc_mars",
+   "locator": "Bulk parameters, Volumetric mean radius",
+   "quote": "Volumetric mean radius (km) 3389.5",
+   "file_sha256": "366b0ce9b69cbee370be904956748af954468a41b93dc71a796a986519aa8d74",
+   "archived_copy": "sources\\web\\nssdc_mars.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "mars.semimajor_axis_1e6_km",
+   "source": "nssdc_mars",
+   "locator": "Orbital parameters, Semimajor axis",
+   "quote": "Semimajor axis (10 6 km) 227.956",
+   "file_sha256": "366b0ce9b69cbee370be904956748af954468a41b93dc71a796a986519aa8d74",
+   "archived_copy": "sources\\web\\nssdc_mars.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "power.fsp_mass_max_kg",
+   "source": "fsp2024",
+   "locator": "p.1",
+   "quote": "The mass goal is under 6,000 kg (6 metric tons)",
+   "file_sha256": "0fc007bc88e9576010bb0e26f8be74baace1dc621ecfdf8c127d74271c58ddd9",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "power.fsp_output_kwe",
+   "source": "fsp2024",
+   "locator": "p.1",
+   "quote": "output power of 40kWe, designed for a 10-year life without the need for maintenance",
+   "file_sha256": "0fc007bc88e9576010bb0e26f8be74baace1dc621ecfdf8c127d74271c58ddd9",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rad750.max_c",
+   "source": "rad750-heritage-nasa",
+   "locator": "General Purpose Commercial vs Radiation-Hardened Processor Comparison",
+   "quote": "Temperature range = -55C to 125C",
+   "file_sha256": "fa857274d3bd46b2bc51be87f2d37f7ee0ce51d7eaab0932e11034983c26fcdf",
+   "archived_copy": "sources\\web\\rad750-heritage-nasa.pdf",
+   "found_on_pdf_pages": [
+    30
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rad750.min_c",
+   "source": "rad750-heritage-nasa",
+   "locator": "General Purpose Commercial vs Radiation-Hardened Processor Comparison",
+   "quote": "Temperature range = -55C to 125C",
+   "file_sha256": "fa857274d3bd46b2bc51be87f2d37f7ee0ce51d7eaab0932e11034983c26fcdf",
+   "archived_copy": "sources\\web\\rad750-heritage-nasa.pdf",
+   "found_on_pdf_pages": [
+    30
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rad750.total_dose_rad_si",
+   "source": "rad750-niac",
+   "locator": "section 3.6 Command and Data Handling",
+   "quote": "up to 1 Mrad total ionizing dose",
+   "file_sha256": "ac01469b25d733016691654b0bd84c021936f961e1db7cf6f689119c5c6aa59a",
+   "archived_copy": "sources\\web\\rad750-niac.pdf",
+   "found_on_pdf_pages": [
+    15
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "redwater.design_power_upper_kw",
+   "source": "redwater2019",
+   "locator": "Performance Specifications",
+   "quote": "Power Estimate: ~10-15 kW",
+   "file_sha256": "8a41855a11d8a9bb40c40108f70a5c7f3bf89490c9df65a32a150e8217db25e8",
+   "archived_copy": "sources\\web\\redwater2019.pdf",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "regolith.density_g_cm3",
+   "source": "tp3079",
+   "locator": "p.21",
+   "quote": "if assuming a regolith density of 1.5 g/cm3",
+   "file_sha256": "fa7ffc42b3a7ce82954386ba6141653ac492972bbe5c514b2e3fb55f0902d156",
+   "archived_copy": "sources\\web\\tp3079.pdf",
+   "found_on_pdf_pages": [
+    24
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "reliability.arm_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Arm module, Overall",
+   "quote": "Overall 7.25E-005",
+   "file_sha256": "c3ef7e48d361b5c2a2392ef40b606b9b422295ac79b8224a68ee2902477f059b",
+   "archived_copy": "sources\\web\\stancliff2005.pdf",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "reliability.attitude_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Attitude Sensing module, Overall",
+   "quote": "Overall 3.39E-005",
+   "file_sha256": "c3ef7e48d361b5c2a2392ef40b606b9b422295ac79b8224a68ee2902477f059b",
+   "archived_copy": "sources\\web\\stancliff2005.pdf",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "reliability.avionics_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Avionics module, Overall",
+   "quote": "Overall 1.30E-004",
+   "file_sha256": "c3ef7e48d361b5c2a2392ef40b606b9b422295ac79b8224a68ee2902477f059b",
+   "archived_copy": "sources\\web\\stancliff2005.pdf",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "reliability.communication_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Communication module, Overall",
+   "quote": "Overall 8.42E-005",
+   "file_sha256": "c3ef7e48d361b5c2a2392ef40b606b9b422295ac79b8224a68ee2902477f059b",
+   "archived_copy": "sources\\web\\stancliff2005.pdf",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "reliability.mast_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Mast module, Overall",
+   "quote": "Overall 4.58E-005",
+   "file_sha256": "c3ef7e48d361b5c2a2392ef40b606b9b422295ac79b8224a68ee2902477f059b",
+   "archived_copy": "sources\\web\\stancliff2005.pdf",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "reliability.mobility_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Mobility module, Overall",
+   "quote": "Overall 5.07E-005",
+   "file_sha256": "c3ef7e48d361b5c2a2392ef40b606b9b422295ac79b8224a68ee2902477f059b",
+   "archived_copy": "sources\\web\\stancliff2005.pdf",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "reliability.power_failures_per_h",
+   "source": "stancliff2005",
+   "locator": "Table 2, Power module, Overall",
+   "quote": "Overall 2.38E-004",
+   "file_sha256": "c3ef7e48d361b5c2a2392ef40b606b9b422295ac79b8224a68ee2902477f059b",
+   "archived_copy": "sources\\web\\stancliff2005.pdf",
+   "found_on_pdf_pages": [
+    13
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rodwell.power_kw",
+   "source": "hoffman2016",
+   "locator": "PDF p.62, \"Observations from the 100 gal/day Withdrawal Case\"",
+   "quote": "A power level of approximately 10 kW generates liquid water at about the rate at which it is being withdrawn",
+   "file_sha256": "631b474d279a787904c58c8bbe3f8830b0eeb1e9faa04d382af283e606827890",
+   "found_on_pdf_pages": [
+    62
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rodwell.withdrawal_gal_per_day",
+   "source": "hoffman2016",
+   "locator": "PDF p.62, slide title",
+   "quote": "Observations from the 100 gal/day Withdrawal Case",
+   "file_sha256": "631b474d279a787904c58c8bbe3f8830b0eeb1e9faa04d382af283e606827890",
+   "found_on_pdf_pages": [
+    62
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.battery_max_c",
+   "source": "rover-battery2021",
+   "locator": "slide 5",
+   "quote": "Operating temperature range of -20°C to +30°C",
+   "file_sha256": "57cfc474add8f1725b317914de90e7f9e260d8f608bfa701eb6cb7d75a50facf",
+   "archived_copy": "sources\\web\\rover-battery2021.pdf",
+   "found_on_pdf_pages": [
+    5
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.battery_min_c",
+   "source": "rover-battery2021",
+   "locator": "slide 5",
+   "quote": "Operating temperature range of -20°C to +30°C",
+   "file_sha256": "57cfc474add8f1725b317914de90e7f9e260d8f608bfa701eb6cb7d75a50facf",
+   "archived_copy": "sources\\web\\rover-battery2021.pdf",
+   "found_on_pdf_pages": [
+    5
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.battery_wh",
+   "source": "rover-battery2021",
+   "locator": "slide 5",
+   "quote": "Energy of 2408 Watt-hours at 20°C",
+   "file_sha256": "57cfc474add8f1725b317914de90e7f9e260d8f608bfa701eb6cb7d75a50facf",
+   "archived_copy": "sources\\web\\rover-battery2021.pdf",
+   "found_on_pdf_pages": [
+    5
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.drive_power_bound_w",
+   "source": "rover-components",
+   "locator": "Rover Speed",
+   "quote": "consumes less than 200 watts",
+   "file_sha256": "b98668e89a3cff15d397221e4e23d24c7a4e0e2f7b8f3495bbaa43702ce6612f",
+   "archived_copy": "sources\\web\\rover-components.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.drive_speed_bound_m_h",
+   "source": "rover-components",
+   "locator": "Rover Speed",
+   "quote": "152 meters per hour",
+   "file_sha256": "b98668e89a3cff15d397221e4e23d24c7a4e0e2f7b8f3495bbaa43702ce6612f",
+   "archived_copy": "sources\\web\\rover-components.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.mass_kg",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "Mass: About 2,260 pounds (1,025 kilograms)",
+   "file_sha256": "f380538e05ee9772e1a92082b0abf01cc7bd096a1e2f719824e5d39eac612e41",
+   "archived_copy": "sources\\web\\m2020launch.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.max_drive_m_per_sol",
+   "source": "autonav2021",
+   "locator": "Sol 200",
+   "quote": "Perseverance drove 175.15m in a single sol",
+   "file_sha256": "84d76e4ce0e2cfb221b6c2e3d0acd389428fedf1e3a2d7526b647d68e54258a5",
+   "archived_copy": "sources\\web\\autonav2021.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.power_w",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "about 110 watts of electricity",
+   "file_sha256": "f380538e05ee9772e1a92082b0abf01cc7bd096a1e2f719824e5d39eac612e41",
+   "archived_copy": "sources\\web\\m2020launch.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "rover.width_m",
+   "source": "m2020launch",
+   "locator": "Quick facts",
+   "quote": "about 3 meters long, 2.7 meters wide and 2.2 meters tall",
+   "file_sha256": "f380538e05ee9772e1a92082b0abf01cc7bd096a1e2f719824e5d39eac612e41",
+   "archived_copy": "sources\\web\\m2020launch.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "shield.areal_density_g_cm2",
+   "source": "tp3079",
+   "locator": "printed page 20 (PDF page 24)",
+   "quote": "the first 20 g/cm 2",
+   "file_sha256": "fa7ffc42b3a7ce82954386ba6141653ac492972bbe5c514b2e3fb55f0902d156",
+   "archived_copy": "sources\\web\\tp3079.pdf",
+   "found_on_pdf_pages": [
+    23,
+    24
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "sun.gm_1e6_km3_s2",
+   "source": "nssdc_sun",
+   "locator": "Bulk parameters, GM",
+   "quote": "GM (x 10 6 km 3/s 2) 132,712.",
+   "file_sha256": "bcc186a518298636340e7975bf5a32da660cd656b90081f2e7c8aa7ec2b6561a",
+   "archived_copy": "sources\\web\\nssdc_sun.html",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "units.us_gallon_l",
+   "source": "nist-gallon",
+   "locator": "Table 14, printed page 21 (PDF page 28)",
+   "quote": "1 gallon = 3785.411 784 3.785 411 784",
+   "file_sha256": "33f7d841ce981f978eb7d0e6dff93bcafda1ea0ed60a83b6f9d233fdf7b57666",
+   "archived_copy": "sources\\web\\nist-gallon.pdf",
+   "found_on_pdf_pages": [
+    28
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "water.density_kg_per_l",
+   "source": "nist-water",
+   "locator": "Fixed-point properties table, H2O triple-point liquid density",
+   "quote": "Triple-point density (liq)",
+   "file_sha256": "7e6a625599d5cc128548694bc57d9d865d88b86b01fd0bf7932d64aa0b3e2a7a",
+   "archived_copy": "sources\\web\\nist-water.pdf",
+   "found_on_pdf_pages": [
+    1
+   ],
+   "status": "verified"
+  },
+  {
+   "parameter": "water.target_kg",
+   "source": "kleinhenz2017",
+   "locator": "p.2, Figure 2",
+   "quote": "H2O 15701 kg (785,050 kg 2% soil) 1.36 kg/hr",
+   "file_sha256": "91df9064a1261fed0a3e261a3f18a83a20197407fd5f5b2ee15ec66e638f288e",
+   "found_on_pdf_pages": [
+    2
+   ],
+   "status": "verified"
+  }
+ ],
+ "extraction_errors": [
+  {
+   "file": "sources\\web\\dust_gds_2021.pdf",
+   "pdf_page": 4,
+   "error": "LimitReachedError",
+   "message": "Reached maximum number of tokens per stream."
+  },
+  {
+   "file": "sources\\web\\dust_gds_2021.pdf",
+   "pdf_page": 5,
+   "error": "LimitReachedError",
+   "message": "Reached maximum number of tokens per stream."
+  },
+  {
+   "file": "sources\\web\\dust_gds_2021.pdf",
+   "pdf_page": 7,
+   "error": "LimitReachedError",
+   "message": "Reached maximum number of tokens per stream."
+  }
+ ],
+ "scope": "Checks quoted text only; does not certify interpretation, numeric transcription, engineering applicability or unextracted pages."
+}

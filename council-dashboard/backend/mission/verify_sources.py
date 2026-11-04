@@ -40,14 +40,23 @@ def html_text(raw):
     return ' '.join(t.parts)
 
 
-def pages(path):
+def pages(path, errors):
     reader = PdfReader(str(path))
-    return [norm(p.extract_text() or '') for p in reader.pages]
+    out=[]
+    for i,p in enumerate(reader.pages):
+        try:out.append(norm(p.extract_text() or ''))
+        except Exception as exc:
+            # One malformed or overly complex page must not erase verification results for every other source.
+            print(f'Extraction failed: {path.name} page {i+1}: {type(exc).__name__}',file=sys.stderr)
+            errors.append({'file': str(path.relative_to(REPO)), 'pdf_page': i+1,
+                           'error': type(exc).__name__, 'message': str(exc)[:300]})
+            out.append('')
+    return out
 
 
 def main(package_id='arcadia-mars-v1'):
     pkg = load(package_id)
-    cache, files, results = {}, {}, []
+    cache, files, results, extraction_errors = {}, {}, [], []
     for name, p in sorted(pkg['parameters'].items()):
         if p['classification'] != 'published':
             continue
@@ -66,7 +75,7 @@ def main(package_id='arcadia-mars-v1'):
             if key not in cache:
                 raw = path.read_bytes()
                 files[key] = hashlib.sha256(raw).hexdigest()
-                cache[key] = pages(path) if path.suffix == '.pdf' else [norm(html_text(raw))]
+                cache[key] = pages(path, extraction_errors) if path.suffix == '.pdf' else [norm(html_text(raw))]
             q = norm(p['quote'])
             found = [i + 1 for i, text in enumerate(cache[key]) if q in text]
             row.update(file_sha256=files[key], archived_copy=key, found_on_pdf_pages=found,
@@ -81,7 +90,7 @@ def main(package_id='arcadia-mars-v1'):
         if local not in cache:
             raw = path.read_bytes()
             files[local] = hashlib.sha256(raw).hexdigest()
-            cache[local] = pages(path)
+            cache[local] = pages(path, extraction_errors)
         q = norm(p['quote'])
         found = [i + 1 for i, text in enumerate(cache[local]) if q in text]
         row['file_sha256'] = files[local]
@@ -92,14 +101,16 @@ def main(package_id='arcadia-mars-v1'):
     report = {'checked_at': time.time(), 'package': pkg['id'], 'package_hash': pkg['hash'], 'method':
               'pypdf text extraction; lowercase; non-alphanumeric runs collapsed to one space; quote must be a substring of one page',
               'verified': sum(r['status'] == 'verified' for r in results), 'failed': len(failures),
-              'unchecked': sum(r['status'].startswith('unchecked') for r in results), 'files': files, 'results': results}
+              'unchecked': sum(r['status'].startswith('unchecked') for r in results), 'files': files, 'results': results,
+              'extraction_errors': extraction_errors,
+              'scope': 'Checks quoted text only; does not certify interpretation, numeric transcription, engineering applicability or unextracted pages.'}
     out = REPO / 'docs' / 'source-verification.json'
     out.write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding='utf-8')
     for r in results:
         pages_txt = ','.join(map(str, r.get('found_on_pdf_pages', []))) or '-'
         print(f"{r['status'][:40]:40} {r['parameter']:34} {r['source']:14} pdf p.{pages_txt}")
     print(f"verified {report['verified']}, failed {report['failed']}, unchecked {report['unchecked']} -> {out}")
-    return 1 if failures else 0
+    return 1 if failures or report['unchecked'] else 0
 
 
 if __name__ == '__main__':

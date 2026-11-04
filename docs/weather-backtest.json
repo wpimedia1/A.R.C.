@@ -1,0 +1,53 @@
+{
+  "checked_at": 1793752624.6301203,
+  "source": "https://mars.nasa.gov/rss/api/?feed=weather&category=msl&feedtype=json",
+  "data_sha256": "2bafaad4b7cf2fefdeb61a81ad91487ac901fcb7bc1d23e68e8a02027edba0ed",
+  "records": 4745,
+  "newest_sol": 4995,
+  "scope": "Gale Curiosity air-minimum-temperature rolling-origin backtest; not Arcadia measurements or engineering safety validation",
+  "training_cut_sols": [
+    3600,
+    3700,
+    3800,
+    3900,
+    4000,
+    4100,
+    4200,
+    4300,
+    4400,
+    4500,
+    4600,
+    4700,
+    4800
+  ],
+  "results": [
+    {
+      "lead_sols": 1,
+      "comparisons": 11,
+      "inside_interval": 11,
+      "coverage_fraction": 1.0,
+      "mae_c": 0.9027272727272746
+    },
+    {
+      "lead_sols": 7,
+      "comparisons": 11,
+      "inside_interval": 11,
+      "coverage_fraction": 1.0,
+      "mae_c": 1.852727272727275
+    },
+    {
+      "lead_sols": 30,
+      "comparisons": 12,
+      "inside_interval": 12,
+      "coverage_fraction": 1.0,
+      "mae_c": 1.277500000000001
+    },
+    {
+      "lead_sols": 90,
+      "comparisons": 11,
+      "inside_interval": 11,
+      "coverage_fraction": 1.0,
+      "mae_c": 1.4572727272727273
+    }
+  ]
+}

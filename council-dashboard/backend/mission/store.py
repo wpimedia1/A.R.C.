@@ -159,9 +159,8 @@ class Store:
 
     def check(self):
         """Validate the database against the current package and engine. Returns True if the public mission exists, False
-        if it has not been started. A public mission recorded under another package or engine version came from a build
-        that is no longer the tool, so it is discarded (mission, revisions and model receipts); Start then
-        begins a new genesis. The append-only event log, which also holds every model receipt and spend, is kept."""
+        if it has not been started. A version mismatch requires an explicit operator upgrade; missions,
+        revisions, source pins and receipts are preserved. Startup never deletes historical runs."""
         from .spec import specification
         spec = specification()  # the package must load and every operator decision must be approved before Start is offered
         with self.transaction() as db:
@@ -171,14 +170,8 @@ class Store:
             stored = existing.state.get('spec', {})
             if stored.get('package_hash') == spec['package_hash'] and stored.get('version') == spec['version']:
                 return True
-            record = {'package_hash': stored.get('package_hash'), 'engine_version': stored.get('version'), 'revisions': existing.revision,
-                      'tick': existing.state.get('tick'), 'replaced_by_package': spec['package_hash'], 'replaced_by_engine': spec['version']}
-            for model in (Revision, InferenceReceipt):
-                for r in db.scalars(select(model).where(model.mission_id == 'public')).all():
-                    db.delete(r)
-            db.delete(existing)
-            db.add(EventLog(id=str(uuid.uuid4()), at=time.time(), source='store', kind='mission-discarded', mission_id='public', record=record))
-        return False
+            raise InvalidAction('Mission specification changed. Existing mission, revisions and receipts are preserved. '
+                                'Run python -m mission.cli upgrade to explicitly adopt the new specification before resuming.')
 
     def genesis(self):
         """Start the public mission (genesis). Called when a user presses Start; does nothing if it already exists."""
@@ -200,9 +193,10 @@ class Store:
                 vid = source['id'] + ':' + record['content_hash'][:16]
                 db.merge(SourceVersion(id=vid, source_id=source['id'], record=record))
                 pins[source['id']] = vid
-            package = {'id': state['spec']['package_id'], 'title': 'Environment package '+state['spec']['package_id'], 'url': None,
-                       'status': 'local validated package', 'content': state['spec'], 'content_hash': state['spec']['package_hash'],
-                       'hash_scope': 'package file bytes', 'retrieved_at': None, 'classification': 'package'}
+            package = {'id': state['spec']['package_id'], 'source_id':state['spec']['package_id'], 'title': 'Mission specification '+state['spec']['package_id'], 'url': None,
+                       'status': 'local validated specification', 'content': state['spec'], 'content_hash': state['spec']['hash'],
+                       'raw_package_hash':state['spec']['package_hash'],
+                       'hash_scope': 'canonical mission specification excluding its hash field', 'retrieved_at': None, 'classification': 'package'}
             vid = package['id'] + ':' + package['content_hash'][:16]
             db.merge(SourceVersion(id=vid, source_id=package['id'], record=package))
             pins[package['id']] = vid
@@ -257,10 +251,12 @@ class Store:
             return self.payload(m)
 
     def payload(self, m):
+        from .engine import effective_clock
         return {'id':m.id, 'revision':m.revision, 'state':deepcopy(m.state), 'parent':m.parent,
+                'simulation_clock':effective_clock(m.state),
                 'remaining_ticks':72-m.used_ticks-m.pending_ticks if m.owner else None,
                 'queued_ticks':m.pending_ticks, 'expires_at':m.expires,
-                'seconds_per_tick':None if m.owner else m.state['spec']['tick_seconds'], 'next_tick_at':None if m.owner else m.next_tick}
+                'seconds_per_tick':None if m.owner or m.state.get('acceptance_scope') else m.state['spec']['tick_seconds'], 'next_tick_at':None if m.owner or m.state.get('acceptance_scope') else m.next_tick}
 
     def environment(self, now, previous):
         """Live conditions for the public mission at `now`, given the previously applied conditions (D10, D11)."""
@@ -303,6 +299,8 @@ class Store:
             if not original: raise InvalidAction('Unknown public revision')
             state = deepcopy(original.state)
             state.pop('planning_claim',None)
+            state.pop('acceptance_scope',None)
+            state.pop('review_scope',None)
             if state.get('environment'):
                 # D10: experiments keep the environment frozen at the fork point; DSN is not applied.
                 link = state['environment']['link']
@@ -339,6 +337,22 @@ class Store:
             s = deepcopy(m.state)
             if s.get('planning_claim'): raise InvalidAction('Planning is in progress; retry after its receipt is recorded')
             if action=='configure':
+                # Resolve climate inputs from authoritative pinned bytes, never a client-supplied series.
+                physics=(changes or {}).get('equipment_physics',{})
+                if not isinstance(physics,dict):raise InvalidAction('Equipment physics requires an asset-profile mapping')
+                for profile in physics.values():
+                    boundary=profile.get('climate_boundary') if isinstance(profile,dict) else None
+                    if not boundary:continue
+                    if not isinstance(boundary,dict):raise InvalidAction('Climate boundary requires a source-version reference')
+                    version_id=s.get('source_pins',{}).get('arcadia-climate')
+                    if boundary.get('version_id')!=version_id:raise InvalidAction('Climate boundary must use this mission source pin')
+                    source=db.get(SourceVersion,version_id)
+                    if source is None:raise InvalidAction('Pinned climate source is missing')
+                    record=source.record
+                    points=record.get('variables',{}).get('air_temperature_k',{}).get('points',[])
+                    if len(points)<2 or points[0]['local_time_h']!=0 or points[-1]['local_time_h']!=24:
+                        raise InvalidAction('Pinned climate profile must cover the full local day')
+                    s.setdefault('physics_evidence',{})[version_id]={'content_hash':record['content_hash'],'points':deepcopy(points)}
                 s = modify(s,changes or {})
                 self.benchmark_logistics(s)
             elif action=='run':

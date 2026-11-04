@@ -1,0 +1,462 @@
+{
+ "checked_at": 1793813418.6989431,
+ "duration_s": 90.9,
+ "package": "arcadia-mars-v1",
+ "runtime_source_sha256": {
+  "agents.py": "bcc7464cf5d1b57ec0b0edf7d2d5346e6a68033e08cb4e54c6d75260f849d635",
+  "api.py": "6ba9e10275c9b83e29b8fb9b6cc705faea998d6dc17be823ef7c97f9162eaa06",
+  "cli.py": "02957637d6c6f857c0aeb18893a76cff40e2d48bac976ae0ec5a240899aba4be",
+  "climate.py": "b8abc530c4a6b04d1ab23250a58aef591593d2cd8a50b1be76e619582fcd4420",
+  "conditions.py": "f5c2f27717e87d6feb520bfc7d163c6ed19922bddd90a679f037f23c646883e5",
+  "engine.py": "66e8a7a612e03cf69634486cc310bc479a536cae2db4f17849f2147ca8e63282",
+  "environments.py": "fa90b60401ddd13e6e8e3dfccb0a3c9e963799849cf3a5605e267171aa25ed5a",
+  "evaluation.py": "8295f6956e21d9c7e795e405e6d19e0e1358c942ef10ed4960514b9e3b2e5d55",
+  "evidence.py": "c8c2da753f706310fa934688f196ae33abccaf3f4f16a7c6a3733bbac9549308",
+  "hazards.py": "987cc56400e8ffc982bc9c05380064a8f756a27271891506aec0ecf34067ac46",
+  "inspection.py": "4ca0bf54ca1b21663e6d3e5f80ff7a4779ac3870bc1b09bf0a7a72d5173ac7c7",
+  "logistics.py": "27fde9c75d9769b35f35fcdeb0e6c5babcd8b7cb1bea7a6bef0052e1c1efe954",
+  "media.py": "9156832242558a1e01568025d4e8e2c803abbc18a96b4d96904857ea3837ff32",
+  "nowcast.py": "c5115e33989a1b42ba335957a2a87bb6fa4132f855caa3d6c56f295fa0d5f1aa",
+  "package.py": "c055aeaafa5995e3c12940bd13d4d356112f512a10c7d73129f66edd97a553fc",
+  "physics-references.json": "a1768d4246d15d0af1bab1dd51b8a9f6e350d52065a5a4e2b4eb7dbc18fbb506",
+  "physics.py": "7170183d37315ed2a47caea938832514ff6e0f46e24da13502761fc551a91e02",
+  "planner.py": "21824ce123e487f4502d9266b044cd079a748279d999d821fb9862399ed9e9da",
+  "policies.py": "3d34d36a2e02d56f3acfe0ac22cbbc209a2c8fa04d72447faa914c99aa1dc0c5",
+  "procedures.py": "84a3593072f24ef7bebbb5d0c08821a74f2bac30854d4f6e3ece138922327da7",
+  "provider.py": "338a09c7d5945b4487500696585a6167c6f76ed2fbc542994a87114e13a395ee",
+  "region.py": "b703fddfb06cdeb48bdab2303ff8a21959c500190d094c02f0dece8a9cc9171c",
+  "robustness.py": "5603d1d7f1474645be333e019fba852e328db42cad2b55f1140023b2933665b3",
+  "route.py": "ba39f83fbbb12aa799a750b17edbd7c0fb92cc1eb95d208c4cb5702da51c381e",
+  "schedule.py": "e8b7d33acf9d3615d9537958aa82c27909e5e40b6687fcb28b3b162ab92a89a1",
+  "science.py": "0b0da10dc7b179f590bc616bcdef1c2e80583b2bb5d7d8cf510307a93be32197",
+  "spec.py": "d824825d5d58c4332a7f183f53b45afbf7faa68f92c761baa27aab6f05782984",
+  "store.py": "6bc25ee569ceef73bd381b8c60a8b13f3a8d46bcf82e65447a6cb06d8b8cce4f",
+  "telemetry.py": "5af3b7b3567143c80f891685c9fec60e95bbcc92a79c8d53835e4bca9ca8267e",
+  "terrain.py": "0a182f4f30b8859240086e1c13ba06dbc8558afc0f4b419939c1c31ffb7bb98a",
+  "verify_sources.py": "5babe8d6fd4a78bfb5f2310e7d5d9dfddb84ba42f0087a4f6af74ffd778c6eae",
+  "water.py": "3ca185fc6a863abfe5252fe2202750b8a52fe39174795595defa4d3eedc22d32",
+  "worker.py": "cb62f14392c4444444af3a158a2a86c4eb6f9c43b5186dd818d9cac5438037e3",
+  "__init__.py": "670bfd5d9cf660aca0498adaf088570fb7fbdcc823acf251b9822fc359e52781",
+  "packages/arcadia-mars-v1.json": "bf35d82f77f1b55f5b8a7a7d047962ca13d8a4d45ad97f363a80b2ebdbac8ba3",
+  "packages/earth-regolith-lab-v1.json": "39da562612a69560879a4ae07e907fd8a6549ae6d98a1db7e472daa658697fb2",
+  "packages/moon-south-pole-v1.json": "d3c386e68adab24dae39fa173bcb96438a9a3fcdf1cc14e3b5586e81dde69d6a"
+ },
+ "engine_version": "arcadia-mars-v1/engine-11-water-establishment",
+ "input_basis": {
+  "basis": "Actual mission snapshot and exact pinned source records",
+  "source_revision": 2021,
+  "source_state_hash": "113aa35f806de8fbb22c3e1a3fa755ba857c23b93f87810a4e090e5c5bc21d7b",
+  "bundle_hash": "5cbb49b9bf481ca0c69863b739e79ffb549b90da1f319970bb2b20178e81f5c5",
+  "source_pins": {
+   "nasa-dra": "nasa-dra:592bda3d069562f5",
+   "nasa-m2m": "nasa-m2m:71c1209404c7c93a",
+   "swim": "swim:760202f154dcb2a6",
+   "mola": "mola:51e2ad3502c029d2",
+   "rems": "rems:e6e93ff6e5ccce88",
+   "kleinhenz2017": "kleinhenz2017:d36ee9a39ade86a3",
+   "rassor2016": "rassor2016:b673c0bf0efb81c3",
+   "fsp2024": "fsp2024:73135570a56b2eac",
+   "m2020launch": "m2020launch:9df73b798c347523",
+   "m2020landing": "m2020landing:6d5beb0f1e10d809",
+   "autonav2021": "autonav2021:499887d7c608a63e",
+   "nssdc_mars": "nssdc_mars:ebe980c6a23c9a16",
+   "tp3079": "tp3079:0effc401c43d7b12",
+   "howard2023": "howard2023:478a93766d19a01e",
+   "mank2021": "mank2021:58a94e048d7accd8",
+   "hoffman2016": "hoffman2016:ed43ad3e4e3f6a70",
+   "iapws": "iapws:c70474ee2e5bdaeb",
+   "proofwiki_gallon": "proofwiki_gallon:4a5452c7562c7b3e",
+   "oleson2022": "oleson2022:ee8e7f5d35b8a5f4",
+   "stolov2026": "stolov2026:87e557ba2a4a2518",
+   "nssdc_sun": "nssdc_sun:cef274113c6cbf3d",
+   "lasp2015": "lasp2015:752436b75835b99f",
+   "erfa": "erfa:5103e0d76f0bcdee",
+   "mars24": "mars24:e7887192f3095dc1",
+   "dust_gds_2021": "dust_gds_2021:29f45b0f9c46be00",
+   "stancliff2005": "stancliff2005:316299b0688fa87a",
+   "dsn_now": "dsn_now:a23222bf6151cc2c",
+   "usgs_hirise_footprints": "usgs_hirise_footprints:a4219aab4cb78375",
+   "schuler2019": "schuler2019:66177f8d43c91b28",
+   "nasa_night2022": "nasa_night2022:0e0add562fdff38e",
+   "redwater2019": "redwater2019:f0f7f064c5c47955",
+   "rover-components": "rover-components:33264826e4aa3766",
+   "rover-battery2021": "rover-battery2021:785a58def3ee7eff",
+   "nist-water": "nist-water:f3dfa05d5f5d622f",
+   "rad750-bae2025": "rad750-bae2025:bafa1d48c8362914",
+   "rad750-heritage-nasa": "rad750-heritage-nasa:69bdd5ec3aeb96b6",
+   "rad750-niac": "rad750-niac:e54416b2a090b20d",
+   "nist-gallon": "nist-gallon:60f9a154fa03fd4a",
+   "hoffman2018": "hoffman2018:f281ae35a89ebd84",
+   "arcadia-mars-v1": "arcadia-mars-v1:40af88f3a07249de",
+   "msl-weather": "msl-weather:62581c8183e0c56d",
+   "sicsa-outpost": "sicsa-outpost:f1ca3cc76810763a",
+   "swim-radar": "swim-radar:a3b62165bea033f3",
+   "mola-arcadia": "mola-arcadia:371bd6b8622af3fc",
+   "arcadia-climate": "arcadia-climate:b86b23c4eb87e2aa",
+   "hirise-ground": "hirise-ground:88104f0d0c797c6d"
+  }
+ },
+ "isolated_database": "C:\\Users\\crudo\\OneDrive\\Documents\\GitHub\\Meta_Hackathon\\output\\live-acceptance\\run-e7zo6q5s\\agent-loop.db",
+ "package_hash": "bf35d82f77f1b55f5b8a7a7d047962ca13d8a4d45ad97f363a80b2ebdbac8ba3",
+ "ticks": 1976,
+ "cycles": [
+  {
+   "cycle_id": "553e45f6-68f7-45af-b9de-5508d19d1bd9",
+   "roles": [
+    "assurance"
+   ],
+   "same_frozen_observation": true,
+   "peer_proposals_withheld": true,
+   "memory_entries_seen": 22
+  }
+ ],
+ "decisions": [
+  {
+   "id": "D1",
+   "job_id": "power",
+   "actor": "power / muse-spark-1.3",
+   "assets": [
+    "fsp-1"
+   ],
+   "summary": "Commission fsp-1 for power job (162h, package arcadia-mars-v1). Estimate: 1.027 h/tick, 0 kW, no blockers. Timeline sums Oleson Table 3.6 durations; 40 kWe FSP reference output.",
+   "source_ids": [
+    "arcadia-mars-v1",
+    "oleson2022",
+    "fsp2024"
+   ]
+  },
+  {
+   "id": "D2",
+   "job_id": "survey",
+   "actor": "survey / muse-spark-1.3",
+   "assets": [
+    "rover-1"
+   ],
+   "summary": "Survey with rover-1: one-sol 175.15m site survey per D3 record distance. Estimate shows 7.3m/tick, 24 ticks, no blockers. Night pause per D19 expected.",
+   "source_ids": [
+    "arcadia-mars-v1",
+    "autonav2021",
+    "mola-arcadia",
+    "hirise-ground"
+   ]
+  },
+  {
+   "id": "D3",
+   "job_id": "drill",
+   "actor": "resources / muse-spark-1.3",
+   "assets": [
+    "rodwell-1"
+   ],
+   "summary": "Resources submits drill with rodwell-1. Survey and power complete. Estimate shows 15 kW and 1.29 m/tick with no blockers.",
+   "source_ids": [
+    "arcadia-mars-v1",
+    "mank2021",
+    "stolov2026",
+    "redwater2019"
+   ]
+  },
+  {
+   "id": "D4",
+   "job_id": "trench",
+   "actor": "construction / muse-spark-1.3",
+   "assets": [
+    "excavator-1",
+    "excavator-2"
+   ],
+   "summary": "Submit trench 310564.8kg in package arcadia-mars-v1 with excavator-1+2. estimate 346.78kg/tick, 0kW, no blockers; survey/power complete, batteries full with fission recharge. Regional MOLA/SWIM context only.",
+   "source_ids": [
+    "sicsa-outpost",
+    "rassor2016",
+    "mola-arcadia",
+    "hirise-ground",
+    "arcadia-mars-v1"
+   ]
+  },
+  {
+   "id": "D5",
+   "job_id": "well-establish",
+   "actor": "resources / muse-spark-1.3",
+   "assets": [
+    "rodwell-1"
+   ],
+   "summary": "Package arcadia-mars-v1: assign rodwell-1 to well-establish. Estimate shows 10kW within 40kW capacity, 16.2kg in 1 tick, no blockers. Drill+power done; qualifies D21 reserve before water.",
+   "source_ids": [
+    "hoffman2018",
+    "hoffman2016",
+    "redwater2019",
+    "arcadia-mars-v1"
+   ]
+  },
+  {
+   "id": "D6",
+   "job_id": "water",
+   "actor": "resources / muse-spark-1.3",
+   "assets": [
+    "rodwell-1"
+   ],
+   "summary": "Water proceed on rodwell-1 per package arcadia-mars-v1. Target 15701kg (kleinhenz2017), control reserve 16.2kg qualified and established (hoffman2018/D21), 10kW operating point (hoffman2016/redwater2019). Estimate 16.2kg/tick at 10kW, no blockers, fits 40kW commissioned power.",
+   "source_ids": [
+    "hoffman2016",
+    "hoffman2018",
+    "kleinhenz2017",
+    "redwater2019",
+    "arcadia-mars-v1"
+   ]
+  },
+  {
+   "id": "D7",
+   "job_id": "shielding",
+   "actor": "construction / muse-spark-1.3",
+   "assets": [
+    "excavator-1",
+    "excavator-2"
+   ],
+   "summary": "Start shielding cover with excavator-1 and excavator-2. Trench dependency complete. Estimate 346.8 kg/tick, package arcadia-mars-v1, fission-grid charging sustains batteries.",
+   "source_ids": [
+    "sicsa-outpost",
+    "rassor2016",
+    "fsp2024",
+    "arcadia-mars-v1"
+   ]
+  },
+  {
+   "id": "D8",
+   "job_id": "survey-extension-1",
+   "actor": "survey / muse-spark-1.3",
+   "assets": [
+    "rover-1"
+   ],
+   "summary": "Extend site survey by one sol with rover-1 for 175.15m. Estimate: 7.3 m/tick, 24 ticks, 0 kW, no blockers. Daylight ops, battery full.",
+   "source_ids": [
+    "arcadia-mars-v1",
+    "autonav2021",
+    "mola-arcadia",
+    "hirise-ground"
+   ]
+  },
+  {
+   "id": "D9",
+   "job_id": "survey-extension-2",
+   "actor": "survey / muse-spark-1.3",
+   "assets": [
+    "rover-1"
+   ],
+   "summary": "Package arcadia-mars-v1: extend site survey by one sol driving 175.15m with rover-1 (record distance autonav2021). Estimate 7.30 m/tick over 24 ticks, no blockers, daylight driving with planned night pause.",
+   "source_ids": [
+    "autonav2021"
+   ]
+  }
+ ],
+ "jobs": {
+  "power": {
+   "status": "complete",
+   "done": 162.0,
+   "target": 162.0
+  },
+  "drill": {
+   "status": "complete",
+   "done": 20.0,
+   "target": 20.0
+  },
+  "survey": {
+   "status": "complete",
+   "done": 175.15,
+   "target": 175.15
+  },
+  "trench": {
+   "status": "complete",
+   "done": 310564.8,
+   "target": 310564.8
+  },
+  "shielding": {
+   "status": "complete",
+   "done": 104501.93802901088,
+   "target": 104501.93802901088
+  },
+  "well-establish": {
+   "status": "complete",
+   "done": 16.202693763007137,
+   "target": 16.202693763007137
+  },
+  "water": {
+   "status": "complete",
+   "done": 15701.0,
+   "target": 15701.0
+  },
+  "survey-extension-1": {
+   "status": "complete",
+   "done": 175.15,
+   "target": 175.15
+  },
+  "survey-extension-2": {
+   "status": "running",
+   "done": 0.0,
+   "target": 175.15
+  }
+ },
+ "provider_requests": [
+  {
+   "id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:assessment:assurance",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeb6b5e1581d4f390ef47f3",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "b8c29a56-7fd3-41c5-9b2e-71adcccbb530",
+    "date": "Wed, 04 Nov 2026 17:29:03 GMT"
+   },
+   "usage": {
+    "input_tokens": 14811,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1506,
+    "output_tokens_details": {
+     "reasoning_tokens": 1187
+    },
+    "total_tokens": 16317
+   },
+   "actual_usd": 0.02491425
+  },
+  {
+   "id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:director",
+   "model": "muse-wonder-1.0",
+   "response_id": "resp_6aeb6b7368426238b81b4f89",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "fb8e80c8-83ea-4c31-bc23-3613acfe7f89",
+    "date": "Wed, 04 Nov 2026 17:29:23 GMT"
+   },
+   "usage": {
+    "input_tokens": 16222,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 2764,
+    "output_tokens_details": {
+     "reasoning_tokens": 2522
+    },
+    "total_tokens": 18986
+   },
+   "actual_usd": 0.120168
+  },
+  {
+   "id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:director:plan-after-tools",
+   "model": "muse-wonder-1.0",
+   "response_id": "resp_6aeb6b77aa01f5f5803c4232",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "b1ada129-b324-48bc-9332-6b03a0f86c83",
+    "date": "Wed, 04 Nov 2026 17:29:27 GMT"
+   },
+   "usage": {
+    "input_tokens": 13945,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 304,
+    "output_tokens_details": {
+     "reasoning_tokens": 146
+    },
+    "total_tokens": 14249
+   },
+   "actual_usd": 0.06186
+  },
+  {
+   "id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:survey-extension-2:0",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeb6b7e91a0e053525e4003",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "e08e241d-c829-4c50-841e-7800c0a85a8a",
+    "date": "Wed, 04 Nov 2026 17:29:34 GMT"
+   },
+   "usage": {
+    "input_tokens": 15279,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 757,
+    "output_tokens_details": {
+     "reasoning_tokens": 676
+    },
+    "total_tokens": 16036
+   },
+   "actual_usd": 0.022316
+  },
+  {
+   "id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:survey-extension-2:1",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeb6b8520e4b6148621410d",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "6438db42-91cd-483c-9e91-951d0a56af0c",
+    "date": "Wed, 04 Nov 2026 17:29:41 GMT"
+   },
+   "usage": {
+    "input_tokens": 15436,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 697,
+    "output_tokens_details": {
+     "reasoning_tokens": 592
+    },
+    "total_tokens": 16133
+   },
+   "actual_usd": 0.02225725
+  },
+  {
+   "id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:survey-extension-2:2",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeb6b901d1a6cf84ae348e9",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "14af6508-0563-4bbc-bfca-495a0f7f5c79",
+    "date": "Wed, 04 Nov 2026 17:29:52 GMT"
+   },
+   "usage": {
+    "input_tokens": 15521,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 1237,
+    "output_tokens_details": {
+     "reasoning_tokens": 1038
+    },
+    "total_tokens": 16758
+   },
+   "actual_usd": 0.0246585
+  },
+  {
+   "id": "553e45f6-68f7-45af-b9de-5508d19d1bd9:assurance-review",
+   "model": "muse-spark-1.3",
+   "response_id": "resp_6aeb6ba90697e1d710704433",
+   "key_fingerprint": "sha256:7aba5621ec50695c",
+   "http_status": 200,
+   "response_headers": {
+    "x-request-id": "6bee8c00-be09-4341-9656-ce0c337e39ee",
+    "date": "Wed, 04 Nov 2026 17:30:17 GMT"
+   },
+   "usage": {
+    "input_tokens": 15117,
+    "input_tokens_details": {
+     "cached_tokens": 0
+    },
+    "output_tokens": 2991,
+    "output_tokens_details": {
+     "reasoning_tokens": 2768
+    },
+    "total_tokens": 18108
+   },
+   "actual_usd": 0.031608
+  }
+ ],
+ "total_usd": 0.307782,
+ "verify": "Match each response_id in the Meta developer dashboard before treating this report as evidence."
+}

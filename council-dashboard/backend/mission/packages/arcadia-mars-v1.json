@@ -55,7 +55,7 @@
    "title": "Radiation Protection for Human Missions to the Moon and Mars (NASA TP-3079)",
    "authors": "Simonsen, L. C.; Nealy, J. E.",
    "year": 1991,
-   "url": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/WOTM/NASA_TP_3079.pdf"
+   "url": "https://ntrs.nasa.gov/api/citations/19910008686/downloads/19910008686.pdf"
   },
   "howard2023": {
    "title": "Options for Offloading a 90-Ton Common Habitat from its Lander on the Surface of Mars",
@@ -88,7 +88,7 @@
   },
   "proofwiki_gallon": {
    "title": "Definition:Gallon (US)/Conversion Factors",
-   "authors": "ProofWiki, citing Spiegel, Mathematical Handbook of Formulas and Tables (1968) §41",
+   "authors": "ProofWiki, citing Spiegel, Mathematical Handbook of Formulas and Tables (1968) Â§41",
    "year": null,
    "url": "https://proofwiki.org/wiki/Definition:Gallon_(US)/Conversion_Factors"
   },
@@ -169,6 +169,59 @@
    "authors": "Newman, C. (NASA Science Editorial Team)",
    "year": 2022,
    "url": "https://science.nasa.gov/blogs/things-that-go-bump-in-the-night-on-mars"
+  },
+  "redwater2019": {
+   "title": "RedWater Mars ice extraction design",
+   "authors": "Zacny et al., Honeybee Robotics",
+   "year": 2019,
+   "url": "https://www.hou.usra.edu/meetings/ninthmars2019/eposter/6333.pdf"
+  },
+  "rover-components": {
+   "title": "Perseverance Rover Components",
+   "authors": "NASA/JPL",
+   "url": "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/"
+  },
+  "rover-battery2021": {
+   "title": "Perseverance battery system design and testing",
+   "authors": "West, Smart, Herman; NASA/JPL",
+   "year": 2021,
+   "url": "https://www.nasa.gov/wp-content/uploads/2024/01/battery-system-design-testing-and-operation-for-the-mars-perseverance-rover-and-ingenuity-helicopter.pdf"
+  },
+  "nist-water": {
+   "title": "Fixed-point properties of H2O and D2O",
+   "authors": "Allan H. Harvey, NIST",
+   "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=926365"
+  },
+  "rad750-bae2025": {
+   "title": "RAD750 radiation-hardened PowerPC microprocessor datasheet",
+   "authors": "BAE Systems",
+   "year": 2025,
+   "url": "https://www.baesystems.com/en-us/dam/jcr%3Ac297f318-c618-4015-9399-adf76ac5cf55/16-f78-RAD750-Component-datasheet-2025-web.pdf"
+  },
+  "rad750-heritage-nasa": {
+   "title": "General Purpose Commercial versus Radiation-Hardened Processor Comparison",
+   "authors": "NASA",
+   "year": 2007,
+   "url": "https://ntrs.nasa.gov/api/citations/20070032045/downloads/20070032045.pdf"
+  },
+  "rad750-niac": {
+   "title": "Swarm-Probe Enabling ATEG Reactor, NIAC Phase I final report",
+   "authors": "Howe Industries / NASA NIAC",
+   "year": 2020,
+   "url": "https://ntrs.nasa.gov/api/citations/20250006656/downloads/NIAC_2019_PhI_Howe_SPEAR.pdf"
+  },
+  "nist-gallon": {
+   "title": "NIST SP 1020: Guide for Labeling Consumer Package",
+   "authors": "NIST, Sefcik and Warfield (editors)",
+   "year": 2020,
+   "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.1020.pdf"
+  },
+  "hoffman2018": {
+   "title": "Simulated Water Well Performance on Mars",
+   "authors": "Hoffman, Andrews and Watts",
+   "year": 2018,
+   "url": "https://ntrs.nasa.gov/api/citations/20180007948/downloads/20180007948.pdf",
+   "local_file": "council-dashboard/backend/data/science/hoffman2018-water-well.pdf"
   }
  },
  "parameters": {
@@ -318,10 +371,10 @@
    "value": 20,
    "unit": "g/cm2",
    "source": "tp3079",
-   "locator": "p.21",
-   "quote": "about 20 g/cm² at a 1.5 g/cm³ density",
+   "locator": "printed page 20 (PDF page 24)",
+   "quote": "the first 20 g/cm 2",
    "retrieved": "2026-10-30",
-   "note": "Recommended 15–20 cm regolith (p.21)."
+   "note": "Historic radiation transport study: first 20 g/cm2 gives the largest incremental reduction for the modeled Mars cases; not a modern human-certification threshold."
   },
   "regolith.density_g_cm3": {
    "classification": "published",
@@ -375,7 +428,7 @@
    "unit": "USD (nominal, year not stated)",
    "source": "m2020landing",
    "locator": "Quick facts",
-   "quote": "Landing and operating the rover during its prime mission is estimated at about $300 million",
+   "quote": "The estimate to land and operate the rover during its prime mission is approximately $300 million.",
    "retrieved": "2026-10-30"
   },
   "cost.prime_mission_earth_days": {
@@ -426,7 +479,7 @@
    "locator": "PDF p.62, \"Observations from the 100 gal/day Withdrawal Case\"",
    "quote": "A power level of approximately 10 kW generates liquid water at about the rate at which it is being withdrawn",
    "retrieved": "2026-10-31",
-   "note": "Model result assuming -80 °C ice; includes heat lost to surrounding ice."
+   "note": "Model result assuming -80 Â°C ice; includes heat lost to surrounding ice."
   },
   "rodwell.withdrawal_gal_per_day": {
    "classification": "published",
@@ -441,21 +494,21 @@
    "classification": "published",
    "value": 3.785411784,
    "unit": "L/US gal",
-   "source": "proofwiki_gallon",
-   "locator": "Litres",
-   "quote": "1 gallon (US) = 3.78541 1784 litres",
-   "retrieved": "2026-10-31",
+   "source": "nist-gallon",
+   "locator": "Table 14, printed page 21 (PDF page 28)",
+   "quote": "1 gallon = 3785.411 784 3.785 411 784",
+   "retrieved": "2026-11-03",
    "note": "Exact: 231 in3."
   },
   "water.density_kg_per_l": {
-   "classification": "computed",
+   "classification": "published",
+   "value": 0.99979,
    "unit": "kg/L",
-   "source": "iapws",
-   "function": "liquid_density",
-   "args": {
-    "t_k": 273.16
-   },
-   "note": "Saturated liquid water density at the triple point (IAPWS-95)."
+   "source": "nist-water",
+   "locator": "Fixed-point properties table, H2O triple-point liquid density",
+   "quote": "Triple-point density (liq)",
+   "retrieved": "2026-11-03",
+   "note": "NIST table: 0.99979 g/cm3 = 0.99979 kg/L. Replaces the runtime GPL iapws dependency with the published value at the same state point."
   },
   "rodwell.water_kg_per_day": {
    "classification": "derived",
@@ -563,7 +616,7 @@
    "unit": "mm/s",
    "source": "stolov2026",
    "locator": "Table 4, p.13",
-   "quote": "Rate of penetration 0.35–3 mm/s Estimated range from testing",
+   "quote": "Rate of penetration 0.35â€“3 mm/s Estimated range from testing",
    "retrieved": "2026-10-31",
    "range": {
     "minimum": 0.35,
@@ -587,7 +640,7 @@
    "unit": "deg",
    "source": "lasp2015",
    "locator": "paragraph describing the June 2015 commanding moratorium",
-   "quote": "During that period, the sun will be within two degrees of Mars in Earth’s sky.",
+   "quote": "During that period, the sun will be within two degrees of Mars in Earthâ€™s sky.",
    "retrieved": "2026-10-31"
   },
   "mars.gm_1e6_km3_s2": {
@@ -596,7 +649,7 @@
    "unit": "1e6 km3/s2",
    "source": "nssdc_mars",
    "locator": "Bulk parameters, GM",
-   "quote": "GM (x 106 km3/s2) 0.042828",
+   "quote": "GM (x 10 6 km 3/s 2) 0.042828",
    "retrieved": "2026-10-31"
   },
   "mars.semimajor_axis_1e6_km": {
@@ -605,7 +658,7 @@
    "unit": "1e6 km",
    "source": "nssdc_mars",
    "locator": "Orbital parameters, Semimajor axis",
-   "quote": "Semimajor axis (106 km) 227.956",
+   "quote": "Semimajor axis (10 6 km) 227.956",
    "retrieved": "2026-10-31"
   },
   "sun.gm_1e6_km3_s2": {
@@ -614,7 +667,7 @@
    "unit": "1e6 km3/s2",
    "source": "nssdc_sun",
    "locator": "Bulk parameters, GM",
-   "quote": "GM (x 106 km3/s2) 132,712.",
+   "quote": "GM (x 10 6 km 3/s 2) 132,712.",
    "retrieved": "2026-10-31"
   },
   "comms.mars_soi_km": {
@@ -634,7 +687,7 @@
    "unit": "1e6 km",
    "source": "nssdc_mars",
    "locator": "Orbital parameters, Semimajor axis (Earth column)",
-   "quote": "Semimajor axis (106 km) 227.956 149.598 1.524",
+   "quote": "Semimajor axis (10 6 km) 227.956 149.598 1.524",
    "retrieved": "2026-10-31"
   },
   "logistics.hohmann_transfer_days": {
@@ -664,8 +717,8 @@
    "value": 135,
    "unit": "deg Ls",
    "source": "dust_gds_2021",
-   "locator": "Section 4",
-   "quote": "We consider the dusty season as the time interval from Ls ~ 135° to 360° in each Martian year.",
+   "locator": "Section 4, PDF page 2",
+   "quote": "We consider the dusty season as the time interval from L s ~ 135° to 360° in each Martian year.",
    "retrieved": "2026-10-31"
   },
   "mars.mean_radius_km": {
@@ -811,6 +864,128 @@
     "excavator.recharge_h_per_day"
    ],
    "note": "Average charging power that returns one day of excavation energy within the 8 recharge hours."
+  },
+  "redwater.design_power_upper_kw": {
+   "classification": "published",
+   "value": 15,
+   "unit": "kW",
+   "source": "redwater2019",
+   "locator": "Performance Specifications",
+   "quote": "Power Estimate: ~10-15 kW",
+   "retrieved": "2026-11-03",
+   "note": "Whole-system design estimate upper endpoint allocated during drilling; not a drilling-only measurement."
+  },
+  "rover.drive_power_bound_w": {
+   "classification": "published",
+   "value": 200,
+   "unit": "W",
+   "source": "rover-components",
+   "locator": "Rover Speed",
+   "quote": "consumes less than 200 watts",
+   "retrieved": "2026-11-03",
+   "note": "Reference mobility power bound, not whole-rover housekeeping."
+  },
+  "rover.drive_speed_bound_m_h": {
+   "classification": "published",
+   "value": 152,
+   "unit": "m/h",
+   "source": "rover-components",
+   "locator": "Rover Speed",
+   "quote": "152 meters per hour",
+   "retrieved": "2026-11-03",
+   "note": "Flat hard-ground reference speed."
+  },
+  "rover.battery_wh": {
+   "classification": "published",
+   "value": 2408,
+   "unit": "Wh",
+   "source": "rover-battery2021",
+   "locator": "slide 5",
+   "quote": "Energy of 2408 Watt-hours at 20°C",
+   "retrieved": "2026-11-03",
+   "note": "Battery-system requirement at reference temperature."
+  },
+  "rover.battery_min_c": {
+   "classification": "published",
+   "value": -20,
+   "unit": "degC",
+   "source": "rover-battery2021",
+   "locator": "slide 5",
+   "quote": "Operating temperature range of -20°C to +30°C",
+   "retrieved": "2026-11-03",
+   "note": "Internal battery limit, not ambient temperature."
+  },
+  "rover.battery_max_c": {
+   "classification": "published",
+   "value": 30,
+   "unit": "degC",
+   "source": "rover-battery2021",
+   "locator": "slide 5",
+   "quote": "Operating temperature range of -20°C to +30°C",
+   "retrieved": "2026-11-03",
+   "note": "Internal battery limit, not ambient temperature."
+  },
+  "rover.drive_wh_per_m": {
+   "classification": "derived",
+   "unit": "Wh/m",
+   "formula": "rover.drive_power_bound_w / rover.drive_speed_bound_m_h",
+   "inputs": [
+    "rover.drive_power_bound_w",
+    "rover.drive_speed_bound_m_h"
+   ],
+   "note": "Reference flat-ground mobility energy at published speed and power bounds; slower or rough-terrain driving can require more Wh/m."
+  },
+  "rad750.total_dose_rad_si": {
+   "classification": "published",
+   "value": 1000000,
+   "unit": "rad(Si)",
+   "source": "rad750-niac",
+   "locator": "section 3.6 Command and Data Handling",
+   "quote": "up to 1 Mrad total ionizing dose",
+   "retrieved": "2026-11-03",
+   "note": "Rad-hard 200 MHz variant component qualification; not a whole-machine tolerance or biological dose conversion."
+  },
+  "rad750.min_c": {
+   "classification": "published",
+   "value": -55,
+   "unit": "degC",
+   "source": "rad750-heritage-nasa",
+   "locator": "General Purpose Commercial vs Radiation-Hardened Processor Comparison",
+   "quote": "Temperature range = -55C to 125C",
+   "retrieved": "2026-11-03",
+   "note": "Rad-hard 200 MHz variant component qualification; not a whole-machine tolerance or biological dose conversion."
+  },
+  "rad750.max_c": {
+   "classification": "published",
+   "value": 125,
+   "unit": "degC",
+   "source": "rad750-heritage-nasa",
+   "locator": "General Purpose Commercial vs Radiation-Hardened Processor Comparison",
+   "quote": "Temperature range = -55C to 125C",
+   "retrieved": "2026-11-03",
+   "note": "Rad-hard 200 MHz variant component qualification; not a whole-machine tolerance or biological dose conversion."
+  },
+  "rodwell.control_reserve_kg": {
+   "classification": "derived",
+   "unit": "kg",
+   "formula": "rodwell.water_kg_per_day*mars.sol_s/(24*24*3600)",
+   "inputs": [
+    "rodwell.water_kg_per_day",
+    "mars.sol_s"
+   ],
+   "note": "D21 scenario policy: retain one mission control interval of reference withdrawal in the well. Derived from the published rate and D7 clock; not a measured or certified minimum pool size.",
+   "model_assumption": "D21_water_establishment_model"
+  },
+  "rodwell.establishment_effective_kwh": {
+   "classification": "derived",
+   "unit": "kWh",
+   "formula": "rodwell.control_reserve_kg*water.rodwell_kwh_per_kg",
+   "inputs": [
+    "rodwell.control_reserve_kg",
+    "water.rodwell_kwh_per_kg"
+   ],
+   "note": "D21 aggregate startup extrapolation of published steady-state effective energy. Includes its reference losses implicitly; not a calibrated startup transient or thermal-fluid solution.",
+   "model_assumption": "D21_water_establishment_model"
   }
  },
  "operator_decisions": {
@@ -822,7 +997,7 @@
   },
   "D2_excavator_count": {
    "choice": 2,
-   "reason": "M-WIP Case D2 regolith uses 2 excavators (slides 41–42).",
+   "reason": "M-WIP Case D2 regolith uses 2 excavators (slides 41â€“42).",
    "approved": true
   },
   "D3_survey_batch": {
@@ -858,8 +1033,8 @@
    "approved_on": "2026-10-31"
   },
   "D9_rodwell_establishment": {
-   "choice": "Rodwell establishment modeled as a drilling job through 20 m of overburden at the lowest tested rate of penetration (0.35 mm/s, Stolov et al. 2026) = 15.9 h before water production. Drilling power, drilling energy and well start-up melt time are not published. The power draw is recorded as unknown, never as zero: drilling may start only on a commissioned grid with unallocated capacity, its decision is recorded as not physically validated for power, and its energy is recorded as not estimated.",
-   "reason": "Stolov 2026 gives rate of penetration but not drilling power. Review 2026-11-02: an unpublished draw had been counted as 0 kW.",
+   "choice": "Drilling reserves 15 kW, the upper endpoint of the RedWater 2019 whole-system design estimate. This is a planning allocation, not measured drilling-only power.",
+   "reason": "Owner authorized reasonable engineering choices from public sources on 2026-11-03. Penetration rate remains a separate laboratory result.",
    "approved": true,
    "approved_on": "2026-11-02"
   },
@@ -894,13 +1069,13 @@
    "approved_on": "2026-10-31"
   },
   "D17_user_start": {
-   "choice": "The mission starts only when the operator presses Start (genesis); the API and worker never create it. Start requires the operator token (MISSION_OPERATOR_TOKEN); visitors can only follow the mission and run private experiments. Before Start only the live DSN reading runs. Start creates the public mission once; pressing again changes nothing. A mission recorded under another package or engine version came from a build that is no longer the tool: it is discarded on startup and Start begins a new genesis. Model receipts and spend stay in the append-only event log.",
+   "choice": "Only an authenticated operator starts genesis. Package or engine changes preserve the mission, revisions, receipts and source versions; an explicit CLI upgrade appends a migration record and pauses for operator review.",
    "reason": "Owner instruction: the user is the launcher, not Docker. Review 2026-11-02: Start lacked operator authentication, and upgrades advised deleting mission history. Owner 2026-11-02: runs from an earlier build are not kept.",
    "approved": true,
    "approved_on": "2026-11-02"
   },
   "D18_excavator_batteries": {
-   "choice": "Excavators run on their batteries (capacity and energy per kilogram from Schuler et al. 2019) and must be recharged from the fission grid; they start each mission fully charged. Work stops when a battery cannot supply the next step; recharging is decided by the agents (or automatically in the fixed-priority benchmark) and draws grid power. Driving between the work site and the charger is not modeled. The rover is not battery-modeled: it runs on its MMRTG and its published one-sol drive distance already reflects its energy limits; Rodwell and the reactor run on grid or own power.",
+   "choice": "Excavators use published RASSOR reference battery capacity and energy per kilogram, recharge from the commissioned grid and pause when energy is unavailable. Rover mobility uses NASA Perseverance reference battery capacity, MMRTG output and the published driving-power/speed operating point. This is not a validated total rover energy model: housekeeping and terrain loads are not characterized. New missions initialize batteries full as a scenario starting condition. Charging travel is not modeled.",
    "reason": "Owner instruction 2026-11-02: agents keep themselves online by managing recharging.",
    "approved": true,
    "approved_on": "2026-11-02"
@@ -916,6 +1091,13 @@
    "reason": "Owner instruction 2026-11-02: long-running autonomy needs bounded memory without losing what was learned (semantic consolidation), and without drift of the core rules.",
    "approved": true,
    "approved_on": "2026-11-02"
+  },
+  "D21_water_establishment_model": {
+   "choice": "Conditional aggregate Rodwell study: establish a minimum liquid reserve equal to one control interval of published steady-state withdrawal before any water is counted as delivered. Apply the published effective energy per kg to conditioning this reserve; this startup extrapolation is a scenario model, not a measured startup duration. Heat interruptions invalidate liquid-phase qualification without deleting contained mass. No local ice concentration is invented.",
+   "reason": "Implementation choice under the owner's delegated engineering authority. This closes the missing operational dependency with explicit mass/energy accounting. The one-interval reserve policy and extrapolation require later calibration; scenario readiness is conditional on the recorded resource hypothesis, not hardware certification.",
+   "approved": true,
+   "approval_basis": "Owner authorized reasonable implementation choices; quantitative policy selected by the implementation, not separately asserted to have been chosen by the owner.",
+   "documented": "2026-11-04"
   }
  },
  "conflicts": {}

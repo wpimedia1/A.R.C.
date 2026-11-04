@@ -1,0 +1,466 @@
+{
+  "scope": "Recorded software work-order inspection; no new inference, physical control, route or engineering certification",
+  "mission_id": "public",
+  "revision": 2021,
+  "tick": 1976,
+  "status": "paused",
+  "engine_version": "arcadia-mars-v1/engine-11-water-establishment",
+  "raw_state_sha256": "9bd19130f2b9ff327a164bc6a2acd64c4c2378cef40567ec477b894467588f68",
+  "job": {
+    "kind": "survey",
+    "owner": "survey",
+    "asset_kinds": [
+      "rover"
+    ],
+    "target": 175.15,
+    "unit": "m",
+    "output": "survey_m_survey_extension_1",
+    "parameters": [
+      "rover.max_drive_m_per_sol"
+    ],
+    "position": [
+      -6,
+      0,
+      4
+    ],
+    "template_id": "survey-extension",
+    "title": "Extend the site survey by one sol of driving",
+    "dependencies": [],
+    "basis": "D3: one additional sol of driving at the published record distance.",
+    "id": "survey-extension-1",
+    "status": "complete",
+    "done": 175.15,
+    "progress": 1.0,
+    "assigned": [],
+    "reason": "",
+    "decision_id": "D8",
+    "started_tick": 1952,
+    "completed_tick": 1976,
+    "created_by": "director / muse-wonder-1.0",
+    "created_tick": 1952,
+    "created_reason": "After readiness, add one bounded survey-extension: rover is available, fully charged, and in daylight. Water batch is ineligible (storage 15701/15701 kg, feed ~0 kg). Well remains requalification-required with 0 kg qualified liquid; soil bearing, ice fraction, and rover-scale obstacle clearance remain uninstrumented and are not claimed as resolved.",
+    "authorization": {
+      "queued_tick": 1952,
+      "assurance": "approved"
+    },
+    "run_since_tick": 1952,
+    "done_at_run": 0.0,
+    "night_steps_at_run": 0,
+    "planned_charging_at_run": 0.0,
+    "behind_flagged": false,
+    "planned_charging_steps": 0.0,
+    "day_rate_per_tick": 12.510714285714286,
+    "night_steps": 10
+  },
+  "decision": {
+    "id": "D8",
+    "tick": 1952,
+    "job_id": "survey-extension-1",
+    "actor": "survey / muse-spark-1.3",
+    "summary": "Extend site survey by one sol with rover-1 for 175.15m. Estimate: 7.3 m/tick, 24 ticks, 0 kW, no blockers. Daylight ops, battery full.",
+    "assets": [
+      "rover-1"
+    ],
+    "source_ids": [
+      "arcadia-mars-v1",
+      "autonav2021",
+      "mola-arcadia",
+      "hirise-ground"
+    ],
+    "source_versions": {
+      "arcadia-mars-v1": "arcadia-mars-v1:40af88f3a07249de",
+      "autonav2021": "autonav2021:499887d7c608a63e",
+      "mola-arcadia": "mola-arcadia:371bd6b8622af3fc",
+      "hirise-ground": "hirise-ground:88104f0d0c797c6d"
+    },
+    "package_hash": "bf35d82f77f1b55f5b8a7a7d047962ca13d8a4d45ad97f363a80b2ebdbac8ba3",
+    "parameters": [
+      "rover.max_drive_m_per_sol"
+    ],
+    "input_snapshot": {
+      "resources": {
+        "power_commissioning_h": 162.0,
+        "drilled_m": 20.0,
+        "survey_m": 175.14999999999995,
+        "trench_kg": 310564.8,
+        "shield_kg": 104501.93802901088,
+        "well_conditioned_kg": 16.202693763007137,
+        "water_kg": 15701.0,
+        "survey_m_survey_extension_1": 0.0
+      },
+      "power_used_kw": 0.0,
+      "power_capacity_kw": 40.0,
+      "procedure": null,
+      "inventory": {},
+      "production": {
+        "water_feed_remaining_kg": 1.3926637620897964e-12,
+        "water_storage_capacity_kg": 15701.0,
+        "water_stored_kg": 15701.0,
+        "rate_multiplier": 1.0,
+        "basis": "D21 finite design allocation: delivered-water objective plus control reserve. Neither is an observed deposit or qualified tank.",
+        "initial_feed_allocation_kg": 15717.202693763007
+      },
+      "equipment_conditions": {},
+      "well": {
+        "phase": "requalification-required",
+        "contained_kg": 16.202693763007137,
+        "qualified_liquid_kg": 0.0,
+        "reserve_kg": 16.202693763007137,
+        "established_tick": 175,
+        "conditioning_runs": 1,
+        "basis": {
+          "reserve_kg": 16.202693763007137,
+          "effective_kwh_per_kg": 0.6341460963397876,
+          "assumption": "D21_water_establishment_model",
+          "classification": "conditional scenario model",
+          "limits": "Startup extrapolates the reference steady-state effective energy. Local ice concentration and actual liquid phase are uninstrumented. No physical readiness certification.",
+          "parameters": [
+            "rodwell.control_reserve_kg",
+            "rodwell.establishment_effective_kwh",
+            "water.rodwell_kwh_per_kg"
+          ]
+        },
+        "history": [
+          {
+            "tick": 175,
+            "qualified_liquid_kg": 16.202693763007137,
+            "kind": "calculated model result",
+            "assumption": "D21_water_establishment_model"
+          },
+          {
+            "tick": 1146,
+            "kind": "qualification invalidated",
+            "contained_kg": 16.202693763007137,
+            "reason": "No authorized withdrawal/heating work; physical phase is unmeasured"
+          }
+        ],
+        "last_heat_tick": 1145
+      },
+      "equipment": [
+        {
+          "id": "rover-1",
+          "generation": null,
+          "soc_wh": 2408.0,
+          "battery_wh": 2408.0
+        }
+      ]
+    },
+    "calculation": {
+      "target": 175.15,
+      "unit": "m",
+      "rate_per_tick": 7.297916666666667,
+      "power_kw": 0.0,
+      "power_published": true,
+      "power_scope": "Job-specific demand"
+    },
+    "validation": "accepted",
+    "outcome": {
+      "completed_tick": 1976,
+      "resources": {
+        "power_commissioning_h": 162.0,
+        "drilled_m": 20.0,
+        "survey_m": 175.14999999999995,
+        "trench_kg": 310564.8,
+        "shield_kg": 104501.93802901088,
+        "well_conditioned_kg": 16.202693763007137,
+        "water_kg": 15701.0,
+        "survey_m_survey_extension_1": 175.15
+      }
+    },
+    "authorization": {
+      "queued_tick": 1952,
+      "assurance": "approved"
+    },
+    "assurance": {
+      "tick": 1952,
+      "actor": "assurance / muse-spark-1.3",
+      "approved": true,
+      "reason": "Approve despite no-site-imagery: rover-1 available, battery full 2408Wh, 0kW within 40kW, daylight 64deg per D19. Target 175.15m uses D3 published distance; missing local clearance alone does not invalidate it, per D13 proxy rule survey unchanged without site imagery. Simulator planning only, not traversability certification; gap stays open. D21 startup/reserve remains conditional assumption.",
+      "open_conditions": [
+        {
+          "id": "no-site-imagery",
+          "text": "No orbital hazard imagery of the mission site has been analysed"
+        }
+      ],
+      "acknowledged": [
+        "no-site-imagery"
+      ]
+    }
+  },
+  "parameter": {
+    "classification": "published",
+    "value": 175.15,
+    "unit": "m/sol",
+    "source": "autonav2021",
+    "locator": "Sol 200",
+    "quote": "Perseverance drove 175.15m in a single sol",
+    "retrieved": "2026-10-30",
+    "note": "Record, not typical."
+  },
+  "selected_receipts": {
+    "resp_6aeb686dcea3768717514d9a": {
+      "record_id": "06536ba1-7b73-4303-8261-d34f0e330392:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "created_at": 1793812575.5304332,
+      "response_id": "resp_6aeb686dcea3768717514d9a",
+      "usage": {
+        "input_tokens": 16001,
+        "input_tokens_details": {
+          "cached_tokens": 2548
+        },
+        "output_tokens": 1914,
+        "output_tokens_details": {
+          "reasoning_tokens": 1726
+        },
+        "total_tokens": 17915
+      },
+      "tool_calls": [
+        {
+          "name": "create_job",
+          "arguments": {
+            "template_id": "survey-extension",
+            "summary": "After readiness, add one bounded survey-extension: rover is available, fully charged, and in daylight. Water batch is ineligible (storage 15701/15701 kg, feed ~0 kg). Well remains requalification-required with 0 kg qualified liquid; soil bearing, ice fraction, and rover-scale obstacle clearance remain uninstrumented and are not claimed as resolved."
+          },
+          "call_id": "call_21f1eae9-cdec-44dc-a520-3db2f605f38f"
+        }
+      ]
+    },
+    "resp_6aeb698faa3119a06cb54a8f": {
+      "record_id": "127fd4e8-e4b4-4874-9cce-34fa253ee7dd:director",
+      "model": "muse-wonder-1.0",
+      "status": "received",
+      "created_at": 1793812871.7284322,
+      "response_id": "resp_6aeb698faa3119a06cb54a8f",
+      "usage": {
+        "input_tokens": 16376,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1216,
+        "output_tokens_details": {
+          "reasoning_tokens": 961
+        },
+        "total_tokens": 17592
+      },
+      "tool_calls": [
+        {
+          "name": "set_mission_plan",
+          "arguments": {
+            "priority": [
+              "survey-extension-1"
+            ],
+            "summary": "Prioritize sole pending survey-extension-1: rover available, 2408Wh full, daylight 64.17deg; both assessments judge proceed (assurance recommends none/authorizes no work\u2014not a veto). Gaps unresolved: local obstacle height, soil bearing/ice fraction uninstrumented; MOLA/HiRISE give no rover-scale clearance; rover housekeeping/terrain energy unvalidated. No new water batch: storage 15701/15701kg, feed exhausted, well requalification-required (0kg qualified, 16.2kg contained). Existing charging policy retained; excavators 571.9Wh >131.9Wh step."
+          },
+          "call_id": "call_775f241e-0c97-49b8-832d-64f110a48c31"
+        }
+      ]
+    },
+    "resp_6aeb69ae8dac53841e334690": {
+      "record_id": "127fd4e8-e4b4-4874-9cce-34fa253ee7dd:survey-extension-1:2",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "created_at": 1793812896.7519076,
+      "response_id": "resp_6aeb69ae8dac53841e334690",
+      "usage": {
+        "input_tokens": 15525,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1363,
+        "output_tokens_details": {
+          "reasoning_tokens": 1170
+        },
+        "total_tokens": 16888
+      },
+      "tool_calls": [
+        {
+          "name": "submit_work_order",
+          "arguments": {
+            "asset_ids": [
+              "rover-1"
+            ],
+            "job_id": "survey-extension-1",
+            "source_ids": [
+              "arcadia-mars-v1",
+              "autonav2021",
+              "mola-arcadia",
+              "hirise-ground"
+            ],
+            "summary": "Extend site survey by one sol with rover-1 for 175.15m. Estimate: 7.3 m/tick, 24 ticks, 0 kW, no blockers. Daylight ops, battery full."
+          },
+          "call_id": "call_6bd98543-b525-46fb-beae-98c5f71067bb"
+        }
+      ]
+    },
+    "resp_6aeb69c60b1701040a524919": {
+      "record_id": "127fd4e8-e4b4-4874-9cce-34fa253ee7dd:assurance-review",
+      "model": "muse-spark-1.3",
+      "status": "received",
+      "created_at": 1793812911.8415685,
+      "response_id": "resp_6aeb69c60b1701040a524919",
+      "usage": {
+        "input_tokens": 15200,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2580,
+        "output_tokens_details": {
+          "reasoning_tokens": 2367
+        },
+        "total_tokens": 17780
+      },
+      "tool_calls": [
+        {
+          "name": "review_work_orders",
+          "arguments": {
+            "approved": [
+              {
+                "acknowledged_conditions": [
+                  "no-site-imagery"
+                ],
+                "job_id": "survey-extension-1",
+                "reason": "Approve despite no-site-imagery: rover-1 available, battery full 2408Wh, 0kW within 40kW, daylight 64deg per D19. Target 175.15m uses D3 published distance; missing local clearance alone does not invalidate it, per D13 proxy rule survey unchanged without site imagery. Simulator planning only, not traversability certification; gap stays open. D21 startup/reserve remains conditional assumption."
+              }
+            ],
+            "held": []
+          },
+          "call_id": "call_d6aa0b36-0c63-4f4d-b068-db147386f7bf"
+        }
+      ]
+    }
+  },
+  "selected_saved_provider_comparisons": [
+    {
+      "record_id": "06536ba1-7b73-4303-8261-d34f0e330392:director",
+      "stored_response_id": "resp_6aeb686dcea3768717514d9a",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "9fa30037-1d62-40d3-8798-41bd74980aae",
+      "response_sha256": "c4a905f759037a962f8e8717a68ec9365dd83a88cda06960955f36608e8cca74",
+      "provider_response_id": "resp_6aeb686dcea3768717514d9a",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 16001,
+        "input_tokens_details": {
+          "cached_tokens": 2548
+        },
+        "output_tokens": 1914,
+        "output_tokens_details": {
+          "reasoning_tokens": 1726
+        },
+        "total_tokens": 17915
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "127fd4e8-e4b4-4874-9cce-34fa253ee7dd:director",
+      "stored_response_id": "resp_6aeb698faa3119a06cb54a8f",
+      "stored_model": "muse-wonder-1.0",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "ef7003ba-5d48-44a3-ad3c-409d21163c64",
+      "response_sha256": "86fe60c929a0ec1a2a22dc2a7e5c03d925e35ce5f298e54c60b687cf2c30143d",
+      "provider_response_id": "resp_6aeb698faa3119a06cb54a8f",
+      "provider_model": "muse-wonder-1.0",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 16376,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1216,
+        "output_tokens_details": {
+          "reasoning_tokens": 961
+        },
+        "total_tokens": 17592
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "127fd4e8-e4b4-4874-9cce-34fa253ee7dd:survey-extension-1:2",
+      "stored_response_id": "resp_6aeb69ae8dac53841e334690",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "609604ce-4b14-4e7e-b4c1-49588a92a316",
+      "response_sha256": "12ab9780d5b90e705e9cc651db0fc08320e53a9f743da1647abb687f62ff93f9",
+      "provider_response_id": "resp_6aeb69ae8dac53841e334690",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 15525,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 1363,
+        "output_tokens_details": {
+          "reasoning_tokens": 1170
+        },
+        "total_tokens": 16888
+      },
+      "public_tool_calls_match": true
+    },
+    {
+      "record_id": "127fd4e8-e4b4-4874-9cce-34fa253ee7dd:assurance-review",
+      "stored_response_id": "resp_6aeb69c60b1701040a524919",
+      "stored_model": "muse-spark-1.3",
+      "stored_key_matches_current": true,
+      "http_status": 200,
+      "request_id": "d5fac6ca-e75a-4d08-9645-a7ee12c7fe74",
+      "response_sha256": "daa12113f0efd08db8f08523f0cbbdcea94deae35b911722cea8659f62909632",
+      "provider_response_id": "resp_6aeb69c60b1701040a524919",
+      "provider_model": "muse-spark-1.3",
+      "provider_status": "completed",
+      "identity_matches": true,
+      "model_matches": true,
+      "usage_matches": true,
+      "usage": {
+        "input_tokens": 15200,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 2580,
+        "output_tokens_details": {
+          "reasoning_tokens": 2367
+        },
+        "total_tokens": 17780
+      },
+      "public_tool_calls_match": true
+    }
+  ],
+  "provider_comparison_repeated_for_video": true,
+  "files": {
+    "docs/live-mission-acceptance-engine11-final.json": "7283b50643dcc277439d964ea5eb53258b80de9aa9c819be676e74934784d812",
+    "docs/live-responses-engine11.json": "9b126e9b0640c1b54b84fc8485d1590657b47648211010325d0c391ddbb64157",
+    "council-dashboard/backend/mission/planner.py": "21824ce123e487f4502d9266b044cd079a748279d999d821fb9862399ed9e9da",
+    "council-dashboard/backend/mission/engine.py": "66e8a7a612e03cf69634486cc310bc479a536cae2db4f17849f2147ca8e63282",
+    "council-dashboard/backend/mission/store.py": "f56795a86b9c6040f0d56cbffcd7a6c43bb8756797387d47c1064e8049bc359d",
+    "council-dashboard/frontend/out/index.html": "d2865a9eed1b2523dda9763317d039d64ac4c9fb6a17a921deab8e571fc4681c"
+  },
+  "exclusions": [
+    "Physical navigation",
+    "Complete rover energy",
+    "Water/readiness certification",
+    "Repair/swap/offload/Hive",
+    "Live mission execution",
+    "Billing attribution"
+  ],
+  "fresh_selected_response_check": {
+    "path": "RESPONSE-CHECK-NOW.json",
+    "attempted": 4,
+    "verified": 4,
+    "sha256": "2407a7266bf03f1328c45efcfbec3a5e58a1a9e00351aab3eac5a3106a535f9c"
+  }
+}

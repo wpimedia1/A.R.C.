@@ -165,25 +165,20 @@ def test_uncertainty_override_must_stay_in_recorded_range():
         load(overrides={'regolith.density_g_cm3': 5.0})
 
 
-def test_mission_from_older_package_or_engine_is_discarded(tmp_path):
-    from mission.store import Store, Mission, Revision, EventLog
+def test_mission_upgrade_preserves_history_and_requires_explicit_adoption(tmp_path):
+    from mission.store import Store, Mission, Revision
+    from mission.engine import InvalidAction
     from sqlalchemy import select
-    st = Store('sqlite:///' + str(tmp_path / 'old.db'))
     for field, old in (('package_hash', 'an-older-package'), ('version', 'arcadia-mars-v1/engine-0')):
-        st.initialize()
+        st = Store('sqlite:///' + str(tmp_path / (field+'.db'))); st.initialize()
+        before=st.snapshot('public')
         with st.transaction() as db:
-            m = db.get(Mission, 'public')
-            state = deepcopy(m.state)
-            state['spec'][field] = old
-            m.state = state
-        assert st.check() is False  # an earlier build's run is not kept; Start begins a new genesis
+            m=db.get(Mission,'public'); state=deepcopy(m.state);state['spec'][field]=old;m.state=state
+        with pytest.raises(InvalidAction,match='preserved'):
+            st.check()
         with st.transaction() as db:
-            assert db.get(Mission, 'public') is None
-            assert db.scalars(select(Revision).where(Revision.mission_id == 'public')).all() == []
-            logged = [e.record for e in db.scalars(select(EventLog).where(EventLog.kind == 'mission-discarded')).all()]
-            assert any((e['package_hash'] if field == 'package_hash' else e['engine_version']) == old for e in logged)
-    st.initialize()
-    assert st.check() is True
+            assert db.get(Mission,'public') is not None
+            assert len(db.scalars(select(Revision).where(Revision.mission_id=='public')).all())==before['revision']
 
 
 def test_assurance_cannot_approve_without_acknowledging_open_conditions():

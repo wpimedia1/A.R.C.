@@ -1,0 +1,19 @@
+{
+  "retrieval": {
+    "url": "https://ntrs.nasa.gov/api/citations/20180007948/downloads/20180007948.pdf",
+    "retrieved_at": 1793778384.4887345,
+    "content_hash": "ebee103ee0c190d0ed6e90616b47b70b5bfb15d05029541c11447e8d8d6d6af3",
+    "bytes": 1670138,
+    "pages": 14
+  },
+  "review_adoption": {
+    "version": "hoffman2018:be8ee5b9d465f1b4",
+    "revision": 52,
+    "content_hash": "ebee103ee0c190d0ed6e90616b47b70b5bfb15d05029541c11447e8d8d6d6af3",
+    "published_configuration_mass_kg": 4771.2,
+    "applied_to_operational_parameters": false
+  },
+  "acceptance_runs_reinterpreted": false,
+  "original_database_changed": false,
+  "scope": "New research evidence only; no substituted hardware mass, fabricated startup duration or new Meta generation"
+}
